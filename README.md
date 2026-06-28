@@ -1,6 +1,6 @@
 # SMARTTICK Skeleton
 
-Đây là bản **project rỗng/Skeleton** được dựng lại từ cấu trúc thư mục của project `Smarttick.zip`.
+Đây là bản **project rỗng/Skeleton**.
 Mục đích: để từng thành viên trong nhóm nhận chức năng nào thì tự thêm code vào đúng package/module đó, tránh sửa lẫn lộn.
 
 ## Công nghệ giữ theo project gốc
