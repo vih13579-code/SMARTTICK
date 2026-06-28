@@ -95,7 +95,7 @@
             </div>
 
             <div class="content">
-                <h3  font-weight="Bold">Voucher</h3>
+                <h3 font-weight="Bold">Voucher <small class="text-muted">(${totalVouchers} result(s))</small></h3>
                 <!-- Success Alerts -->
                 <c:if test="${param.success == 'createsuccess'}">
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -111,13 +111,13 @@
                 </c:if>
   <c:if test="${param.success == 'deletesuccess'}">
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa-solid fa-circle-check me-2"></i> Voucher created successfully!
+                        <i class="fa-solid fa-circle-check me-2"></i> Voucher deleted successfully!
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 </c:if>
                 <c:if test="${param.success == 'deletefailed'}">
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa-solid fa-circle-check me-2"></i> Voucher deleted Unsuccessfully!
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i> Voucher deleted unsuccessfully!
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 </c:if>
@@ -139,8 +139,33 @@
                     <i class="fa-solid fa-plus"></i> Add New Voucher
                 </a>
                 <form class="row g-2 mb-3" action="ViewVoucherListServlet" method="get">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" name="code" value="${searchCode}" placeholder="Search voucher code">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="code" value="${searchCode}" placeholder="Code, description or date">
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" name="status">
+                            <option value="">All status</option>
+                            <option value="1" ${selectedStatus == 1 ? 'selected' : ''}>Active</option>
+                            <option value="0" ${selectedStatus == 0 ? 'selected' : ''}>Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" name="type">
+                            <option value="">All types</option>
+                            <option value="1" ${selectedType == 1 ? 'selected' : ''}>Percent</option>
+                            <option value="0" ${selectedType == 0 ? 'selected' : ''}>Fixed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" name="sort">
+                            <option value="id_desc" ${empty selectedSort || selectedSort == 'id_desc' ? 'selected' : ''}>Newest</option>
+                            <option value="id_asc" ${selectedSort == 'id_asc' ? 'selected' : ''}>Oldest</option>
+                            <option value="code_asc" ${selectedSort == 'code_asc' ? 'selected' : ''}>Code A-Z</option>
+                            <option value="code_desc" ${selectedSort == 'code_desc' ? 'selected' : ''}>Code Z-A</option>
+                            <option value="end_asc" ${selectedSort == 'end_asc' ? 'selected' : ''}>End date asc</option>
+                            <option value="end_desc" ${selectedSort == 'end_desc' ? 'selected' : ''}>End date desc</option>
+                            <option value="value_desc" ${selectedSort == 'value_desc' ? 'selected' : ''}>Highest value</option>
+                        </select>
                     </div>
                     <div class="col-auto">
                         <button type="submit" class="btn btn-primary">
@@ -213,8 +238,45 @@
 
                             </tr>
                         </c:forEach>
+                        <c:if test="${empty Vouchers}">
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">No vouchers found.</td>
+                            </tr>
+                        </c:if>
                     </tbody>
                 </table>
+                <c:if test="${totalPages > 1}">
+                    <nav aria-label="Voucher pagination">
+                        <ul class="pagination justify-content-end">
+                            <c:url var="prevUrl" value="ViewVoucherListServlet">
+                                <c:param name="code" value="${searchCode}"/>
+                                <c:param name="status" value="${selectedStatus}"/>
+                                <c:param name="type" value="${selectedType}"/>
+                                <c:param name="sort" value="${selectedSort}"/>
+                                <c:param name="page" value="${currentPage - 1}"/>
+                            </c:url>
+                            <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}"><a class="page-link" href="${prevUrl}">Previous</a></li>
+                            <c:forEach begin="1" end="${totalPages}" var="p">
+                                <c:url var="pageUrl" value="ViewVoucherListServlet">
+                                    <c:param name="code" value="${searchCode}"/>
+                                    <c:param name="status" value="${selectedStatus}"/>
+                                    <c:param name="type" value="${selectedType}"/>
+                                    <c:param name="sort" value="${selectedSort}"/>
+                                    <c:param name="page" value="${p}"/>
+                                </c:url>
+                                <li class="page-item ${currentPage == p ? 'active' : ''}"><a class="page-link" href="${pageUrl}">${p}</a></li>
+                            </c:forEach>
+                            <c:url var="nextUrl" value="ViewVoucherListServlet">
+                                <c:param name="code" value="${searchCode}"/>
+                                <c:param name="status" value="${selectedStatus}"/>
+                                <c:param name="type" value="${selectedType}"/>
+                                <c:param name="sort" value="${selectedSort}"/>
+                                <c:param name="page" value="${currentPage + 1}"/>
+                            </c:url>
+                            <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}"><a class="page-link" href="${nextUrl}">Next</a></li>
+                        </ul>
+                    </nav>
+                </c:if>
             </div>
         </div>
 

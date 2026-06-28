@@ -4,17 +4,12 @@
  */
 package Controllers;
 
-import DAOs.EmployeeDAO;
-import DAOs.RoleDAO;
-import Models.Employee;
-import Models.Role;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.URLEncoder;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 
 /**
  *
@@ -49,19 +44,12 @@ public class SearchEmployeeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        RoleDAO roleDAO = new RoleDAO();
-         EmployeeDAO employeeDAO = new EmployeeDAO();
-        String query = request.getParameter("query");
-        ArrayList<Role> listR1 = roleDAO.getAllRoles();
-        if (query != null && !query.trim().isEmpty()) {           
-            ArrayList<Employee> searchResults = employeeDAO.searchEmployeesByName(query);
-            request.setAttribute("employees", searchResults);
-            request.setAttribute("listR1", listR1);
-            request.setAttribute("searchQuery", query);
-            request.getRequestDispatcher("SearchEmployeeList.jsp").forward(request, response);
-        }else{
-            response.sendRedirect("ViewEmployeeServlet");
-        }
+        StringBuilder target = new StringBuilder("ViewEmployeeServlet");
+        appendParam(target, "query", request.getParameter("query"));
+        appendParam(target, "roleId", request.getParameter("roleId"));
+        appendParam(target, "status", request.getParameter("status"));
+        appendParam(target, "sort", request.getParameter("sort"));
+        response.sendRedirect(target.toString());
     }
 
     /**
@@ -87,5 +75,15 @@ public class SearchEmployeeServlet extends HttpServlet {
     public String getServletInfo() {
         return "SMARTTICK servlet";
     }// </editor-fold>
+
+    private void appendParam(StringBuilder target, String name, String value) throws IOException {
+        if (value == null || value.trim().isEmpty()) {
+            return;
+        }
+        target.append(target.indexOf("?") >= 0 ? "&" : "?")
+                .append(name)
+                .append("=")
+                .append(URLEncoder.encode(value.trim(), "UTF-8"));
+    }
 
 }

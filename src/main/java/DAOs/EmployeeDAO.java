@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -231,31 +232,116 @@ public class EmployeeDAO {
     }
 
     public ArrayList<Employee> searchEmployeesByName(String employeeName) {
+        return searchEmployees(employeeName, null, null, "id_asc", 1, Integer.MAX_VALUE);
+    }
+
+    public ArrayList<Employee> searchEmployees(String keyword, Integer roleId, Integer status, String sort, int page, int pageSize) {
         ArrayList<Employee> employees = new ArrayList<>();
-        String sql = "SELECT * FROM Employees WHERE fullname LIKE ? AND RoleID <> 1";
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT e.* FROM Employees e LEFT JOIN Roles r ON e.RoleID = r.RoleID WHERE e.RoleID <> 1");
+
+        appendEmployeeFilters(sql, params, keyword, roleId, status);
+        sql.append(employeeSortClause(sort));
+        if (pageSize > 0 && pageSize < Integer.MAX_VALUE) {
+            sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+            params.add(Math.max(0, (page - 1) * pageSize));
+            params.add(pageSize);
+        }
+
         try {
-            PreparedStatement pr = connector.prepareStatement(sql);
-            pr.setString(1, "%" + employeeName + "%"); // Tìm kiếm gần đúng
+            PreparedStatement pr = connector.prepareStatement(sql.toString());
+            setParameters(pr, params);
             ResultSet rs = pr.executeQuery();
             while (rs.next()) {
-                employees.add(new Employee(
-                        rs.getInt("EmployeeID"),
-                        rs.getString("FullName"),
-                        rs.getDate("Birthday"),
-                        "",
-                        rs.getString("PhoneNumber"),
-                        rs.getString("Email"),
-                        rs.getString("Gender"),
-                        rs.getDate("CreatedDate"),
-                        rs.getInt("Status"),
-                        rs.getString("Avatar"),
-                        rs.getInt("RoleID")
-                ));
+                employees.add(mapEmployee(rs));
             }
         } catch (SQLException e) {
             System.out.println(e);
         }
         return employees;
+    }
+
+    public int countEmployees(String keyword, Integer roleId, Integer status) {
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM Employees e LEFT JOIN Roles r ON e.RoleID = r.RoleID WHERE e.RoleID <> 1");
+        appendEmployeeFilters(sql, params, keyword, roleId, status);
+        try {
+            PreparedStatement pr = connector.prepareStatement(sql.toString());
+            setParameters(pr, params);
+            ResultSet rs = pr.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return 0;
+    }
+
+    private void appendEmployeeFilters(StringBuilder sql, List<Object> params, String keyword, Integer roleId, Integer status) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String search = "%" + keyword.trim() + "%";
+            sql.append(" AND (CAST(e.EmployeeID AS VARCHAR(20)) LIKE ?")
+                    .append(" OR e.FullName LIKE ?")
+                    .append(" OR e.Email LIKE ?")
+                    .append(" OR e.PhoneNumber LIKE ?")
+                    .append(" OR r.Name LIKE ?")
+                    .append(" OR CASE WHEN e.Status = 1 THEN 'Available' ELSE 'Disable' END LIKE ?)");
+            for (int i = 0; i < 6; i++) {
+                params.add(search);
+            }
+        }
+        if (roleId != null && roleId > 0) {
+            sql.append(" AND e.RoleID = ?");
+            params.add(roleId);
+        }
+        if (status != null && (status == 0 || status == 1)) {
+            sql.append(" AND e.Status = ?");
+            params.add(status);
+        }
+    }
+
+    private String employeeSortClause(String sort) {
+        if ("name_desc".equals(sort)) {
+            return " ORDER BY e.FullName DESC";
+        }
+        if ("created_desc".equals(sort)) {
+            return " ORDER BY e.CreatedDate DESC, e.EmployeeID DESC";
+        }
+        if ("created_asc".equals(sort)) {
+            return " ORDER BY e.CreatedDate ASC, e.EmployeeID ASC";
+        }
+        if ("id_desc".equals(sort)) {
+            return " ORDER BY e.EmployeeID DESC";
+        }
+        if ("name_asc".equals(sort)) {
+            return " ORDER BY e.FullName ASC";
+        }
+        return " ORDER BY e.EmployeeID ASC";
+    }
+
+    private void setParameters(PreparedStatement pr, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            pr.setObject(i + 1, params.get(i));
+        }
+    }
+
+    private Employee mapEmployee(ResultSet rs) throws SQLException {
+        return new Employee(
+                rs.getInt("EmployeeID"),
+                rs.getString("FullName"),
+                rs.getDate("Birthday"),
+                "",
+                rs.getString("PhoneNumber"),
+                rs.getString("Email"),
+                rs.getString("Gender"),
+                rs.getDate("CreatedDate"),
+                rs.getInt("Status"),
+                rs.getString("Avatar"),
+                rs.getInt("RoleID")
+        );
     }
 
     public boolean isEmailExists(String email) {

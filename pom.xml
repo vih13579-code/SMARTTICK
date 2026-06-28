@@ -8,7 +8,7 @@
     <artifactId>SMARTTICK-SKELETON</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
-    <name>SMARTTICK Skeleton</name>
+    <name>Smarttick</name>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>

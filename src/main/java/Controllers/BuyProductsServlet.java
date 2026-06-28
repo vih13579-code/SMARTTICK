@@ -4,6 +4,8 @@ import DAOs.CustomerVoucherDAO;
 import Models.Customer;
 import Models.CustomerVoucher;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -68,6 +70,26 @@ public class BuyProductsServlet extends HttpServlet {
             return;
         }
 
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = parseDateTime(customerVoucherUsing.getStartDate());
+        LocalDateTime endDate = parseDateTime(customerVoucherUsing.getEndDate());
+        LocalDateTime expirationDate = parseDateTime(customerVoucherUsing.getExpirationDate());
+        if (customerVoucherUsing.getStatus() != 1
+                || (startDate != null && now.isBefore(startDate))
+                || (endDate != null && now.isAfter(endDate))
+                || (expirationDate != null && now.isAfter(expirationDate))) {
+            session.setAttribute("message", "Voucher has expired or is not active.");
+            response.sendRedirect("ConfirmView.jsp");
+            return;
+        }
+
+        if (customerVoucherUsing.getMaxUsedCount() > 0
+                && customerVoucherUsing.getUsedCount() >= customerVoucherUsing.getMaxUsedCount()) {
+            session.setAttribute("message", "Voucher usage limit has been reached.");
+            response.sendRedirect("ConfirmView.jsp");
+            return;
+        }
+
         Object totalObject = session.getAttribute("totalAmount");
         long totalAmount = totalObject instanceof Number ? ((Number) totalObject).longValue() : 0L;
         if (totalAmount < customerVoucherUsing.getMinOrderValue()) {
@@ -87,10 +109,34 @@ public class BuyProductsServlet extends HttpServlet {
         } else if (customerVoucherUsing.getVoucherType() == 0) {
             discount = customerVoucherUsing.getVoucherValue();
         }
+        if (discount > totalAmount) {
+            discount = (int) totalAmount;
+        }
 
         session.setAttribute("discount", discount);
         session.setAttribute("customerVoucherUsing", customerVoucherUsing);
         response.sendRedirect("ConfirmView.jsp");
+    }
+
+    private LocalDateTime parseDateTime(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        String normalized = value.trim().replace('T', ' ');
+        if (normalized.length() > 19) {
+            normalized = normalized.substring(0, 19);
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        try {
+            if (normalized.length() == 10) {
+                normalized += " 00:00:00";
+            } else if (normalized.length() == 16) {
+                normalized += ":00";
+            }
+            return LocalDateTime.parse(normalized, formatter);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

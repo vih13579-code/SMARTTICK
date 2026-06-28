@@ -52,16 +52,26 @@ public class ViewVoucherListServlet extends HttpServlet {
             
             VoucherDAO vDAO = new VoucherDAO();
             String searchCode = request.getParameter("code");
-            List<Voucher> ListVoucher;
-            if (searchCode != null && !searchCode.trim().isEmpty()) {
-                ListVoucher = vDAO.searchVoucherByCode(searchCode.trim());
-            } else {
-                ListVoucher = vDAO.getAllVoucher();
+            Integer status = parseInteger(request.getParameter("status"));
+            Integer type = parseInteger(request.getParameter("type"));
+            String sort = request.getParameter("sort");
+            int pageSize = 10;
+            int page = Math.max(1, parseInteger(request.getParameter("page"), 1));
+            int totalVouchers = vDAO.countVouchers(searchCode, status, type);
+            int totalPages = Math.max(1, (int) Math.ceil(totalVouchers / (double) pageSize));
+            if (page > totalPages) {
+                page = totalPages;
             }
-            
-           
+            List<Voucher> ListVoucher = vDAO.searchVouchers(searchCode, status, type, sort, page, pageSize);
+
             request.setAttribute("Vouchers", ListVoucher);
             request.setAttribute("searchCode", searchCode);
+            request.setAttribute("selectedStatus", status);
+            request.setAttribute("selectedType", type);
+            request.setAttribute("selectedSort", sort);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalVouchers", totalVouchers);
             request.getRequestDispatcher("VoucherListView.jsp").forward(request, response);
             
      
@@ -91,5 +101,20 @@ public class ViewVoucherListServlet extends HttpServlet {
     public String getServletInfo() {
         return "SMARTTICK servlet";
     }// </editor-fold>
+
+    private Integer parseInteger(String value) {
+        return parseInteger(value, null);
+    }
+
+    private Integer parseInteger(String value, Integer fallback) {
+        if (value == null || value.trim().isEmpty()) {
+            return fallback;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
 
 }

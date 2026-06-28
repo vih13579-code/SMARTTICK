@@ -33,7 +33,6 @@ public class ViewEmployeeServlet extends HttpServlet {
             throws ServletException, IOException {
         EmployeeDAO empDAO = new EmployeeDAO();
         RoleDAO roleDAO = new RoleDAO();
-        ArrayList<Employee> listE;
         ArrayList<Role> listR1;
         String empId = request.getParameter("id");
         listR1 = roleDAO.getAllRoles();
@@ -48,12 +47,30 @@ public class ViewEmployeeServlet extends HttpServlet {
                 System.out.println(e);
             }
         }
-        ArrayList<Role> listR2;
-        listE = empDAO.getAllEmployees();
-        listR2 = roleDAO.getAllRoles();
+        String query = request.getParameter("query");
+        String sort = request.getParameter("sort");
+        Integer roleId = parseInteger(request.getParameter("roleId"));
+        Integer status = parseInteger(request.getParameter("status"));
+        int pageSize = 10;
+        int page = Math.max(1, parseInteger(request.getParameter("page"), 1));
+        int totalEmployees = empDAO.countEmployees(query, roleId, status);
+        int totalPages = Math.max(1, (int) Math.ceil(totalEmployees / (double) pageSize));
+        if (page > totalPages) {
+            page = totalPages;
+        }
+
+        ArrayList<Employee> listE = empDAO.searchEmployees(query, roleId, status, sort, page, pageSize);
+        ArrayList<Role> listR2 = roleDAO.getAllRoles();
         try {
             request.setAttribute("listE", listE);
             request.setAttribute("listR", listR2);
+            request.setAttribute("searchQuery", query);
+            request.setAttribute("selectedRoleId", roleId);
+            request.setAttribute("selectedStatus", status);
+            request.setAttribute("selectedSort", sort);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalEmployees", totalEmployees);
             request.getRequestDispatcher("EmployeeListView.jsp").forward(request, response);
         } catch (NullPointerException e) {
             System.out.println(e);
@@ -65,6 +82,21 @@ public class ViewEmployeeServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
+    }
+
+    private Integer parseInteger(String value) {
+        return parseInteger(value, null);
+    }
+
+    private Integer parseInteger(String value, Integer fallback) {
+        if (value == null || value.trim().isEmpty()) {
+            return fallback;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
     }
 
 }

@@ -1,225 +1,226 @@
-<%--
-    Author     : CE181159-Nguyen Le Duy Minh
-    Since: 2026-06-29
---%>
-<%-- 
-    Document   : EmployeeListView
-    Created on : Feb 23, 2025, 8:44:33 PM
-    Author     : CE181159-Nguyen Le Duy Minh
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List"%>
-<%@page import="java.util.ArrayList"%>
-<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Employee Management</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <style>
             body {
                 display: flex;
+                background: #f6f7fb;
             }
-
-            .sidebar {
-                width: 250px;
-                height: 97vh;
-                background: #FFFFFF;
-                color: black;
-                padding-top: 20px;
-                box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-                transform: translateZ(0);
-                position: relative;
-                z-index: 10;
-                border-radius: 10px;
-                margin-top: 10px;
-            }
-
-            .sidebar a {
-                color: #7A7D90;
-                text-decoration: none;
-                padding: 10px;
-                display: block;
-            }
-
-            .sidebar a:hover {
-                background: #7D69FF;
-                color: white;
-                width: 90%;
-                font-weight: bold;
-
-                border-top-right-radius: 10px;
-                border-bottom-right-radius: 10px;
-                border-top-left-radius: 0;
-                border-bottom-left-radius: 0;
-
-            }
-
             .content {
                 flex-grow: 1;
                 padding: 12px;
                 margin-left: 250px;
             }
-
-            .header {
-                display: flex;
-                justify-content: right;
-                align-items: center;
-                padding: 10px;
-                background: #FFFFFF;
-                box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-                border-radius: 10px;
-                height: 85px;
-            }
-
-            .icon {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                object-fit: cover;
-            }
-
-            .logo-side-bar {
-                margin-left: 5%;
-                margin-bottom: 3%;
-            }
-            /* ========================================================= */
-
             .table-container {
                 background: white;
                 padding: 20px;
                 border-radius: 10px;
-                box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             }
-
-            table {
-                border-radius: 10px;
-                overflow: hidden;
-            }
-
             thead {
                 background: #7D69FF;
                 color: white;
             }
-
-            tbody tr:hover {
-                background: #f2f2f2;
-                transition: 0.3s;
-            }
-
-            .table-navigate{
+            .toolbar {
                 display: flex;
+                gap: 12px;
                 justify-content: space-between;
-            }
-            .search-form {
-                display: flex;
-                justify-content: center;
                 align-items: center;
-                margin-top: 20px;
+                flex-wrap: wrap;
             }
-
-            .search-form input {
-                border-radius: 25px;
-                padding: 10px 15px;
-                border: 1px solid #ccc;
-                width: 250px;
-                font-size: 14px;
-                margin-right: 10px;
-                outline: none;
+            .filter-form {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                flex-wrap: wrap;
             }
-
-            .search-form button {
-                background-color: #007bff;
-                border: none;
-                border-radius: 25px;
-                padding: 10px 15px;
-                cursor: pointer;
+            .filter-form .form-control {
+                width: 280px;
             }
-
-            .search-form button i {
-                color: white;
-                font-size: 18px;
+            .filter-form .form-select {
+                width: 165px;
             }
-
-            .search-form input:focus {
-                border-color: #0056b3;
+            .employee-avatar {
+                width: 42px;
+                height: 42px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 1px solid #e5e7eb;
             }
-
-            .search-form button:hover {
-                background-color: #0056b3;
+            mark {
+                padding: 0 2px;
+                border-radius: 3px;
+                background: #fff3cd;
+            }
+            @media (max-width: 900px) {
+                body {
+                    display: block;
+                }
+                .content {
+                    margin-left: 0;
+                }
+                .filter-form .form-control,
+                .filter-form .form-select,
+                .filter-form .btn {
+                    width: 100%;
+                }
+                .toolbar {
+                    align-items: stretch;
+                }
             }
         </style>
     </head>
     <body>
-        <jsp:include page="SidebarDashboard.jsp"></jsp:include>
-            <div class="content">
-            <jsp:include page="HeaderDashboard.jsp"></jsp:include>
-                <br>
-                <div class="table-navigate">
-                    <form action="SearchEmployeeServlet" method="GET" class="search-form">
-                        <input type="text" name="query" value="${searchQuery}" placeholder="Search by Name...">
-                    <button type="submit"><i class="bx bx-search"></i></button>
+        <jsp:include page="SidebarDashboard.jsp"/>
+        <div class="content">
+            <jsp:include page="HeaderDashboard.jsp"/>
+            <br>
+            <div class="toolbar">
+                <form action="ViewEmployeeServlet" method="GET" class="filter-form">
+                    <input type="text" class="form-control" name="query" value="${searchQuery}" placeholder="ID, name, email, phone, role, status">
+                    <select class="form-select" name="roleId">
+                        <option value="">All roles</option>
+                        <c:forEach items="${listR}" var="r">
+                            <option value="${r.roleId}" ${selectedRoleId == r.roleId ? 'selected' : ''}><c:out value="${r.roleName}"/></option>
+                        </c:forEach>
+                    </select>
+                    <select class="form-select" name="status">
+                        <option value="">All status</option>
+                        <option value="1" ${selectedStatus == 1 ? 'selected' : ''}>Available</option>
+                        <option value="0" ${selectedStatus == 0 ? 'selected' : ''}>Disable</option>
+                    </select>
+                    <select class="form-select" name="sort">
+                        <option value="id_asc" ${empty selectedSort || selectedSort == 'id_asc' ? 'selected' : ''}>ID ascending</option>
+                        <option value="id_desc" ${selectedSort == 'id_desc' ? 'selected' : ''}>ID descending</option>
+                        <option value="name_asc" ${selectedSort == 'name_asc' ? 'selected' : ''}>Name A-Z</option>
+                        <option value="name_desc" ${selectedSort == 'name_desc' ? 'selected' : ''}>Name Z-A</option>
+                        <option value="created_desc" ${selectedSort == 'created_desc' ? 'selected' : ''}>Newest</option>
+                        <option value="created_asc" ${selectedSort == 'created_asc' ? 'selected' : ''}>Oldest</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary"><i class="bx bx-search"></i></button>
+                    <a href="ViewEmployeeServlet" class="btn btn-outline-secondary">Reset</a>
                 </form>
-                <a href="AddEmployeeView.jsp" style="background-color: #4da3ff; color: white; text-decoration: none; padding: 1px 10px; border-radius: 5px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; margin-right: 10px;">
-                    <i class='bx bx-plus'></i> Add Employee
+                <a href="AddEmployeeView.jsp" class="btn btn-success">
+                    <i class="bx bx-plus"></i> Add Employee
                 </a>
             </div>
-            <br><!-- comment -->
+            <br>
             <div class="table-container">
-                <div>
-                    <h3>Employee</h3>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="m-0">Employee</h3>
+                    <span class="text-muted">${totalEmployees} result(s)</span>
                 </div>
-                <table  class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Employee ID</th>
-                            <th>Role Name</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>   
-                        <c:forEach items="${listE}" var="e">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
                             <tr>
-                                <td>${e.employeeId}</td>
-                                <c:forEach items="${listR}" var="r">
-                                    <c:if test="${e.roleId == r.roleId}">
-                                        <td>${r.roleName}</td>
-                                    </c:if>
-                                </c:forEach>
-                                <td>${e.fullname}</td>
-                                <td>${e.email}</td>
-                                <c:choose>
-                                    <c:when test="${e.status == 1}">
-                                        <td><span style="background-color: #28a745; color: white; padding: 5px 12px; border-radius: 15px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; text-align: center;">
-                                                <i class='bx bx-check-circle' style="font-size: 14px;"></i> Available
-                                            </span></td>
-                                        </c:when>
-                                        <c:otherwise>
-                                        <td><span style="background-color: #dc3545; color: white; padding: 5px 18px; border-radius: 15px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; text-align: center;">
-                                                <i class='bx bx-x-circle' style="font-size: 14px;"></i> Disable
-                                            </span></td>
-                                        </c:otherwise>
-                                    </c:choose>
-                                <td>
-                                    <a href="UpdateEmployeeServlet?id=${e.employeeId}" style="background-color: orange; color: white; text-decoration: none; padding: 3px 9px; border-radius: 5px; display: inline-block; cursor: pointer;">
-                                        <i class='bx bx-edit'></i> Update
-                                    </a>
-
-                                    <a href="ViewEmployeeServlet?id=${e.employeeId}" style="background-color: red; color: white; text-decoration: none; padding: 3px 9px; border-radius: 5px; display: inline-block; cursor: pointer;">
-                                        <i class='bx bx-detail'></i> Detail
-                                    </a>
-                                </td>
+                                <th>Employee ID</th>
+                                <th>Avatar</th>
+                                <th>Role</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Created Date</th>
+                                <th>Action</th>
                             </tr>
-                        </c:forEach>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <c:forEach items="${listE}" var="e">
+                                <tr>
+                                    <td>${e.employeeId}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${not empty e.avatar}">
+                                                <img class="employee-avatar" src="${e.avatar}" alt="${e.fullname}">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="employee-avatar d-inline-flex align-items-center justify-content-center bg-light"><i class="bx bx-user"></i></span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <c:forEach items="${listR}" var="r">
+                                            <c:if test="${e.roleId == r.roleId}">
+                                                <c:out value="${r.roleName}"/>
+                                            </c:if>
+                                        </c:forEach>
+                                    </td>
+                                    <td><c:out value="${e.fullname}"/></td>
+                                    <td><c:out value="${e.email}"/></td>
+                                    <td><c:out value="${e.phoneNumber}"/></td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${e.status == 1}">
+                                                <span class="badge bg-success"><i class="bx bx-check-circle"></i> Available</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge bg-danger"><i class="bx bx-x-circle"></i> Disable</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>${e.createdDate}</td>
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <a href="UpdateEmployeeServlet?id=${e.employeeId}" class="btn btn-sm btn-warning">
+                                                <i class="bx bx-edit"></i> Update
+                                            </a>
+                                            <a href="ViewEmployeeServlet?id=${e.employeeId}" class="btn btn-sm btn-outline-primary">
+                                                <i class="bx bx-detail"></i> Detail
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                            <c:if test="${empty listE}">
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted py-4">No employees found.</td>
+                                </tr>
+                            </c:if>
+                        </tbody>
+                    </table>
+                </div>
+
+                <c:if test="${totalPages > 1}">
+                    <nav aria-label="Employee pagination">
+                        <ul class="pagination justify-content-end">
+                            <c:url var="prevUrl" value="ViewEmployeeServlet">
+                                <c:param name="query" value="${searchQuery}"/>
+                                <c:param name="roleId" value="${selectedRoleId}"/>
+                                <c:param name="status" value="${selectedStatus}"/>
+                                <c:param name="sort" value="${selectedSort}"/>
+                                <c:param name="page" value="${currentPage - 1}"/>
+                            </c:url>
+                            <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}"><a class="page-link" href="${prevUrl}">Previous</a></li>
+                            <c:forEach begin="1" end="${totalPages}" var="p">
+                                <c:url var="pageUrl" value="ViewEmployeeServlet">
+                                    <c:param name="query" value="${searchQuery}"/>
+                                    <c:param name="roleId" value="${selectedRoleId}"/>
+                                    <c:param name="status" value="${selectedStatus}"/>
+                                    <c:param name="sort" value="${selectedSort}"/>
+                                    <c:param name="page" value="${p}"/>
+                                </c:url>
+                                <li class="page-item ${currentPage == p ? 'active' : ''}"><a class="page-link" href="${pageUrl}">${p}</a></li>
+                            </c:forEach>
+                            <c:url var="nextUrl" value="ViewEmployeeServlet">
+                                <c:param name="query" value="${searchQuery}"/>
+                                <c:param name="roleId" value="${selectedRoleId}"/>
+                                <c:param name="status" value="${selectedStatus}"/>
+                                <c:param name="sort" value="${selectedSort}"/>
+                                <c:param name="page" value="${currentPage + 1}"/>
+                            </c:url>
+                            <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}"><a class="page-link" href="${nextUrl}">Next</a></li>
+                        </ul>
+                    </nav>
+                </c:if>
             </div>
         </div>
     </body>

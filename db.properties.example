@@ -1,8 +1,7 @@
-# Copy file này thành src/main/resources/db.properties rồi sửa thông tin kết nối SQL Server
 serverName=localhost
 portNumber=1433
-databaseName=Smarttick
+databaseName=FWatch
 user=sa
-password=your_password
+password=123456
 encrypt=false
 trustServerCertificate=true
