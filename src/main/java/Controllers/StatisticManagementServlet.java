@@ -7,15 +7,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Skeleton controller for module/feature: StatisticManagementServlet.
- * TODO: Thành viên phụ trách chức năng này tự thêm DAO/Service/Model/View tương ứng.
+ * @author CE181159-Nguyen Le Duy Minh
+ * @since 2026-06-29
  */
 public class StatisticManagementServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        response.getWriter().println("<h2>StatisticManagementServlet</h2><p>Skeleton servlet - TODO implement feature.</p>");
+        request.getRequestDispatcher("StatisticManagementView.jsp").forward(request, response);
     }
 
     @Override

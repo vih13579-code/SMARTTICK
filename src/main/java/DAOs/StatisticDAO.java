@@ -1,9 +1,8 @@
 package DAOs;
 
 /**
- * Skeleton DAO: StatisticDAO.
- * TODO: Viết các hàm truy vấn database cho module tương ứng.
+ * @author CE181159-Nguyen Le Duy Minh
+ * @since 2026-06-29
  */
 public class StatisticDAO {
-    // TODO: Add CRUD/query methods here.
 }

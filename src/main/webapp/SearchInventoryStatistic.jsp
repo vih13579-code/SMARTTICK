@@ -1,18 +1,6 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SearchInventoryStatistic - SMARTTICK Skeleton</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/app.css">
-</head>
-<body>
-    <main class="container">
-        <h1>SearchInventoryStatistic</h1>
-        <p>Skeleton view: <code>SearchInventoryStatistic.jsp</code></p>
-        <p>TODO: Thành viên phụ trách giao diện này tự thiết kế JSP/HTML/CSS/JS.</p>
-        <p><a href="${pageContext.request.contextPath}/">Về trang chủ</a></p>
-    </main>
-</body>
-</html>
+<%--
+    Author     : CE181159-Nguyen Le Duy Minh
+    Since: 2026-06-29
+--%>
+<%@ page contentType="text/html;charset=UTF-8" %><%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %><%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Thống kê tồn kho | SMARTTICK</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css"></head><body><div class="dashboard-shell"><jsp:include page="SidebarDashboard.jsp"/><main class="dash-main"><div class="section-head"><div><h2>Thống kê tồn kho</h2><p class="section-sub">Theo dõi số lượng đồng hồ theo model, danh mục và nhà cung cấp.</p></div></div><form class="filter-panel" action="${pageContext.request.contextPath}/SearchInventoryServlet" method="get"><div class="inline-form"><input class="form-control" name="query" value="<c:out value='${searchQuery}'/>" placeholder="Tên, model, hãng hoặc nhà cung cấp"><button class="btn btn-primary">Tìm kiếm</button></div></form><div class="catalog-grid"><section class="panel"><h3>Đồng hồ nam</h3><table class="table"><tr><th>Model</th><th>Tồn kho</th></tr><c:forEach items="${listInventoryMen}" var="i"><tr><td><c:out value="${i.modelName}"/></td><td>${i.stockQuantity}</td></tr></c:forEach></table></section><section class="panel"><h3>Đồng hồ nữ</h3><table class="table"><tr><th>Model</th><th>Tồn kho</th></tr><c:forEach items="${listInventoryWomen}" var="i"><tr><td><c:out value="${i.modelName}"/></td><td>${i.stockQuantity}</td></tr></c:forEach></table></section></div><section class="panel"><h3>Chi tiết kho</h3><table class="table"><thead><tr><th>Danh mục</th><th>Hãng</th><th>Model</th><th>Sản phẩm</th><th>Tồn kho</th><th>Nhà cung cấp</th><th>Lần nhập</th><th>Giá nhập</th></tr></thead><tbody><c:forEach items="${listI}" var="i"><tr><td><c:out value="${i.categoryName}"/></td><td><c:out value="${i.brandName}"/></td><td><c:out value="${i.model}"/></td><td><c:out value="${i.fullName}"/></td><td>${i.stockQuantity}</td><td><c:out value="${i.supplierName}"/></td><td>${i.importDate}</td><td><fmt:formatNumber value="${i.productImportPrice}" pattern="#,##0"/> ₫</td></tr></c:forEach></tbody></table></section></main></div></body></html>
