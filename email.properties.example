@@ -1,0 +1,5 @@
+# Copy file này thành src/main/resources/email.properties nếu dùng chức năng gửi mail/OTP
+mail.smtp.host=smtp.gmail.com
+mail.smtp.port=587
+mail.username=your_email@gmail.com
+mail.password=your_app_password
