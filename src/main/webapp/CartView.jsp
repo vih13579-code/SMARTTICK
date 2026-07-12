@@ -1,18 +1,1 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CartView - SMARTTICK Skeleton</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/app.css">
-</head>
-<body>
-    <main class="container">
-        <h1>CartView</h1>
-        <p>Skeleton view: <code>CartView.jsp</code></p>
-        <p>TODO: Thành viên phụ trách giao diện này tự thiết kế JSP/HTML/CSS/JS.</p>
-        <p><a href="${pageContext.request.contextPath}/">Về trang chủ</a></p>
-    </main>
-</body>
-</html>
+<%@page contentType="text/html" pageEncoding="UTF-8" import="java.util.*,Models.Cart"%><% Collection<Cart> cart=(Collection<Cart>)request.getAttribute("cart"); %><!doctype html><html><head><title>Gio hang</title><link rel="stylesheet" href="assets/css/app.css"></head><body><main class="container"><h1>Cart Management</h1><%if(cart.isEmpty()){%><p>Gio hang dang trong. <a href="./">Mua sam</a></p><%}else{%><table><tr><th>San pham</th><th>Gia</th><th>So luong</th><th>Thanh tien</th><th></th></tr><%for(Cart x:cart){%><tr><td><%=x.getProductName()%></td><td><%=String.format("%,d",x.getUnitPrice())%></td><td><form method="post" action="UpdateCartServlet"><input type="hidden" name="productId" value="<%=x.getProductId()%>"><input type="number" min="1" max="<%=x.getStock()%>" name="quantity" value="<%=x.getQuantity()%>"><button>Cap nhat</button></form></td><td><%=String.format("%,d",x.getSubtotal())%></td><td><form method="post" action="DeleteProductOnCart"><input type="hidden" name="productId" value="<%=x.getProductId()%>"><button>Xoa</button></form></td></tr><%}%></table><h2>Tong: <%=String.format("%,d VND",request.getAttribute("total"))%></h2><form method="post" action="BuyProductsServlet"><button>Mua san pham</button></form><%}%><p><a href="./">← Trang chu</a></p></main></body></html>

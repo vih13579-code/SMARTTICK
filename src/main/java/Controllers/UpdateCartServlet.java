@@ -1,26 +1,2 @@
-package Controllers;
-
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-/**
- * Skeleton controller for module/feature: UpdateCartServlet.
- * TODO: Thành viên phụ trách chức năng này tự thêm DAO/Service/Model/View tương ứng.
- */
-public class UpdateCartServlet extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        response.getWriter().println("<h2>UpdateCartServlet</h2><p>Skeleton servlet - TODO implement feature.</p>");
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doGet(request, response);
-    }
-}
+package Controllers; import Services.CartService; import java.io.*; import javax.servlet.annotation.WebServlet; import javax.servlet.http.*;
+@WebServlet("/UpdateCartServlet") public class UpdateCartServlet extends HttpServlet{private final CartService s=new CartService();protected void doPost(HttpServletRequest r,HttpServletResponse p)throws IOException{s.update(r.getSession(),Integer.parseInt(r.getParameter("productId")),Integer.parseInt(r.getParameter("quantity")));p.sendRedirect("ViewCartServlet");}}

@@ -1,18 +1,1 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OrderDetailsForCustomerView - SMARTTICK Skeleton</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/app.css">
-</head>
-<body>
-    <main class="container">
-        <h1>OrderDetailsForCustomerView</h1>
-        <p>Skeleton view: <code>OrderDetailsForCustomerView.jsp</code></p>
-        <p>TODO: Thành viên phụ trách giao diện này tự thiết kế JSP/HTML/CSS/JS.</p>
-        <p><a href="${pageContext.request.contextPath}/">Về trang chủ</a></p>
-    </main>
-</body>
-</html>
+<%@page contentType="text/html" pageEncoding="UTF-8" import="Models.*"%><%Order o=(Order)request.getAttribute("order");%><!doctype html><html><head><title>Chi tiet don</title><link rel="stylesheet" href="assets/css/app.css"></head><body><main class="container"><h1>Order #<%=o.getId()%></h1><p><b><%=o.getCustomerName()%></b> · <%=o.getCreatedAt()%> · <%=o.getStatus()%></p><table><tr><th>San pham</th><th>Gia</th><th>SL</th><th>Thanh tien</th></tr><%for(OrderDetail d:o.getDetails()){%><tr><td><%=d.getProductName()%></td><td><%=String.format("%,d",d.getUnitPrice())%></td><td><%=d.getQuantity()%></td><td><%=String.format("%,d",d.getSubtotal())%></td></tr><%}%></table><h2>Tong: <%=String.format("%,d VND",o.getTotal())%></h2><%if(o.isCancelable()){%><form method="post" action="CancelOrderServlet"><input type="hidden" name="id" value="<%=o.getId()%>"><button>Huy don</button></form><%}%><p><a href="ViewOrderHistoryServlet">← Lich su don</a></p></main></body></html>

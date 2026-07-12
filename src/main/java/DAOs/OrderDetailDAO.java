@@ -1,9 +1,1 @@
-package DAOs;
-
-/**
- * Skeleton DAO: OrderDetailDAO.
- * TODO: Viết các hàm truy vấn database cho module tương ứng.
- */
-public class OrderDetailDAO {
-    // TODO: Add CRUD/query methods here.
-}
+package DAOs; import Models.OrderDetail; import java.util.List; public class OrderDetailDAO { private final OrderDAO dao=new OrderDAO(); public List<OrderDetail> findByOrderId(int id){return dao.find(id).getDetails();} }

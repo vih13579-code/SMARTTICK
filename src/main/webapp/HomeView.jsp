@@ -1,18 +1,1 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeView - SMARTTICK Skeleton</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/app.css">
-</head>
-<body>
-    <main class="container">
-        <h1>HomeView</h1>
-        <p>Skeleton view: <code>HomeView.jsp</code></p>
-        <p>TODO: Thành viên phụ trách giao diện này tự thiết kế JSP/HTML/CSS/JS.</p>
-        <p><a href="${pageContext.request.contextPath}/">Về trang chủ</a></p>
-    </main>
-</body>
-</html>
+<%@page contentType="text/html" pageEncoding="UTF-8" import="java.util.*,Models.Cart"%><% List<Cart> products=(List<Cart>)request.getAttribute("products"); %><!doctype html><html><head><title>SMARTTICK</title><link rel="stylesheet" href="assets/css/app.css"></head><body><jsp:include page="header.jsp"/><main class="container"><h1>SMARTTICK Products</h1><p>Cart & Order module - Le The Vinh</p><div class="grid"><% for(Cart x:products){%><section><h2><%=x.getProductName()%></h2><p><%=String.format("%,d VND",x.getUnitPrice())%> · Con <%=x.getStock()%></p><form method="post" action="AddToCartServlet"><input type="hidden" name="productId" value="<%=x.getProductId()%>"><button>Thêm vao gio</button></form></section><%}%></div><p><a href="ViewCartServlet">Gio hang</a> · <a href="ViewOrderHistoryServlet">Don cua toi</a> · <a href="ViewOrderListServlet">Quan ly don hang</a></p></main></body></html>

@@ -1,8 +1,2 @@
-package Services;
-
-/**
- * Skeleton service: OrderService.
- * TODO: Đặt business logic ở đây, Controller chỉ nhận request/response.
- */
-public class OrderService {
-}
+package Services; import DAOs.OrderDAO; import Models.*; import java.util.*;
+public class OrderService {private final OrderDAO dao=new OrderDAO();public Order checkout(String customer,Collection<Cart>cart){return dao.create(customer,cart);}public Order detail(int id){return dao.find(id);}public List<Order> history(){return dao.all();}public List<Order> search(String q,String s){return dao.search(q,s);}public void cancel(int id){dao.cancel(id);}public void updateStatus(int id,String s){dao.updateStatus(id,s);}public List<String> statuses(){return OrderDAO.STATUSES;}}

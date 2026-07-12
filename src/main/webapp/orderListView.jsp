@@ -1,18 +1,1 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>orderListView - SMARTTICK Skeleton</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/app.css">
-</head>
-<body>
-    <main class="container">
-        <h1>orderListView</h1>
-        <p>Skeleton view: <code>orderListView.jsp</code></p>
-        <p>TODO: Thành viên phụ trách giao diện này tự thiết kế JSP/HTML/CSS/JS.</p>
-        <p><a href="${pageContext.request.contextPath}/">Về trang chủ</a></p>
-    </main>
-</body>
-</html>
+<%@page contentType="text/html" pageEncoding="UTF-8" import="java.util.*,Models.Order"%><%List<Order> orders=(List<Order>)request.getAttribute("orders");List<String> statuses=(List<String>)request.getAttribute("statuses");%><!doctype html><html><head><title>Quan ly don</title><link rel="stylesheet" href="assets/css/app.css"></head><body><main class="container"><h1>Manage Order for Staff</h1><form method="get"><input name="q" placeholder="Ma don/khach hang"><select name="status"><option value="">Tat ca</option><%for(String s:statuses){%><option><%=s%></option><%}%></select><button>Search Order</button></form><table><tr><th>Ma</th><th>Khach</th><th>Tong</th><th>Trang thai</th><th></th></tr><%for(Order o:orders){%><tr><td>#<%=o.getId()%></td><td><%=o.getCustomerName()%></td><td><%=String.format("%,d",o.getTotal())%></td><td><%=o.getStatus()%></td><td><a href="ViewOrderDetailServlet?id=<%=o.getId()%>">Chi tiet</a></td></tr><%}%></table><p><a href="./">← Trang chu</a></p></main></body></html>

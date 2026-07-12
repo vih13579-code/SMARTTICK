@@ -1,26 +1,2 @@
-package Controllers;
-
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-/**
- * Skeleton controller for module/feature: ViewOrderListServlet.
- * TODO: Thành viên phụ trách chức năng này tự thêm DAO/Service/Model/View tương ứng.
- */
-public class ViewOrderListServlet extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        response.getWriter().println("<h2>ViewOrderListServlet</h2><p>Skeleton servlet - TODO implement feature.</p>");
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doGet(request, response);
-    }
-}
+package Controllers; import Services.OrderService; import java.io.*; import javax.servlet.*; import javax.servlet.http.*;
+public class ViewOrderListServlet extends HttpServlet{private final OrderService s=new OrderService();protected void doGet(HttpServletRequest r,HttpServletResponse p)throws ServletException,IOException{r.setAttribute("orders",s.search(r.getParameter("q"),r.getParameter("status")));r.setAttribute("statuses",s.statuses());r.getRequestDispatcher("orderListView.jsp").forward(r,p);}}
