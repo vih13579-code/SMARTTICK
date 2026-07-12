@@ -1,0 +1,136 @@
+.payment img {
+    border-radius: 5px;
+    width: 50px;
+    height: auto;
+}
+
+.payment {
+    display: flex;
+    justify-content: center;
+    column-gap: 10px;
+}
+
+.lastFooter {
+    display: flex;
+    align-items: center;
+}
+
+.styled-input::placeholder {
+    color: white;
+    /* Thay đổi màu placeholder */
+    opacity: 0.8;
+}
+
+.styled-input {
+    width: 380px;
+    height: 40px;
+    border: solid white 1px;
+    background-color: black;
+    color: white;
+    /* Để nội dung text màu trắng */
+    padding-left: 10px;
+    /* Inventoryảng cách bên trong ô input */
+}
+
+.subForm {
+    display: flex;
+    column-gap: 20px;
+    align-items: center;
+
+}
+.subsribeForm{
+    text-align: right;
+}
+/* General footer styles */
+footer {
+    background-color: #1f1a1a;
+    color: white;
+}
+
+.container {
+    color: white;
+}
+
+/* Row styles */
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Column styles */
+.col-md-6 {
+    padding: 10px;
+}
+
+.subForm {
+    display: flex;
+    column-gap: 20px;
+    align-items: center;
+}
+
+.styled-input {
+    width: 380px;
+    height: 40px;
+    border: solid white 1px;
+    background-color: black;
+    color: white;
+    padding-left: 10px;
+}
+
+.styled-input::placeholder {
+    color: white;
+    opacity: 0.8;
+}
+
+.subscribe-button {
+    background-color: #0156ff;
+    color: white;
+    border-radius: 20px;
+    width: 140px;
+    height: 40px;
+    border: #0156ff 1px;
+}
+
+/* Table styles */
+.table-footer {
+    font-size: 13px;
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #1f1a1a;
+    color: white;
+}
+
+.table-footer th {
+    text-align: left;
+    color: #898686;
+    height: 50px;
+    border: 1px solid #1f1a1a;
+}
+
+.table-footer td {
+    border: 1px solid #1f1a1a;
+}
+
+.table-footer a {
+    text-decoration: none;
+}
+
+/* Footer icons and payments */
+.lastFooter {
+    padding: 20px 0;
+}
+
+.footer-icons img {
+    margin-right: 5px;
+}
+
+.payment img {
+    margin: 0 5px;
+}
+
+.copyright {
+    text-align: right;
+    color: gray;
+    font-size: 13px;
+}

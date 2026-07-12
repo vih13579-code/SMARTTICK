@@ -1,0 +1,75 @@
+.th,
+.td {
+    padding: 20px 10px 20px 0px;
+    border-bottom: gray solid 1px;
+}
+
+.td {
+    vertical-align: top;
+    font-size: 13px;
+}
+/*
+#quantity {
+    width: 45%;
+    height: 40px;
+    padding-left: 10px;
+    font-weight: bold;
+    background-color: #f5f7ff;
+    border: #f5f7ff solid 1px;
+}*/
+.btnControl button{
+    height: 35px;
+    width: 200px;
+    border-radius: 15px;
+    background-color: black;
+    color: white;
+}
+.btnControl{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.btnSummary button{
+    width: 90%;
+    text-align: center;
+    margin-top: 20px;
+    height: 50px;
+    border-radius: 20px;
+}
+.btnSummary{
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 50px;
+    justify-content: center;
+}
+.totalPrice{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+.tax {
+    display: flex;
+    justify-content: space-between;
+}
+
+.tax p {
+    font-size: 18px;
+}
+
+.control-label {
+    color: black;
+    font-weight: bold;
+    padding: 10px 0px 10px 0px;
+}
+
+.discount button {
+    width: 90%;
+    text-align: center;
+    margin-top: 20px;
+    height: 50px;
+    border-radius: 20px;
+}
+.discount{
+    text-align: center;
+}

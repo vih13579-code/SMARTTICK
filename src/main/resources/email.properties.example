@@ -1,0 +1,12 @@
+smtp.host=smtp.gmail.com
+smtp.port=587
+smtp.auth=true
+smtp.starttls.enable=true
+smtp.username=your_email@gmail.com
+smtp.password=your_app_password
+smtp.from=your_email@gmail.com
+smtp.fromName=SMARTTICK
+smtp.ssl.trust=smtp.gmail.com
+smtp.connectiontimeout=10000
+smtp.timeout=10000
+smtp.writetimeout=10000
