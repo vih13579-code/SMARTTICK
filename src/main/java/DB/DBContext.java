@@ -12,6 +12,14 @@ import java.util.Properties;
  * Copy db.properties.example thành db.properties rồi sửa thông tin kết nối.
  */
 public class DBContext {
+    static {
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        } catch (ClassNotFoundException ex) {
+            throw new ExceptionInInitializerError("Microsoft SQL Server JDBC driver is missing: " + ex.getMessage());
+        }
+    }
+
     public static Connection getConnection() throws SQLException {
         Properties props = new Properties();
         try (InputStream in = DBContext.class.getClassLoader().getResourceAsStream("db.properties")) {
@@ -24,17 +32,24 @@ public class DBContext {
         }
 
         String server = props.getProperty("serverName", "localhost");
-        String port = props.getProperty("portNumber", "1433");
+        String port = props.getProperty("portNumber", "1433").trim();
+        String instance = props.getProperty("instanceName", "").trim();
         String database = props.getProperty("databaseName", "Smarttick");
         String user = props.getProperty("user", "sa");
         String password = props.getProperty("password", "");
         String encrypt = props.getProperty("encrypt", "false");
         String trust = props.getProperty("trustServerCertificate", "true");
+        String integrated = props.getProperty("integratedSecurity", "false");
 
-        String url = "jdbc:sqlserver://" + server + ":" + port
+        String endpoint = server + (port.isEmpty() ? "" : ":" + port);
+        String url = "jdbc:sqlserver://" + endpoint
+                + (instance.isEmpty() ? "" : ";instanceName=" + instance)
                 + ";databaseName=" + database
                 + ";encrypt=" + encrypt
-                + ";trustServerCertificate=" + trust;
-        return DriverManager.getConnection(url, user, password);
+                + ";trustServerCertificate=" + trust
+                + ";integratedSecurity=" + integrated;
+        return "true".equalsIgnoreCase(integrated)
+                ? DriverManager.getConnection(url)
+                : DriverManager.getConnection(url, user, password);
     }
 }

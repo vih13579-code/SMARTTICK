@@ -1,8 +1,11 @@
 # Copy file này thành src/main/resources/db.properties rồi sửa thông tin kết nối SQL Server
 serverName=localhost
+# Neu dung named instance (vi du MSSQLSERVER03), dien ten instance va co the de portNumber trong.
+instanceName=
 portNumber=1433
 databaseName=Smarttick
 user=sa
 password=your_password
+integratedSecurity=false
 encrypt=false
 trustServerCertificate=true
