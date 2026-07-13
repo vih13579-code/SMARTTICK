@@ -5,14 +5,11 @@
 package Models;
 
 import java.sql.Date;
-
 /**
  *
  * @author Thuongnvce181966
  */
-
 public class InventoryStatistic {
-
     private String categoryName;
     private String brandName;
     private String model;
@@ -27,6 +24,8 @@ public class InventoryStatistic {
         this.stockQuantity = stockQuantity;
         this.modelName = modelName;
     }
+    
+    
 
     public InventoryStatistic(String categoryName, String brandName, String model, String fullName, int stockQuantity, String supplierName, Date importDate, long productImportPrice) {
         this.categoryName = categoryName;
@@ -110,5 +109,6 @@ public class InventoryStatistic {
     public void setModelName(String modelName) {
         this.modelName = modelName;
     }
-
+    
+    
 }
