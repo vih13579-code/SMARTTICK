@@ -1,11 +1,46 @@
 package Models;
 
-import java.io.Serializable;
+public class Email {
 
-/**
- * Skeleton model/entity: Email.
- * TODO: Khai báo fields, constructors, getters/setters theo database schema.
- */
-public class Email implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private String from, to, fromPassword, content, subject;
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+
+    public String getFromPassword() {
+        return fromPassword;
+    }
+
+    public void setFromPassword(String fromPassword) {
+        this.fromPassword = fromPassword;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
 }
