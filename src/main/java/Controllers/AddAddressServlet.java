@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
  * Skeleton controller for module/feature: AddAddressServlet.
  * TODO: Thành viên phụ trách chức năng này tự thêm DAO/Service/Model/View tương ứng.
  */
-public class AddAddressServlet extends HttpServlet {
+public class AddAddressServlet extends HttpServlet {    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
