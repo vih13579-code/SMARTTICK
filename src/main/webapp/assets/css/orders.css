@@ -1,0 +1,30 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+nav {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+nav a {
+    margin-right: 20px;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    padding: 10px;
+}
+nav a.active {
+    color: red;
+    border-bottom: 2px solid red;
+}
+.order-list {
+    display: none;
+}
+.order-list.active {
+    display: block;
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+}

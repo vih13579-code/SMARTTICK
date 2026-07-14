@@ -1,10 +1,11 @@
--- SMARTTICK Skeleton
--- Thành viên phụ trách database có thể chỉnh tên DB tại đây.
-IF DB_ID(N'Smarttick') IS NULL
+﻿-- FWatch - 01_create_database.sql
+-- Run in SQL Server Management Studio with an account that can create databases.
+USE [master];
+GO
+IF DB_ID(N'FWatch') IS NULL
 BEGIN
-    CREATE DATABASE Smarttick;
+    CREATE DATABASE [FWatch];
 END
 GO
-
-USE Smarttick;
+ALTER DATABASE [FWatch] SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;
 GO

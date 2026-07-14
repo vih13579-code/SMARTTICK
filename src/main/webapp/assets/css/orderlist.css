@@ -1,0 +1,90 @@
+/* Reset chung */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+/* Bọc toàn bộ trang trong một flex container */
+.main-layout {
+    display: flex;
+    width: 100%;
+}
+
+/* Sidebar giữ nguyên theo thiết kế */
+.sidebar {
+    width: 250px;
+    height: 97vh;
+    background: #FFFFFF;
+    color: black;
+    padding-top: 20px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 10;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+/* Đảm bảo nội dung không bị đè lên */
+.content {
+    flex-grow: 1;
+    margin-left: 270px; /* Để tránh bị đè */
+    padding: 20px;
+    width: calc(100% - 270px); /* Đảm bảo nội dung có đủ không gian */
+}
+
+/* Header */
+header {
+    background-color: #000;
+    color: white;
+    padding: 15px;
+    border-radius: 8px 8px 0 0;
+    font-size: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Thanh tìm kiếm */
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+/* Order container */
+.order-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+/* Order Card */
+.order-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px;
+    background-color: #fff;
+    flex: 1 1 calc(30% - 20px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Status orders */
+.order-status .status {
+    display: inline-block;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-top: 10px;
+}

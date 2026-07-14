@@ -1,18 +1,39 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>header - SMARTTICK Skeleton</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/app.css">
-</head>
-<body>
-    <main class="container">
-        <h1>header</h1>
-        <p>Skeleton view: <code>header.jsp</code></p>
-        <p>TODO: Thành viên phụ trách giao diện này tự thiết kế JSP/HTML/CSS/JS.</p>
-        <p><a href="${pageContext.request.contextPath}/">Về trang chủ</a></p>
-    </main>
-</body>
-</html>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css">
+<div class="fw-top">Free nationwide shipping for orders from 2,000,000 VND · Official warranty</div>
+<header class="fw-header">
+    <div class="container fw-nav">
+        <a class="brand-logo" href="${pageContext.request.contextPath}/" aria-label="SMARTTICK home">
+            <img src="${pageContext.request.contextPath}/assets/imgs/Logo/smarttick-logo.png" alt="SMARTTICK">
+            <span class="brand-logo-text">
+                <strong>SMARTTICK</strong>
+                <span>Time is luxury</span>
+            </span>
+        </a>
+        <nav class="fw-links">
+            <a href="${pageContext.request.contextPath}/">Home</a>
+            <a href="${pageContext.request.contextPath}/Men">Men's Watches</a>
+            <a href="${pageContext.request.contextPath}/Women">Women's Watches</a>
+            <a href="${pageContext.request.contextPath}/Sport">Sports Watches</a>
+            <a href="${pageContext.request.contextPath}/Mechanical">Mechanical Watches</a>
+            <a href="${pageContext.request.contextPath}/Watches">All Products</a>
+        </nav>
+        <div class="fw-actions">
+            <c:choose>
+                <c:when test="${not empty sessionScope.customer}">
+                    <a class="btn btn-outline" href="${pageContext.request.contextPath}/customer/dashboard">Account</a>
+                    <a class="btn btn-primary" href="${pageContext.request.contextPath}/cart">Cart</a>
+                    <a class="btn btn-danger" href="${pageContext.request.contextPath}/Logout">Log Out</a>
+                </c:when>
+                <c:otherwise>
+                    <a class="btn btn-outline" href="${pageContext.request.contextPath}/customerLogin">Log In</a>
+                    <a class="btn btn-primary" href="${pageContext.request.contextPath}/cart">Cart</a>
+                </c:otherwise>
+            </c:choose>
+            <c:if test="${not empty sessionScope.employee}">
+                <a class="btn btn-gold" href="${pageContext.request.contextPath}/admin/dashboard">Admin</a>
+            </c:if>
+        </div>
+    </div>
+</header>

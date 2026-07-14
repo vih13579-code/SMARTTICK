@@ -1,53 +1,124 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package DAOs;
 
 import DB.DBContext;
 import Models.Cart;
-import java.sql.*;
-import java.util.*;
-import javax.servlet.http.HttpSession;
+import Models.Product;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CartDAO {
-    private int customerId(HttpSession session) {
-        Object id = session.getAttribute("customerId");
-        return id instanceof Number ? ((Number) id).intValue() : 1;
+
+    DBContext db = new DBContext();
+    Connection connector = db.getConnection();
+
+    public List<Cart> getCartOfAccountID(int accountID) {
+        List<Cart> list = new ArrayList<>();
+        try {
+            PreparedStatement pre = connector.prepareStatement("SELECT c.ProductID, c.Quantity, p.[Image], p.FullName, p.Price, p.CategoryID\n"
+                    + "FROM Carts c\n"
+                    + "LEFT JOIN Products p ON c.ProductID = p.ProductID\n"
+                    + "WHERE c.CustomerID = ? AND p.IsDeleted = 0 ORDER BY CustomerID DESC");
+            pre.setInt(1, accountID);
+            ResultSet rs = pre.executeQuery();
+            while (rs.next()) {
+                list.add(new Cart(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4), rs.getLong(5), rs.getInt(6)));
+            }
+        } catch (SQLException e) {
+            System.out.println(e + "");
+        }
+        return list;
     }
 
-    public List<Cart> products() {
-        String sql = "SELECT product_id, product_name, unit_price, stock FROM Products WHERE active=1 ORDER BY product_id";
-        List<Cart> result = new ArrayList<>();
-        try (Connection c = DBContext.getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) result.add(map(rs, 0));
-            return result;
-        } catch (SQLException e) { throw dbError(e); }
+    public int getNumberOfProduct(int accountID) {
+        int num = 0;
+        try {
+            PreparedStatement pre = connector.prepareStatement("SELECT * FROM Carts c\n"
+                    + "  JOIN Products p On c.ProductID = p.ProductID\n"
+                    + "  WHERE CustomerID = ? AND p.IsDeleted = 0");
+            pre.setInt(1, accountID);
+            ResultSet rs = pre.executeQuery();
+            while (rs.next()) {
+                num++;
+            }
+        } catch (SQLException e) {
+            System.out.println(e + "");
+        }
+        return num;
     }
 
-    public Map<Integer, Cart> get(HttpSession session) {
-        String sql = "SELECT p.product_id,p.product_name,p.unit_price,p.stock,c.quantity FROM Carts c JOIN Products p ON p.product_id=c.product_id WHERE c.customer_id=? ORDER BY c.updated_at DESC";
-        Map<Integer, Cart> result = new LinkedHashMap<>();
-        try (Connection c = DBContext.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, customerId(session));
-            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) { Cart item=map(rs,rs.getInt("quantity")); result.put(item.getProductId(),item); } }
-            return result;
-        } catch (SQLException e) { throw dbError(e); }
+    public void addToCart(int customerID, Cart c) {
+        try {
+            PreparedStatement pre = connector.prepareStatement("INSERT INTO Carts VALUES (?, ?, ?)");
+            pre.setInt(1, customerID);
+            pre.setInt(2, c.getProductID());
+            pre.setInt(3, c.getQuantity());
+            pre.executeUpdate();
+        } catch (SQLException e) {
+
+        }
     }
 
-    public void add(HttpSession session, int productId) {
-        String sql = "MERGE Carts AS t USING (SELECT ? customer_id, ? product_id) s ON t.customer_id=s.customer_id AND t.product_id=s.product_id " +
-                "WHEN MATCHED AND t.quantity < (SELECT stock FROM Products WHERE product_id=s.product_id) THEN UPDATE SET quantity=t.quantity+1,updated_at=SYSDATETIME() " +
-                "WHEN NOT MATCHED BY TARGET AND EXISTS(SELECT 1 FROM Products WHERE product_id=s.product_id AND active=1 AND stock>0) THEN INSERT(customer_id,product_id,quantity) VALUES(s.customer_id,s.product_id,1);";
-        execute(sql, customerId(session), productId);
+    public Cart getProductOfCart(int customerID, int productID) {
+        Cart c = null;
+        try {
+            PreparedStatement pre = connector.prepareStatement("Select ProductID, Quantity from Carts where CustomerID = ? AND ProductID = ?");
+            pre.setInt(1, customerID);
+            pre.setInt(2, productID);
+            ResultSet rs = pre.executeQuery();
+            if (rs.next()) {
+                c = new Cart(rs.getInt(1), rs.getInt(2));
+            }
+        } catch (SQLException e) {
+
+        }
+        return c;
     }
 
-    public void update(HttpSession session, int productId, int quantity) {
-        if (quantity < 1) throw new IllegalArgumentException("So luong phai lon hon 0");
-        String sql = "UPDATE c SET quantity=?,updated_at=SYSDATETIME() FROM Carts c JOIN Products p ON p.product_id=c.product_id WHERE c.customer_id=? AND c.product_id=? AND ?<=p.stock";
-        execute(sql, quantity, customerId(session), productId, quantity);
+    public void updateProductQuantity(int productID, int quantity, int id) {
+        String sql = "UPDATE Carts SET Quantity = ? WHERE ProductID = ? AND CustomerID = ?";
+        try {
+            PreparedStatement preparedStatement = connector.prepareStatement(sql);
+            preparedStatement.setInt(1, quantity);
+            preparedStatement.setInt(2, productID);
+            preparedStatement.setInt(3, id);
+            preparedStatement.executeUpdate();
+            System.out.println("Update Ok");
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
     }
 
-    public void remove(HttpSession session, int productId) { execute("DELETE Carts WHERE customer_id=? AND product_id=?", customerId(session), productId); }
-    public void clear(HttpSession session) { execute("DELETE Carts WHERE customer_id=?", customerId(session)); }
+    public void deleteProductOnCart(int productID, int id) {
+        try {
+            PreparedStatement preparedStatement = connector.prepareStatement("Delete from Carts where ProductID = ? and CustomerID = ?");
+            preparedStatement.setInt(1, productID);
+            preparedStatement.setInt(2, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-    private Cart map(ResultSet rs, int quantity) throws SQLException { return new Cart(rs.getInt("product_id"),rs.getString("product_name"),rs.getLong("unit_price"),quantity,rs.getInt("stock")); }
-    private void execute(String sql,Object... values){try(Connection c=DBContext.getConnection();PreparedStatement ps=c.prepareStatement(sql)){for(int i=0;i<values.length;i++)ps.setObject(i+1,values[i]);int changed=ps.executeUpdate();if(changed==0)throw new IllegalArgumentException("Khong the cap nhat gio hang; kiem tra san pham va ton kho");}catch(SQLException e){throw dbError(e);}}
-    private IllegalStateException dbError(SQLException e){return new IllegalStateException("Loi SQL Server: "+e.getMessage(),e);}
+    public void deleteCartOfCustomer(int id) {
+        try {
+            PreparedStatement preparedStatement = connector.prepareStatement("Delete from Carts CustomerID = ?");
+            preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        CartDAO c = new CartDAO();
+        System.out.println(c.getProductOfCart(1, 2).getQuantity());
+    }
 }

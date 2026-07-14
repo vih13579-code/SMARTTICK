@@ -1,2 +1,83 @@
-package Controllers; import Services.OrderService; import java.io.*; import javax.servlet.*; import javax.servlet.http.*;
-public class ViewOrderListServlet extends HttpServlet{private final OrderService s=new OrderService();protected void doGet(HttpServletRequest r,HttpServletResponse p)throws ServletException,IOException{r.setAttribute("orders",s.search(r.getParameter("q"),r.getParameter("status")));r.setAttribute("statuses",s.statuses());r.getRequestDispatcher("orderListView.jsp").forward(r,p);}}
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+
+package Controllers;
+
+import DAOs.OrderDAO;
+import Models.Order;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+public class ViewOrderListServlet extends HttpServlet {
+   
+    /** 
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    } 
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        OrderDAO oDAO = new OrderDAO();
+        String searchQuery = request.getParameter("search");
+
+        List<Order> list;
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            list = oDAO.searchOrders(searchQuery.trim());
+        } else {
+            list = oDAO.getOrderList();
+        }
+        for(Order o : list){
+            System.out.println(o.getStatus());
+        }
+        request.setAttribute("data", list);
+        request.setAttribute("searchQuery", searchQuery);
+        request.getRequestDispatcher("orderListView.jsp").forward(request, response);
+    }
+    
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+
+    }
+
+    /** 
+     * Returns the servlet description.
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "SMARTTICK servlet";
+    }// </editor-fold>
+
+}

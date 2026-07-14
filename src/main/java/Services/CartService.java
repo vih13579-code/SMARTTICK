@@ -1,2 +1,5 @@
-package Services; import DAOs.CartDAO; import Models.Cart; import javax.servlet.http.HttpSession; import java.util.*;
-public class CartService {private final CartDAO dao=new CartDAO();public List<Cart> products(){return dao.products();}public Collection<Cart> cart(HttpSession s){return dao.get(s).values();}public void add(HttpSession s,int id){dao.add(s,id);}public void update(HttpSession s,int id,int q){dao.update(s,id,q);}public void remove(HttpSession s,int id){dao.remove(s,id);}public void clear(HttpSession s){dao.clear(s);}public long total(HttpSession s){return cart(s).stream().mapToLong(Cart::getSubtotal).sum();}}
+package Services;
+
+/** Cart business rules are implemented by the original Cart controllers and CartDAO. */
+public class CartService {
+}

@@ -1,11 +1,6 @@
-# Copy file này thành src/main/resources/db.properties rồi sửa thông tin kết nối SQL Server
-serverName=localhost
-# Neu dung named instance (vi du MSSQLSERVER03), dien ten instance va co the de portNumber trong.
-instanceName=
-portNumber=1433
-databaseName=Smarttick
-user=sa
-password=your_password
-integratedSecurity=false
-encrypt=false
-trustServerCertificate=true
+# Database configuration template. Copy this file to db.properties and fill in your values.
+db.url=jdbc:sqlserver://localhost:1433;databaseName=FWatch;encrypt=true;trustServerCertificate=true
+db.username=your_db_username
+db.password=your_db_password
+db.driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
+upload.product.path=your_upload_product_path

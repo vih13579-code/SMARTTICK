@@ -1,18 +1,14 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>footer - SMARTTICK Skeleton</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/app.css">
-</head>
-<body>
-    <main class="container">
-        <h1>footer</h1>
-        <p>Skeleton view: <code>footer.jsp</code></p>
-        <p>TODO: Thành viên phụ trách giao diện này tự thiết kế JSP/HTML/CSS/JS.</p>
-        <p><a href="${pageContext.request.contextPath}/">Về trang chủ</a></p>
-    </main>
-</body>
-</html>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="fw-logo">SMART<span>TICK</span></div>
+                <p>A destination for standout authentic watches, curated by style, movement, and everyday needs.</p>
+            </div>
+            <div><h3>Explore</h3><p><a href="${pageContext.request.contextPath}/Men">Men's Watches</a><br><a href="${pageContext.request.contextPath}/Women">Women's Watches</a><br><a href="${pageContext.request.contextPath}/Sport">Sports Watches</a></p></div>
+            <div><h3>Support</h3><p>Official warranty<br>Returns according to policy<br>Email: support@smarttick.vn</p></div>
+        </div>
+        <div class="copyright">Copyright © 2026 SMARTTICK. All rights reserved.</div>
+    </div>
+</footer>
