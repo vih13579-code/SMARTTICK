@@ -371,16 +371,17 @@
 
                 // HÃ m cháº¡y láº¡i script trong ná»™i dung Ä‘Æ°á»£c load
                 function executeScripts(element) {
-                    let scripts = element.getElementsByTagName("script");
-                    for (let script of scripts) {
-                        if (script.src) { // Náº¿u lÃ  script cÃ³ src
-                            let newScript = document.createElement("script");
+                    const scripts = Array.from(element.querySelectorAll("script"));
+                    for (const script of scripts) {
+                        const newScript = document.createElement("script");
+                        if (script.src) {
                             newScript.src = script.src;
-                            newScript.async = true;
-                            document.body.appendChild(newScript);
-                        } else { // Náº¿u lÃ  script inline
-                            eval(script.innerText);
+                            newScript.async = false;
+                        } else {
+                            newScript.textContent = script.textContent;
                         }
+                        document.body.appendChild(newScript);
+                        script.remove();
                     }
                 }
             });

@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +59,8 @@ public class AddressDAO {
             pr.setInt(1, customerID);
             ResultSet rs = pr.executeQuery();
             while (rs.next()) {
-                list.add(new Address(rs.getInt(1), rs.getInt(1), rs.getInt(4), rs.getString(3)));
+                list.add(new Address(rs.getInt("AddressID"), rs.getInt("CustomerID"),
+                        rs.getInt("IsDefault"), rs.getString("AddressDetails")));
             }
         } catch (SQLException e) {
             System.out.println(e + " ");
@@ -78,21 +80,24 @@ public class AddressDAO {
     }
 
     public int addAddress(Address a) {
-        int id = 0;
-        try {
-            PreparedStatement pr = connector.prepareStatement("INSERT INTO Addresses VALUES (?, '" + a.getAddressDetails() + "', ?)");
+        if (connector == null || a == null) {
+            return 0;
+        }
+        String sql = "INSERT INTO Addresses (CustomerID, AddressDetails, IsDefault) VALUES (?, ?, ?)";
+        try (PreparedStatement pr = connector.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pr.setInt(1, a.getCustomerID());
-            pr.setInt(2, a.getIsDefault());
-            pr.executeUpdate();
-            pr = connector.prepareStatement("SELECT TOP 1* FROM Addresses Order by AddressID DESC");
-            ResultSet rs = pr.executeQuery();
-            if (rs.next()) {
-                id = rs.getInt(1);
+            pr.setString(2, a.getAddressDetails());
+            pr.setInt(3, a.getIsDefault());
+            if (pr.executeUpdate() != 1) {
+                return 0;
+            }
+            try (ResultSet rs = pr.getGeneratedKeys()) {
+                return rs.next() ? rs.getInt(1) : 0;
             }
         } catch (SQLException e) {
-            System.out.println(e + " ");
+            System.err.println("Cannot add address: " + e.getMessage());
+            return 0;
         }
-        return id;
     }
 
     public void disableDefaultAddress(int addressID, int customerID) {

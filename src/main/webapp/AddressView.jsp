@@ -301,6 +301,12 @@
                     <button class="btn btn-add"
                             onclick="openPopup(false)">+ Add address</button>
                 </div>
+                <c:if test="${not empty sessionScope.addressError}">
+                    <div class="alert alert-danger" role="alert">
+                        <c:out value="${sessionScope.addressError}"/>
+                    </div>
+                    <c:remove var="addressError" scope="session"/>
+                </c:if>
 
                 <h4 class="address-section-title">Address</h4>
 
@@ -325,8 +331,9 @@
                                         Object arrObj = pageContext.getAttribute("arr");
 
                                         // Kiểm tra nếu không null và chuyển thành mảng String[]
-                                        if (arrObj instanceof String[]) {
-                                            String[] arr = (String[]) arrObj;
+                                         if (arrObj instanceof String[]) {
+                                             String[] arr = (String[]) arrObj;
+                                             if (arr.length >= 4) {
 
                                             // Xử lý mảng theo thuật toán của bạn
                                             String province = arr[arr.length - 1];
@@ -344,10 +351,16 @@
 
                                             // Trả kết quả lại JSTL
                                             request.setAttribute("province", province);
-                                            request.setAttribute("district", district);
-                                            request.setAttribute("commune", commune);
-                                            request.setAttribute("address", address);
-                                        }
+                                             request.setAttribute("district", district);
+                                             request.setAttribute("commune", commune);
+                                             request.setAttribute("address", address);
+                                             } else {
+                                                 request.setAttribute("province", "");
+                                                 request.setAttribute("district", "");
+                                                 request.setAttribute("commune", "");
+                                                 request.setAttribute("address", String.join(", ", arr));
+                                             }
+                                         }
                                     %>
 
 
@@ -455,21 +468,18 @@
                 %>
                 <div class="mb-3">
                     <label for="city" class="form-label">Province</label>
-                    <select class="form-select form-select-sm mb-3" name="province" id="city" aria-label=".form-select-sm" required>
-                        <option value="" selected>Select Province</option>           
-                    </select>
+                    <input class="form-control" type="text" name="province" id="city"
+                           placeholder="Enter province or city" maxlength="100" required>
                 </div>
                 <div class="mb-3">
                     <label for="district" class="form-label">District</label>
-                    <select class="form-select form-select-sm mb-3"  name="district" id="district" aria-label=".form-select-sm" required>
-                        <option value="" selected>Select District</option>
-                    </select>
+                    <input class="form-control" type="text" name="district" id="district"
+                           placeholder="Enter district" maxlength="100" required>
                 </div>
                 <div class="mb-3">
                     <label for="ward" class="form-label">Ward</label>
-                    <select class="form-select form-select-sm" name="ward" id="ward" aria-label=".form-select-sm" required>
-                        <option value="" selected>Select Ward</option>
-                    </select>
+                    <input class="form-control" type="text" name="ward" id="ward"
+                           placeholder="Enter ward or commune" maxlength="100" required>
                 </div>
                 <div class="mb-3">
                     <label for="address" class="form-label">Detailed Address:</label>
@@ -502,8 +512,6 @@
             </form>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-
     <script>
                         document.getElementById('formAddress').addEventListener('submit', function (event) {
                             const addressInput = document.getElementById('addressInput');
@@ -540,6 +548,7 @@
                         };
 
                         // Đợi API tải xong rồi mới render
+                        if (typeof axios !== "undefined") {
                         axios(Parameter)
                                 .then(function (result) {
                                     console.log("Dữ liệu API:", result.data); // Debug dữ liệu
@@ -551,6 +560,7 @@
                                 .catch(function (error) {
                                     console.error("Lỗi tải dữ liệu: ", error);
                                 });
+                        }
 
 
                         citis.onchange = function () {
@@ -679,14 +689,21 @@
                             } else {
                                 document.getElementById("popupLabel").innerHTML = "Add Address";
                                 document.getElementById("addressInput").value = "";
-                                document.getElementById("city").selectedIndex = 0;
-                                document.getElementById("district").length = 1;
-                                document.getElementById("ward").length = 1;
+                                document.getElementById("city").value = "";
+                                document.getElementById("district").value = "";
+                                document.getElementById("ward").value = "";
                         }
                         }
 
                         function setSelectValue(selectId, value, callback = null) {
                             let select = document.getElementById(selectId);
+                            if (select && select.tagName !== "SELECT") {
+                                select.value = value || "";
+                                if (callback) {
+                                    callback();
+                                }
+                                return;
+                            }
                             let found = false;
 
                             for (let i = 0; i < select.options.length; i++) {
@@ -710,9 +727,9 @@
                         function closeAddPopup() {
                             document.getElementById("add").style.display = "none";
                             document.getElementById("addoverlay").style.display = "none";
-                            let selects = document.querySelectorAll("#add select");
-                            selects.forEach(select => {
-                                select.selectedIndex = 0;
+                            let addressFields = document.querySelectorAll("#add input[name='province'], #add input[name='district'], #add input[name='ward'], #add input[name='address']");
+                            addressFields.forEach(field => {
+                                field.value = "";
                             });
         <% if (!first) {
         %>
