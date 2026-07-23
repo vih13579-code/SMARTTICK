@@ -1,18 +1,35 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CategoryAndBrand - SMARTTICK Skeleton</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/app.css">
-</head>
-<body>
-    <main class="container">
-        <h1>CategoryAndBrand</h1>
-        <p>Skeleton view: <code>CategoryAndBrand.jsp</code></p>
-        <p>TODO: Thành viên phụ trách giao diện này tự thiết kế JSP/HTML/CSS/JS.</p>
-        <p><a href="${pageContext.request.contextPath}/">Về trang chủ</a></p>
-    </main>
-</body>
+
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.ArrayList, Models.Category, Models.Brand" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<html>
+    <head>
+        <title>Category & Brand</title>
+    </head>
+    <body>
+        <form action="BrandServlet" method="post">
+            <label for="brandName">Create New Brand:</label>
+            <input type="text" name="brandName" id="brandName" required>
+            <button type="submit">Add Brand</button>
+        </form>
+
+        <form action="#" method="post">
+            <label for="category">Select Category:</label>
+            <select name="category" id="category">
+                <c:forEach var="category" items="${categories}">
+                    <option value="${category.id}">${category.name}</option>
+                </c:forEach>
+            </select>
+
+            <label for="brand">Select Brand:</label>
+            <select name="brand" id="brand">
+                <c:forEach var="brand" items="${brands}">
+                    <option value="${brand.id}">${brand.name}</option>
+                </c:forEach>
+            </select>
+
+            <button type="submit">Submit</button>
+        </form>
+    </body>
 </html>
+

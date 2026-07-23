@@ -1,5 +1,5 @@
 # Database configuration template. Copy this file to db.properties and fill in your values.
-db.url=jdbc:sqlserver://localhost:1433;databaseName=FWatch;encrypt=true;trustServerCertificate=true
+db.url=jdbc:sqlserver://localhost:1433;databaseName=SMARTTICK;encrypt=true;trustServerCertificate=true
 db.username=your_db_username
 db.password=your_db_password
 db.driver=com.microsoft.sqlserver.jdbc.SQLServerDriver

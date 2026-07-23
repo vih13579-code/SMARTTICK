@@ -1,18 +1,24 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>excelStock - SMARTTICK Skeleton</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/app.css">
-</head>
-<body>
-    <main class="container">
-        <h1>excelStock</h1>
-        <p>Skeleton view: <code>excelStock.jsp</code></p>
-        <p>TODO: Thành viên phụ trách giao diện này tự thiết kế JSP/HTML/CSS/JS.</p>
-        <p><a href="${pageContext.request.contextPath}/">Về trang chủ</a></p>
-    </main>
-</body>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+    </head>
+    <body>
+        <h1>Hello World!</h1>
+        <form action="ExportStock" method="POST">
+            <button type="submit">Export to Excel</button>
+        </form>
+        <c:forEach items="${dataStock}" var="stock">
+            <div>
+                <p>IO ID: ${stock.IOID}</p>
+                <p>Employee Name: ${stock.employeeName}</p>
+                <p>Supplier: ${stock.supplierName}</p>
+            </div>
+            <hr /> 
+        </c:forEach>
+    </body>
 </html>

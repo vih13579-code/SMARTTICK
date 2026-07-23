@@ -1,26 +1,42 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 package Controllers;
 
+import DAOs.StatisticDAO;
+import Models.Statistic;
 import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 
-/**
- * Skeleton controller for module/feature: StatisticManagementServlet.
- * TODO: Thành viên phụ trách chức năng này tự thêm DAO/Service/Model/View tương ứng.
- */
 public class StatisticManagementServlet extends HttpServlet {
+
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        response.getWriter().println("<h2>StatisticManagementServlet</h2><p>Skeleton servlet - TODO implement feature.</p>");
+
+        StatisticDAO statisticDAO = new StatisticDAO();
+        ArrayList<Statistic> listP = statisticDAO.getTopProduct();
+        ArrayList<Statistic> listC = statisticDAO.getTopCustomer();   
+        request.setAttribute("listP", listP);
+        request.setAttribute("listC", listC);
+        request.getRequestDispatcher("StatisticManagementView.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doGet(request, response);
+
     }
+
 }

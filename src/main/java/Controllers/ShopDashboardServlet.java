@@ -6,21 +6,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Skeleton controller for module/feature: ShopDashboardServlet.
- * TODO: Thành viên phụ trách chức năng này tự thêm DAO/Service/Model/View tương ứng.
- */
+/** Backward-compatible route for the original Shop Manager dashboard. */
 public class ShopDashboardServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        response.getWriter().println("<h2>ShopDashboardServlet</h2><p>Skeleton servlet - TODO implement feature.</p>");
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.sendRedirect(request.getContextPath() + "/admin/dashboard");
     }
-
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doGet(request, response);
     }
 }
