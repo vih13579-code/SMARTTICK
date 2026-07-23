@@ -180,7 +180,7 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.68);
+                background: rgba(0, 0, 0, 0.48);
                 z-index: 1050;
             }
 
@@ -233,28 +233,49 @@
                 color: #d7cbb7;
             }
 
-            .customer-profile-page .add {
-                background: #2f2b24 !important;
-                color: #f7f3ea !important;
-                border-color: rgba(216, 173, 90, .28);
+            .customer-profile-page #content #add {
+                background: #ffffff !important;
+                color: #172033 !important;
+                border: 1px solid #e5e7eb !important;
+                box-shadow: 0 24px 70px rgba(0, 0, 0, .28) !important;
+                border-radius: 18px !important;
             }
 
-            .customer-profile-page .add label,
-            .customer-profile-page .add .title,
-            .customer-profile-page .add .form-check-label {
-                color: #fff !important;
+            .customer-profile-page #content #add label,
+            .customer-profile-page #content #add .title,
+            .customer-profile-page #content #add .form-check-label {
+                color: #172033 !important;
             }
 
-            .customer-profile-page .add .form-control,
-            .customer-profile-page .add .form-select {
-                background: rgba(255, 255, 255, .08) !important;
-                border-color: rgba(255, 255, 255, .18) !important;
-                color: #fff !important;
+            .customer-profile-page #content #add .form-control,
+            .customer-profile-page #content #add .form-select {
+                background: #ffffff !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #111827 !important;
+                opacity: 1 !important;
             }
 
-            .customer-profile-page .add .form-select option {
-                background: #24211b;
-                color: #fff;
+            .customer-profile-page #content #add .form-control::placeholder {
+                color: #94a3b8 !important;
+                opacity: 1;
+            }
+
+            .customer-profile-page #content #add .form-control:focus,
+            .customer-profile-page #content #add .form-select:focus {
+                border-color: #d8ad5a !important;
+                box-shadow: 0 0 0 3px rgba(216, 173, 90, .18) !important;
+            }
+
+            .customer-profile-page #content #add .form-select option {
+                background: #fff;
+                color: #111827;
+            }
+
+            .customer-profile-page #content #addoverlay {
+                background: rgba(0, 0, 0, 0.48) !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
             }
 
             @media (max-width: 700px) {
