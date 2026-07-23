@@ -22,14 +22,15 @@ public class CartDAO {
     public List<Cart> getCartOfAccountID(int accountID) {
         List<Cart> list = new ArrayList<>();
         try {
-            PreparedStatement pre = connector.prepareStatement("SELECT c.ProductID, c.Quantity, p.[Image], p.FullName, p.Price, p.CategoryID\n"
+            PreparedStatement pre = connector.prepareStatement("SELECT c.ProductID, c.Quantity, p.[Image], p.FullName, p.Price, p.CategoryID, p.Stock\n"
                     + "FROM Carts c\n"
                     + "LEFT JOIN Products p ON c.ProductID = p.ProductID\n"
                     + "WHERE c.CustomerID = ? AND p.IsDeleted = 0 ORDER BY CustomerID DESC");
             pre.setInt(1, accountID);
             ResultSet rs = pre.executeQuery();
             while (rs.next()) {
-                list.add(new Cart(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4), rs.getLong(5), rs.getInt(6)));
+                list.add(new Cart(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4),
+                        rs.getLong(5), rs.getInt(6), rs.getInt(7)));
             }
         } catch (SQLException e) {
             System.out.println(e + "");

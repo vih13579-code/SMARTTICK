@@ -1,16 +1,19 @@
 package Controllers;
 
 import DAOs.OrderDetailDAO;
+import DAOs.CartDAO;
 import DAOs.ProductDAO;
 import DAOs.ProductRatingDAO;
 import DAOs.RatingRepliesDAO;
 import Models.Customer;
+import Models.Cart;
 import Models.Product;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class ProductDetailServlet extends HttpServlet {
     @Override
@@ -23,9 +26,22 @@ public class ProductDetailServlet extends HttpServlet {
         }
 
         ProductRatingDAO ratingDAO = new ProductRatingDAO();
-        Customer customer = (Customer) request.getSession().getAttribute("customer");
+        HttpSession session = request.getSession();
+        Customer customer = (Customer) session.getAttribute("customer");
         boolean canReview = customer != null && new OrderDetailDAO().getCustomerByProductID(customer.getId(), id);
+        int cartQuantity = 0;
+        if (customer != null) {
+            Cart cart = new CartDAO().getProductOfCart(customer.getId(), id);
+            cartQuantity = cart == null ? 0 : cart.getQuantity();
+        }
+        Object message = session.getAttribute("message");
+        if (message != null) {
+            request.setAttribute("message", message);
+            session.removeAttribute("message");
+        }
         request.setAttribute("isOk", canReview);
+        request.setAttribute("cartQuantity", cartQuantity);
+        request.setAttribute("availableToAdd", Math.max(0, product.getStock() - cartQuantity));
         request.setAttribute("dataRating", ratingDAO.getAllProductRating(id));
         request.setAttribute("dataReplies", new RatingRepliesDAO().getAllRatingRepliesByProduct(id));
         request.setAttribute("star", ratingDAO.getStarAverage(id));

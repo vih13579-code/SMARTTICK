@@ -74,25 +74,21 @@ public class AddToCartServlet extends HttpServlet {
             Customer cus, Product product, CartDAO cartDao, Cart cartCheck, int id, int quantity) throws IOException {
         int totalQuantity = cartCheck.getQuantity() + quantity;
 
-        if (totalQuantity > 5) {
-            session.setAttribute("message", "Sorry, you can only buy a maximum of 5 per product.");
-            response.sendRedirect("ProductDetailServlet?id=" + id);
-        } else if (product.getStock() >= totalQuantity) {
+        if (product.getStock() >= totalQuantity) {
             cartDao.updateProductQuantity(cartCheck.getProductID(), totalQuantity, cus.getId());
             response.sendRedirect("cart");
         } else {
-            session.setAttribute("message", "Sorry, the product quantity in stock is not enough.");
+            session.setAttribute("message", "Cannot add more. Stock: " + product.getStock()
+                    + "; already in cart: " + cartCheck.getQuantity() + ".");
             response.sendRedirect("ProductDetailServlet?id=" + id);
         }
     }
 
     private void addNewCartItem(HttpServletResponse response, HttpSession session, Customer cus, Product product,
             CartDAO cartDao, int id, int quantity) throws IOException {
-        if (quantity > 5) {
-            session.setAttribute("message", "Sorry, you can only buy a maximum of 5 per product.");
-            response.sendRedirect("ProductDetailServlet?id=" + id);
-        } else if (product.getStock() < quantity) {
-            session.setAttribute("message", "Sorry, the product quantity in stock is not enough.");
+        if (product.getStock() < quantity) {
+            session.setAttribute("message", "Cannot add " + quantity + " item(s). Current stock: "
+                    + product.getStock() + ".");
             response.sendRedirect("ProductDetailServlet?id=" + id);
         } else {
             cartDao.addToCart(cus.getId(), new Cart(id, quantity));

@@ -246,7 +246,7 @@ public class OrderDAO {
                     + "FROM Products WITH (UPDLOCK, ROWLOCK) WHERE ProductID = ?";
             try (PreparedStatement ps = connector.prepareStatement(productSql)) {
                 for (Cart item : selectedItems) {
-                    if (item == null || item.getQuantity() <= 0 || item.getQuantity() > 5) {
+                    if (item == null || item.getQuantity() <= 0) {
                         throw new SQLException("Invalid quantity.");
                     }
                     ps.setInt(1, item.getProductID());

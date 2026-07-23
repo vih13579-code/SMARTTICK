@@ -97,16 +97,11 @@ public class UpdateCartServlet extends HttpServlet {
             response.getWriter().write("{\"ok\":false,\"message\":\"Product is not available.\"}");
             return;
         }
-        if (quantity > 5) {
-            session.setAttribute("message", "Sorry, you can only buy a maximum of 5 per product.");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"ok\":false,\"message\":\"Maximum quantity is 5.\"}");
-            return;
-        }
         if (product.getStock() < quantity) {
-            session.setAttribute("message", "Sorry, the product quantity in stock is not enough.");
+            String message = "Only " + product.getStock() + " item(s) are currently available in stock.";
+            session.setAttribute("message", message);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"ok\":false,\"message\":\"Not enough stock.\"}");
+            response.getWriter().write("{\"ok\":false,\"message\":\"" + message + "\"}");
             return;
         }
         c.updateProductQuantity(productId, quantity, cus.getId());

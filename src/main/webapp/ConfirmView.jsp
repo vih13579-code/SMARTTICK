@@ -212,16 +212,35 @@
             <br>
 
             <div class="container">
-                <form style="text-align: right" class="infor" action="order" method="POST">
+                <form id="placeOrderForm" style="text-align: right" class="infor" action="order" method="POST">
                     <input type="number" name="totalAmount" value="${total}" hidden>
-                    <button type="submit"
+                    <input id="paymentToken" name="paymentToken" type="hidden" value="">
+                    <button id="startPaymentButton" type="button" onclick="startDemoPayment()"
                             style="background-color: #0156ff; border: #0156ff solid 1px; color: white;">
-                        Place order
+                        Pay by demo QR
                     </button>
                     <input name="buyProductAction" value="placeOrder" hidden="">
                 </form>
             </div>
             <br>
+            <div id="demoPaymentOverlay" style="display:none;position:fixed;inset:0;background:rgba(3,10,20,.82);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+                <div style="width:min(94vw,520px);background:#fff;border-radius:22px;padding:28px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35);position:relative;">
+                    <button type="button" onclick="closeDemoPayment()" aria-label="Close"
+                            style="position:absolute;right:16px;top:12px;border:0;background:transparent;font-size:28px;color:#687386;">&times;</button>
+                    <div style="font-size:12px;font-weight:700;letter-spacing:1.4px;color:#b07816;">SMARTTICK DEMO PAYMENT</div>
+                    <h3 style="margin:8px 0 4px;color:#101828;">Scan to confirm payment</h3>
+                    <p style="margin:0 0 14px;color:#667085;">No real money will be transferred</p>
+                    <img id="demoPaymentQr" alt="Demo payment QR" width="300" height="300"
+                         style="max-width:82vw;border:10px solid #fff;border-radius:14px;box-shadow:0 4px 22px rgba(0,0,0,.12);">
+                    <h4 style="margin:12px 0 4px;color:#101828;"><fmt:formatNumber value="${total}" type="currency" /></h4>
+                    <div id="demoPaymentStatus" style="font-weight:700;color:#b07816;margin-top:10px;">Creating secure demo QR...</div>
+                    <p style="font-size:13px;color:#667085;margin:10px 0 0;">Use a phone on the same Wi-Fi. The order will be created automatically after scanning.</p>
+                    <details style="margin-top:10px;text-align:left;font-size:12px;color:#667085;">
+                        <summary>QR callback address</summary>
+                        <div id="demoPaymentAddress" style="overflow-wrap:anywhere;margin-top:6px;"></div>
+                    </details>
+                </div>
+            </div>
             <div style="display: none;" class="popup" id="orderPopup">
                 <div class="popup-content">
                     <img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" alt="success-tick" style="width: 82px; margin-bottom: 15px;" />
@@ -365,6 +384,69 @@
 
                                     function closePopup() {
                                         document.getElementById("orderPopup").style.display = "none";
+                                    }
+
+                                    let demoPaymentTimer = null;
+
+                                    async function startDemoPayment() {
+                                        const button = document.getElementById("startPaymentButton");
+                                        const overlay = document.getElementById("demoPaymentOverlay");
+                                        const status = document.getElementById("demoPaymentStatus");
+                                        button.disabled = true;
+                                        overlay.style.display = "flex";
+                                        status.style.color = "#b07816";
+                                        status.textContent = "Creating secure demo QR...";
+                                        try {
+                                            const response = await fetch("${pageContext.request.contextPath}/demo-payment/start", {
+                                                method: "POST",
+                                                headers: {"X-Requested-With": "XMLHttpRequest"}
+                                            });
+                                            const data = await response.json();
+                                            if (!response.ok || !data.ok) {
+                                                throw new Error(data.message || "Cannot start demo payment.");
+                                            }
+                                            document.getElementById("paymentToken").value = data.token;
+                                            document.getElementById("demoPaymentQr").src = data.qrUrl + "&t=" + Date.now();
+                                            document.getElementById("demoPaymentAddress").textContent = data.confirmationUrl;
+                                            status.textContent = "Waiting for QR scan...";
+                                            beginPaymentPolling(data.token);
+                                        } catch (error) {
+                                            status.style.color = "#d92d20";
+                                            status.textContent = error.message;
+                                            button.disabled = false;
+                                        }
+                                    }
+
+                                    function beginPaymentPolling(token) {
+                                        clearInterval(demoPaymentTimer);
+                                        demoPaymentTimer = setInterval(async function () {
+                                            try {
+                                                const response = await fetch("${pageContext.request.contextPath}/demo-payment/status?token=" + encodeURIComponent(token), {cache: "no-store"});
+                                                const data = await response.json();
+                                                if (data.status === "PAID") {
+                                                    clearInterval(demoPaymentTimer);
+                                                    const status = document.getElementById("demoPaymentStatus");
+                                                    status.style.color = "#039855";
+                                                    status.textContent = "Payment confirmed! Creating your order...";
+                                                    setTimeout(function () {
+                                                        document.getElementById("placeOrderForm").submit();
+                                                    }, 1000);
+                                                } else if (data.status === "EXPIRED" || data.status === "INVALID") {
+                                                    clearInterval(demoPaymentTimer);
+                                                    document.getElementById("demoPaymentStatus").style.color = "#d92d20";
+                                                    document.getElementById("demoPaymentStatus").textContent = "QR expired. Close and try again.";
+                                                    document.getElementById("startPaymentButton").disabled = false;
+                                                }
+                                            } catch (error) {
+                                                // Keep polling through short local-network interruptions.
+                                            }
+                                        }, 1500);
+                                    }
+
+                                    function closeDemoPayment() {
+                                        clearInterval(demoPaymentTimer);
+                                        document.getElementById("demoPaymentOverlay").style.display = "none";
+                                        document.getElementById("startPaymentButton").disabled = false;
                                     }
 
             <%

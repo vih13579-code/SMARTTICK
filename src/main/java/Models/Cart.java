@@ -12,6 +12,7 @@ public class Cart {
     private String fullName;
     private long price;
     private int category;
+    private int stock;
 
     public Cart() {
     }
@@ -28,6 +29,11 @@ public class Cart {
         this.fullName = fullName;
         this.price = price;
         this.category = category;
+    }
+
+    public Cart(int productID, int quantity, String image, String fullName, long price, int category, int stock) {
+        this(productID, quantity, image, fullName, price, category);
+        this.stock = stock;
     }
 
     public int getProductID() {
@@ -76,6 +82,14 @@ public class Cart {
 
     public void setCategory(int category) {
         this.category = category;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 
 }

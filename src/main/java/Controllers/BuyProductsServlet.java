@@ -17,6 +17,7 @@ import Models.Email;
 import Models.EmailUtils;
 import Models.Order;
 import Models.Product;
+import Utils.DemoPaymentStore;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -194,7 +195,7 @@ public class BuyProductsServlet extends HttpServlet {
                     String quantity = request.getParameter("quantity");
                     int quantityInput = Integer.parseInt(quantity);
                     Product pd = p.getProductByID(id);
-                    if (pd == null || pd.getDeleted() != 0 || pd.getStock() < quantityInput || quantityInput <= 0 || quantityInput > 5) {
+                    if (pd == null || pd.getDeleted() != 0 || pd.getStock() < quantityInput || quantityInput <= 0) {
                         session.setAttribute("message", "This product is not available with the selected quantity.");
                         response.sendRedirect("ProductDetailServlet?id=" + id);
                         return;
@@ -242,6 +243,14 @@ public class BuyProductsServlet extends HttpServlet {
                 session.setAttribute("order", new Order(fullname, phone, address));
                 request.getRequestDispatcher("ConfirmView.jsp").forward(request, response);
             } else if (action.equals("placeOrder")) {
+                String paymentToken = request.getParameter("paymentToken");
+                String sessionPaymentToken = (String) session.getAttribute("demoPaymentToken");
+                if (paymentToken == null || !paymentToken.equals(sessionPaymentToken)
+                        || !DemoPaymentStore.isPaid(paymentToken, cus.getId())) {
+                    session.setAttribute("message", "Please scan the demo QR and wait for payment confirmation.");
+                    response.sendRedirect("ConfirmView.jsp");
+                    return;
+                }
                 String urlBuy = (String) session.getAttribute("url");
                 System.out.println("URL" + urlBuy);
                 Order o = (Order) session.getAttribute("order");
@@ -265,6 +274,8 @@ public class BuyProductsServlet extends HttpServlet {
                     return;
                 }
                 session.setAttribute("orderStatus", "success");
+                DemoPaymentStore.consume(paymentToken, cus.getId());
+                session.removeAttribute("demoPaymentToken");
                 session.setAttribute("numOfProCartOfCus", ca.getNumberOfProduct(cus.getId()));
                 //gui mail xac nhan don hang thanh cong
                 sendOrderConfirmationEmail(cus, o, cartSelected, o.getTotalAmount());

@@ -65,9 +65,11 @@
                                                     <td class="th">
                                                         <input 
                                                             style="width: 60%; height: 40px; padding-left: 10px; font-weight: bold; background-color: #f5f7ff; border: #f5f7ff solid 1px;"
-                                                            type="number" 
-                                                            min="1" 
-                                                            value="${p.getQuantity()}" 
+                                                             type="number"
+                                                             min="1"
+                                                             max="${p.getStock()}"
+                                                             title="Available stock: ${p.getStock()}"
+                                                             value="${p.getQuantity()}"
                                                             name="quantity" 
                                                             id="quantity-${p.getProductID()}" 
                                                             onchange="updateQuantity(${p.getProductID()}, this.value)">
@@ -253,13 +255,6 @@
                         </div>
                         <div class="modal-body text-dark">
                             <c:choose>
-                                <c:when test="${sessionScope.message.contains('a maximum')}">
-                                    <p> You are allowed to buy a maximum quantity of <b>5</b>! 
-                                        <br>
-                                        Or if you want to buy more, contact us at: 
-                                        <a href="mailto:kieuthy@gmail.com" class="text-primary">kieuthy@gmail.com</a>
-                                    </p>
-                                </c:when>
                                 <c:when test="${sessionScope.message.contains('total amount too big')}">
                                     <p> You can buy product online with the total amount <br> under <b>100,000,000 VND</b>! 
                                         <br>
