@@ -1,385 +1,323 @@
-
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@page import="Models.Cart" %>
-<%@page import="Models.Customer" %>
-<%@page import="java.util.List" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <fmt:setLocale value="vi_VN" />
-
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/popup.css">
+    <title>Checkout Confirmation | SMARTTICK</title>
+</head>
+<body>
+<jsp:include page="header.jsp"/>
+<main class="container checkout-page">
+    <c:set var="subtotal" value="0"/>
+    <c:set var="totalQuantity" value="0"/>
+    <c:forEach items="${sessionScope.cartSelected}" var="p">
+        <c:set var="subtotal" value="${subtotal + (p.getPrice() * p.getQuantity())}"/>
+        <c:set var="totalQuantity" value="${totalQuantity + p.getQuantity()}"/>
+    </c:forEach>
+    <c:set var="discountValue" value="${empty sessionScope.discount ? 0 : sessionScope.discount}"/>
+    <c:set var="finalTotal" value="${subtotal - discountValue < 0 ? 0 : subtotal - discountValue}"/>
+    <c:set var="depositAmount" value="${totalQuantity >= 6 ? finalTotal * 30 / 100 : 0}"/>
+    <c:set var="amountDue" value="${finalTotal - depositAmount}"/>
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-              rel="stylesheet"
-              integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-              crossorigin="anonymous">
-        <link rel="stylesheet" href="./assets/css/checkout.css">
-        <link rel="stylesheet" href="./assets/css/popup.css" />
-        <title>Checkout</title>
-        <style>
-            .popup-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.5);
-                z-index: 1000;
+    <div class="checkout-head">
+        <div>
+            <span class="eyebrow">Checkout</span>
+            <h1>Confirmation</h1>
+        </div>
+        <a class="btn btn-outline" href="${pageContext.request.contextPath}/cart">Back to Cart</a>
+    </div>
+
+    <c:if test="${not empty sessionScope.message}">
+        <div class="alert alert-danger"><c:out value="${sessionScope.message}"/></div>
+    </c:if>
+
+    <div class="checkout-grid">
+        <section class="panel checkout-panel">
+            <h2>Shipping Address</h2>
+            <div class="summary-list">
+                <div><strong>Email</strong><span><c:out value="${sessionScope.customer.email}"/></span></div>
+                <div><strong>Full name</strong><span><c:out value="${sessionScope.order.fullName}"/></span></div>
+                <div><strong>Phone</strong><span><c:out value="${sessionScope.order.phone}"/></span></div>
+                <div><strong>Address</strong><span><c:out value="${sessionScope.order.address}"/></span></div>
+            </div>
+        </section>
+
+        <aside class="panel checkout-summary">
+            <h2>Order Summary</h2>
+            <div class="checkout-items">
+                <c:forEach items="${sessionScope.cartSelected}" var="p">
+                    <div class="checkout-item">
+                        <img src="${pageContext.request.contextPath}/product-images/${p.getImage()}"
+                             onerror="this.src='${pageContext.request.contextPath}/assets/imgs/Products/watches/watch-placeholder.svg'"
+                             alt="SMARTTICK watch">
+                        <div>
+                            <strong><c:out value="${p.getFullName()}"/></strong>
+                            <span>Qty ${p.getQuantity()}</span>
+                            <b><fmt:formatNumber value="${p.getPrice() * p.getQuantity()}" type="currency"/></b>
+                        </div>
+                    </div>
+                </c:forEach>
+            </div>
+
+            <div class="voucher-row">
+                <div>
+                    <strong>Voucher</strong>
+                    <span>
+                        <c:choose>
+                            <c:when test="${sessionScope.customerVoucherUsing != null}">
+                                <c:out value="${sessionScope.customerVoucherUsing.getVoucherCode()}"/>
+                            </c:when>
+                            <c:otherwise>No voucher selected</c:otherwise>
+                        </c:choose>
+                    </span>
+                </div>
+                <div class="voucher-actions">
+                    <button type="button" class="link-button" onclick="openVoucherModal()">Select</button>
+                    <c:if test="${sessionScope.customerVoucherUsing != null}">
+                        <a href="${pageContext.request.contextPath}/order?action=cancelVoucher">Remove</a>
+                    </c:if>
+                </div>
+            </div>
+
+            <div class="totals">
+                <div><span>Subtotal</span><b><fmt:formatNumber value="${subtotal}" type="currency"/></b></div>
+                <div><span>Discount</span><b><fmt:formatNumber value="${discountValue}" type="currency"/></b></div>
+                <c:if test="${depositAmount > 0}">
+                    <div><span>Deposit 30%</span><b><fmt:formatNumber value="${depositAmount}" type="currency"/></b></div>
+                    <div><span>Remaining</span><b><fmt:formatNumber value="${amountDue}" type="currency"/></b></div>
+                </c:if>
+                <div class="grand-total"><span>Total</span><b><fmt:formatNumber value="${finalTotal}" type="currency"/></b></div>
+            </div>
+
+            <form id="checkoutPaymentForm" class="payment-box" action="${pageContext.request.contextPath}/order" method="POST">
+                <h3>Payment</h3>
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="cod" ${depositAmount > 0 ? '' : 'checked'}>
+                    <span>Cash on delivery</span>
+                </label>
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="vnpay_qr" ${depositAmount > 0 ? 'checked' : ''}>
+                    <span>VNPAY QR</span>
+                </label>
+                <div id="vnpaySandboxInfo" class="vnpay-sandbox-info">
+                    <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-VNPAY-QR-1.png" alt="VNPAY QR" style="width: 100%; max-height: 48px; object-fit: contain;">
+                    <div>
+                        <strong><fmt:formatNumber value="${depositAmount > 0 ? depositAmount : finalTotal}" type="currency"/></strong>
+                    </div>
+                </div>
+                <input type="hidden" name="buyProductAction" value="placeOrder">
+                <div id="paymentError" class="alert alert-danger" hidden></div>
+                <div class="payment-actions">
+                    <button id="btnPlaceOrder" class="btn btn-primary" type="submit">Place Order</button>
+                    <button id="btnVnpayPay" class="btn btn-primary" type="submit">
+                        Thanh toán bằng VNPAY QR
+                    </button>
+                    <button class="btn btn-outline" type="button" data-bs-toggle="modal" data-bs-target="#cancelPaymentModal">Cancel Payment</button>
+                </div>
+            </form>
+        </aside>
+    </div>
+</main>
+
+<div class="popup" id="orderPopup" style="display:none;">
+    <div class="popup-content">
+        <img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" alt="success" style="width:82px;margin-bottom:15px;">
+        <h3>Order Successful</h3>
+        <p>Your order is waiting for shop acceptance.</p>
+        <div class="popup-actions">
+            <a class="btn btn-primary" href="odetailforcus?id=${sessionScope.newOrder}">OK</a>
+            <a class="btn btn-outline" href="${pageContext.request.contextPath}/Watches">Back to shop</a>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voucherModalLabel">Select Voucher</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <c:if test="${empty sessionScope.customerVoucher}">
+                    <p>No vouchers available.</p>
+                </c:if>
+                <c:forEach var="vou" items="${sessionScope.customerVoucher}">
+                    <div class="voucher-card">
+                        <div>
+                            <strong><c:out value="${vou.getVoucherCode()}"/></strong>
+                            <p><c:out value="${vou.getDescription()}"/></p>
+                            <span>x${vou.getQuantity()}</span>
+                        </div>
+                        <a class="btn btn-primary" href="${pageContext.request.contextPath}/order?action=useVoucher&id=${vou.getVoucherID()}">Select</a>
+                    </div>
+                </c:forEach>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cancelPaymentModal" tabindex="-1" aria-labelledby="cancelPaymentLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelPaymentLabel">Confirm Payment Cancellation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to cancel this payment?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">No</button>
+                <a class="btn btn-primary" href="${pageContext.request.contextPath}/cart">Yes, Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<jsp:include page="footer.jsp"/>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script>
+    const contextPath = '${pageContext.request.contextPath}';
+    const paymentForm = document.getElementById('checkoutPaymentForm');
+    const codButton = document.getElementById('btnPlaceOrder');
+    const vnpayButton = document.getElementById('btnVnpayPay');
+    const vnpayInfo = document.getElementById('vnpaySandboxInfo');
+    const paymentError = document.getElementById('paymentError');
+    const pendingOrderStorageKey = 'smarttickVnpayPendingOrderId';
+    const navigationEntry = performance.getEntriesByType
+        ? performance.getEntriesByType('navigation')[0] : null;
+    if (!navigationEntry || navigationEntry.type !== 'back_forward') {
+        sessionStorage.removeItem(pendingOrderStorageKey);
+    }
+
+    function selectedPaymentMethod() {
+        const selected = paymentForm.querySelector('input[name="paymentMethod"]:checked');
+        return selected ? selected.value : 'cod';
+    }
+
+    function updatePaymentControls() {
+        const isVnpay = selectedPaymentMethod() === 'vnpay_qr';
+        codButton.hidden = isVnpay;
+        vnpayButton.hidden = !isVnpay;
+        vnpayInfo.hidden = !isVnpay;
+    }
+
+    paymentForm.querySelectorAll('input[name="paymentMethod"]').forEach(function (input) {
+        input.addEventListener('change', updatePaymentControls);
+    });
+
+    paymentForm.addEventListener('submit', async function (event) {
+        if (selectedPaymentMethod() !== 'vnpay_qr') {
+            return;
+        }
+        event.preventDefault();
+        paymentError.hidden = true;
+        vnpayButton.disabled = true;
+        vnpayButton.textContent = 'Đang tạo giao dịch...';
+
+        try {
+            let orderId = sessionStorage.getItem(pendingOrderStorageKey);
+            if (!orderId) {
+                const orderData = new URLSearchParams(new FormData(paymentForm));
+                orderData.set('buyProductAction', 'placeOrder');
+                orderData.set('paymentMethod', 'vnpay_qr');
+                orderData.set('vnpayCheckout', 'true');
+                const orderResponse = await fetch(paymentForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: orderData.toString(),
+                    credentials: 'same-origin'
+                });
+                const orderResult = await readJsonResponse(orderResponse);
+                if (!orderResponse.ok || !orderResult.success) {
+                    throw new Error(orderResult.message || 'Không thể tạo đơn hàng.');
+                }
+                orderId = String(orderResult.orderId);
+                sessionStorage.setItem(pendingOrderStorageKey, orderId);
             }
 
-
-
-
-        </style>
-    </head>
-
-    <body>
-        <jsp:include page="header.jsp"></jsp:include>
-            <main>
-                <div class="container">
-                    <p><a style=" text-decoration: none;
-                          color: black;" href="HomeServlet">Home</a> ›
-                        <a style=" text-decoration: none;
-                           color: black;" href="shoppingCart.jsp">Shopping Cart</a> ›
-                        Checkout Process
-                    </p>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="title">
-                                <div>
-                                    <h1>Confirmation</h1>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="col-md-4" style="text-align: right;">
-                            <img src="./assets/imgs/CheckoutImg/status2.jpg" alt="" width="350px">
-                        </div>
-                    </div>
-                    <br>
-                    <br>
-                    <div class="row">
-                        <div class="col-md-12" style="text-align: left;">
-                            <h5>Shipping Address</h5>
-                            <svg width="66%" height="2" viewBox="0 0 66% 2" fill="none"
-                                 xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 1L924 1.00008" stroke="#CACDD8" />
-                            </svg>
-                        </div>
-
-                    </div>
-                    <div class="row ">
-                        <div class="col-md-8">
-                            <table style="width: 100%;">
-                                <tr style="padding: 20px 20px 20px 0px;">
-                                    <th style="width: 30%;"></th>
-                                    <th style="width: 70%;"></th>
-                                </tr>
-                                <tr style="padding: 20px 20px 20px 0px;">
-                                    <td style="padding: 20px 20px 20px 0px;"><b>Email:</b></td>
-                                    <td style="padding: 20px 20px 20px 0px;">
-                                    ${sessionScope.customer.getEmail()}</td>
-                            </tr>
-                            <tr style="padding: 20px 20px 20px 0px;">
-                                <td style="padding: 20px 20px 20px 0px;"><b>Fullname</b></td>
-                                <td style="padding: 20px 20px 20px 0px;">
-                                    ${sessionScope.order.getFullName()}</td>
-                            </tr>
-                            <tr style="padding: 20px 20px 20px 0px;">
-                                <td style="padding: 20px 20px 20px 0px;"><b>Phone number</b>
-                                </td>
-                                <td style="padding: 20px 20px 20px 0px;">
-                                    ${sessionScope.order.getPhone()}</td>
-                            </tr>
-                            <tr style="padding: 20px 20px 20px 0px;">
-                                <td style="padding: 20px 20px 20px 0px;"><b>Address</b></td>
-                                <td style="padding: 20px 20px 20px 0px;">
-                                    ${sessionScope.order.getAddress()}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-4"
-                         style="background-color: #f5f7ff; padding: 20px; margin-top: -10px; height: 80%;">
-                        <div> 
-                            <h4>Order Summary</h4>
-                            <svg width="100%" height="2" viewBox="0 0 100% 2" fill="none"
-                                 xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 1L924 1.00008" stroke="#CACDD8" />
-                            <c:set var="subtotal" value="0"></c:set>
-                            <c:forEach items="${sessionScope.cartSelected}" var="p">
-                                <div style="display: flex; column-gap: 20px;">
-                                    <div><img src="./assets/imgs/Products//${p.getImage()}" alt=""
-                                              width="70px"></div>
-                                    <div>
-                                        <div>
-                                            <p>${p.getFullName()}</p>
-                                        </div>
-                                        <div
-                                            style="display: flex; column-gap: 10px; margin-top: -15px;">
-                                            <div>Qty ${p.getQuantity()}</div>
-                                            <div><b>
-                                                    <fmt:formatNumber
-                                                        value="${p.getPrice() * p.getQuantity()}"
-                                                        type="currency" />
-                                                </b></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <br>
-                                <c:set var="subtotal" value="${subtotal + (p.getPrice() * p.getQuantity())}"></c:set>
-                            </c:forEach>
-                        </div>
-                        <svg width="100%" height="2" viewBox="0 0 100% 2" fill="none"
-                             xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0 1L924 1.00008" stroke="#CACDD8" />
-                        </svg>
-                        <br>
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px">
-
-
-                            <c:if test="${sessionScope.customerVoucherUsing != null}">
-                                <h6><img src="./assets/imgs/icon/coupon.png" alt="alt" width="20" height="20" style="margin-top: -5px"/>
-                                    Your Voucher
-                                </h6>
-                                <div style="display: flex; align-items: center; column-gap: 10px">
-                                    <a onclick="openVoucherModal()" style="color: blue; margin-top: -4px; cursor: pointer">${sessionScope.customerVoucherUsing.getVoucherCode()}</a>
-                                    <a class="btn btn-close" href="order?action=cancelVoucher" ></a>
-                                </div>
-                            </c:if>
-                            <c:if test="${sessionScope.customerVoucherUsing == null}">
-                                <h6><img src="./assets/imgs/icon/coupon.png" alt="alt" width="20" height="20" style="margin-top: -5px"/>
-                                    Apply Voucher(if have)
-                                </h6>
-                                <a onclick="openVoucherModal()"
-                                   style="color: blue; margin-top: -6px; cursor: pointer">
-                                    Select Voucher
-                                </a>
-                            </c:if>
-
-
-                        </div>
-                        <svg width="100%" height="2" viewBox="0 0 100% 2" fill="none"
-                             xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0 1L924 1.00008" stroke="#CACDD8" />
-                        </svg>
-                        <div> <p id="selectedVoucher" style="margin-top: 10px;"></p>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <div style="text-align: left">
-                                <h6 >Subtotal</h6>
-                                <h6 >Discount</h6>
-                                <h4 >Total</h4>
-                            </div>
-                            <div>
-                                <h6 style="text-align: right;">
-                                    <fmt:formatNumber value="${subtotal}" type="currency" />
-                                </h6>
-                                <h6 style="text-align: right;">
-                                    <c:if test="${sessionScope.discount != null}">
-                                        <c:set var="discount" value="${sessionScope.discount}" />
-                                        <fmt:formatNumber value="${discount}" type="currency" />
-                                    </c:if>
-                                    <c:if test="${sessionScope.discount == null}">
-                                        <fmt:formatNumber value="0" type="currency" />
-                                    </c:if>
-                                </h6>
-                                <h4 style="text-align: right;">
-                                    <c:if test="${totalAmount - discount <= 0}">
-                                        <c:set var="total" value="0" />
-                                        <fmt:formatNumber value="${total}" type="currency" />
-                                    </c:if>
-                                    <c:if test="${totalAmount - discount > 0}">
-                                        <c:set var="total" value="${totalAmount - discount}" />
-                                        <fmt:formatNumber value="${total}" type="currency" />
-                                    </c:if>
-                                </h4>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-            <br>
-
-            <div class="container">
-                <form style="text-align: right" class="infor" action="order" method="POST">
-                    <input type="number" name="totalAmount" value="${total}" hidden>
-                    <button type="submit"
-                            style="background-color: #0156ff; border: #0156ff solid 1px; color: white;">
-                        Place order
-                    </button>
-                    <input name="buyProductAction" value="placeOrder" hidden="">
-                </form>
-            </div>
-            <br>
-            <div style="display: none;" class="popup" id="orderPopup">
-                <div class="popup-content">
-                    <img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" alt="success-tick" style="width: 82px; margin-bottom: 15px;" />
-                    <h3>Order Successful</h3>
-                    <p>Your order is waiting for acceptance by the shop.</p>
-                    <div style="display: flex; justify-content: center; column-gap: 10px">
-                        <a  class="btn btn-primary"
-                            href="odetailforcus?id=${sessionScope.newOrder}">OK</a>
-                        <a class="btn btn-secondary"
-                           href="ProductListView">Back to home</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Bootstrap Popup -->
-            <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="voucherModalLabel">Select Your Voucher</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <c:if test="${empty sessionScope.customerVoucher}">
-                                <p>No vouchers available.</p>
-                            </c:if>
-                            <c:forEach var="vou" items="${sessionScope.customerVoucher}">
-                                <div class="voucher border p-3 mb-3 d-flex justify-content-between position-relative" style="border-radius: 12px;">
-                                    <!-- Quantity Tag -->
-                                    <div class="position-absolute top-0 start-0 bg-danger text-white px-2 py-1" style="border-top-left-radius: 12px;">
-                                        X${vou.getQuantity()}
-                                    </div>
-                                    <div class="flex-grow-1 " style="padding-left: 30px">
-                                        <div class="right fw-bold text-danger" style="font-size: 16px;">
-                                            <c:choose>
-                                                <c:when test="${vou.getVoucherType() == 0}">
-                                                    <fmt:formatNumber type="currency" value="${vou.getVoucherValue()}"/> Sale Off
-                                                </c:when>
-                                                <c:otherwise>
-                                                    ${vou.getVoucherValue()}% Sale Off
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </div>
-                                        <div class="terms mt-3">
-                                            <p class="text-muted" style="font-size: 14px;">${vou.getDescription()}</p>
-                                        </div>
-                                        <c:if test="${vou.getMaxUsedCount() != 0}">
-                                            <div style="width: 80%;">
-                                                <div class="progress mt-2" style="height: 12px;">
-                                                    <div class="progress-bar bg-success" role="progressbar"
-                                                         style="width: ${vou.getUsedCount() * 100 / vou.getMaxUsedCount()}%;"
-                                                         aria-valuenow="${vou.getUsedCount()}" 
-                                                         aria-valuemin="0" 
-                                                         aria-valuemax="${vou.getMaxUsedCount()}">
-                                                    </div>
-                                                </div>
-                                                <p class="text-muted mt-1" style="font-size: 12px;">
-                                                    ${vou.getUsedCount()} / ${vou.getMaxUsedCount()} used
-                                                </p>
-                                            </div>
-                                        </c:if>
-                                        <c:if test="${vou.getExpirationDate() != null}">
-                                            <c:set var="expirationDate" value="${vou.getExpirationDate()}" />
-                                            <c:set var="formattedDate" value="${expirationDate.substring(8,10)}/${expirationDate.substring(5,7)}/${expirationDate.substring(0,4)}" />
-                                            <p><b>Expiration Date:</b> ${formattedDate}</p>
-                                        </c:if>
-                                    </div>
-                                    <!-- Select Button -->
-                                    <a href="order?action=useVoucher&id=${vou.getVoucherID()}" class="btn btn-primary" style="height: 40px; align-self: center;">Select</a>
-                                </div>
-                            </c:forEach>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Bootstrap Modal -->
-            <div class="modal fade" id="minOrder" tabindex="-1" aria-labelledby="warningModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title text-danger" id="warningModalLabel">Warning</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body text-dark">
-                            <p>${sessionScope.message}</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-
-        <jsp:include page="footer.jsp"></jsp:include>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-            <script
-                src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"></script>
-            <script>
-                                    window.onload = function () {
-            <% if (session.getAttribute("message") != null) { %>
-                                        showMessage(true);
-            <% }%>
-                                    };
-                                    function showMessage(show) {
-                                        if (show) {
-                                            var warningModal = new bootstrap.Modal(document.getElementById('minOrder'));
-                                            warningModal.show();
-                                        }
-                                    }
-                                    function closePopup() {
-                                        var warningModal = bootstrap.Modal.getInstance(document.getElementById('minOrder'));
-                                        if (warningModal) {
-                                            warningModal.hide();
-                                        }
-                                    }
-
-                                    function openVoucherModal() {
-                                        var modal = new bootstrap.Modal(document.getElementById('voucherModal'));
-                                        modal.show();
-                                    }
-
-                                    function closeVoucherModal() {
-                                        var modalElement = document.getElementById('voucherModal');
-                                        var modal = bootstrap.Modal.getInstance(modalElement);
-                                        if (modal) {
-                                            modal.hide();
-                                        }
-                                    }
-                                    function applyVoucher(voucher) {
-                                        document.getElementById("selectedVoucher").innerHTML = "Selected: " + voucher;
-                                        closeVoucherPopup();
-                                        // Redirect to servlet with the selected voucher
-                                        window.location.href = "applyVoucherServlet?voucher=" + voucher;
-                                    }
-                                    function showPopup() {
-                                        document.getElementById("orderPopup").style.display = "flex";
-                                    }
-
-                                    function closePopup() {
-                                        document.getElementById("orderPopup").style.display = "none";
-                                    }
-
-            <%
-                String message = (String) session.getAttribute("orderStatus");
-                if (message != null && message.equals("success")) {
-                    out.print("showPopup();");
-                    session.removeAttribute("orderStatus");
+            const createBody = new URLSearchParams();
+            createBody.set('orderId', orderId);
+            const paymentResponse = await fetch(contextPath + '/api/payments/vnpay/create', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                },
+                body: createBody.toString(),
+                credentials: 'same-origin'
+            });
+            const paymentResult = await readJsonResponse(paymentResponse);
+            if (!paymentResponse.ok || !paymentResult.success || !paymentResult.paymentUrl) {
+                if (paymentResult.code === 'ORDER_NOT_FOUND'
+                        || paymentResult.code === 'ORDER_PAID') {
+                    sessionStorage.removeItem(pendingOrderStorageKey);
                 }
-            %>
-        </script>
-    </body>
-    <c:if test="${not empty sessionScope.message}">
-        <c:remove var="message" scope="session"/>
-    </c:if>
-    <c:if test="${not empty sessionScope.newOrder}">
-        <c:remove var="newOrder" scope="session"/>
-    </c:if>
+                throw new Error(paymentResult.message || 'Không thể tạo URL thanh toán VNPAY.');
+            }
+            window.location.assign(paymentResult.paymentUrl);
+        } catch (error) {
+            paymentError.textContent = error.message;
+            paymentError.hidden = false;
+            vnpayButton.disabled = false;
+            vnpayButton.textContent = 'Thử lại thanh toán VNPAY';
+        }
+    });
+
+    async function readJsonResponse(response) {
+        const responseText = await response.text();
+        try {
+            return JSON.parse(responseText);
+        } catch (error) {
+            console.error("JSON parse failed. Response text:", responseText);
+            if (response.redirected && response.url.indexOf('/customerLogin') !== -1) {
+                throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+            }
+            const snippet = responseText.substring(0, 150);
+            throw new Error(
+                'Máy chủ trả về dữ liệu không hợp lệ (HTTP ' + response.status + '). '
+                + 'Nội dung phản hồi: ' + snippet
+            );
+        }
+    }
+
+    updatePaymentControls();
+
+    function openVoucherModal() {
+        new bootstrap.Modal(document.getElementById('voucherModal')).show();
+    }
+    function showPopup() {
+        document.getElementById('orderPopup').style.display = 'flex';
+    }
+    <%
+        String message = (String) session.getAttribute("orderStatus");
+        if (message != null && message.equals("success")) {
+            out.print("showPopup();");
+            session.removeAttribute("orderStatus");
+        }
+    %>
+</script>
+</body>
+<c:if test="${not empty sessionScope.message}">
+    <c:remove var="message" scope="session"/>
+</c:if>
+<c:if test="${not empty sessionScope.newOrder}">
+    <c:remove var="newOrder" scope="session"/>
+</c:if>
 </html>

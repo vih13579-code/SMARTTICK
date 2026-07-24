@@ -12,6 +12,9 @@ public class Cart {
     private String fullName;
     private long price;
     private int category;
+    private Integer variantId;
+    private String colorName;
+    private String colorHex;
 
     public Cart() {
     }
@@ -28,6 +31,19 @@ public class Cart {
         this.fullName = fullName;
         this.price = price;
         this.category = category;
+    }
+
+    public Cart(int productID, Integer variantId, int quantity, String image, String fullName, long price, int category,
+            String colorName, String colorHex) {
+        this.productID = productID;
+        this.variantId = variantId;
+        this.quantity = quantity;
+        this.image = image;
+        this.fullName = fullName;
+        this.price = price;
+        this.category = category;
+        this.colorName = colorName;
+        this.colorHex = colorHex;
     }
 
     public int getProductID() {
@@ -66,7 +82,7 @@ public class Cart {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(long price) {
         this.price = price;
     }
 
@@ -76,6 +92,30 @@ public class Cart {
 
     public void setCategory(int category) {
         this.category = category;
+    }
+
+    public Integer getVariantId() {
+        return variantId;
+    }
+
+    public void setVariantId(Integer variantId) {
+        this.variantId = variantId;
+    }
+
+    public String getColorName() {
+        return colorName;
+    }
+
+    public void setColorName(String colorName) {
+        this.colorName = colorName;
+    }
+
+    public String getColorHex() {
+        return colorHex;
+    }
+
+    public void setColorHex(String colorHex) {
+        this.colorHex = colorHex;
     }
 
 }

@@ -17,8 +17,8 @@ import Models.Email;
 import Models.EmailUtils;
 import Models.Order;
 import Models.Product;
+import com.google.gson.Gson;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -28,11 +28,15 @@ import javax.servlet.http.HttpSession;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.sql.SQLException;
 
 @WebServlet(name = "buyProductsServlet", urlPatterns = {"/order"})
 public class BuyProductsServlet extends HttpServlet {
+    private static final String SUPPORT_EMAIL = "duyminhnguyen247@gmail.com";
+    private static final Gson GSON = new Gson();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -132,6 +136,11 @@ public class BuyProductsServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         String action = request.getParameter("buyProductAction");
+        boolean vnpayCheckoutRequest = "true".equalsIgnoreCase(request.getParameter("vnpayCheckout"))
+                || "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
+        if ((action == null || action.trim().isEmpty()) && vnpayCheckoutRequest) {
+            action = "placeOrder";
+        }
         OrderDAO od = new OrderDAO();
         CartDAO ca = new CartDAO();
         ProductDAO p = new ProductDAO();
@@ -139,6 +148,10 @@ public class BuyProductsServlet extends HttpServlet {
         String url = request.getParameter("orderUrl");
         System.out.println("Context: " + url);
         if (cus != null) {
+            if (action == null || action.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing buyProductAction.");
+                return;
+            }
             if (action.equals("checkout")) {
                 AddressDAO cdao = new AddressDAO();
                 Address add = cdao.getDefaultAddress(cus.getId());
@@ -194,7 +207,7 @@ public class BuyProductsServlet extends HttpServlet {
                     String quantity = request.getParameter("quantity");
                     int quantityInput = Integer.parseInt(quantity);
                     Product pd = p.getProductByID(id);
-                    if (pd == null || pd.getDeleted() != 0 || pd.getStock() < quantityInput || quantityInput <= 0 || quantityInput > 5) {
+                    if (pd == null || pd.getDeleted() != 0 || pd.getStock() < quantityInput || quantityInput <= 0) {
                         session.setAttribute("message", "This product is not available with the selected quantity.");
                         response.sendRedirect("ProductDetailServlet?id=" + id);
                         return;
@@ -246,10 +259,27 @@ public class BuyProductsServlet extends HttpServlet {
                 System.out.println("URL" + urlBuy);
                 Order o = (Order) session.getAttribute("order");
                 if (o == null) {
+                    if (vnpayCheckoutRequest) {
+                        writeJsonError(response, HttpServletResponse.SC_CONFLICT,
+                                "Checkout session has expired. Please return to the cart.");
+                        return;
+                    }
                     session.setAttribute("message", "Please confirm shipping information before placing order.");
                     response.sendRedirect("CheckoutView.jsp");
                     return;
                 }
+                String paymentMethod = request.getParameter("paymentMethod");
+                if (paymentMethod == null || paymentMethod.trim().isEmpty()) {
+                    paymentMethod = "cod";
+                }
+                if (!"cod".equalsIgnoreCase(paymentMethod)
+                        && !"vnpay_qr".equalsIgnoreCase(paymentMethod)) {
+                    paymentMethod = "cod";
+                }
+                boolean vnpayPayment = "vnpay_qr".equalsIgnoreCase(paymentMethod);
+                String paymentStatus = "PENDING";
+                o.setPaymentMethod(paymentMethod);
+                o.setPaymentStatus(paymentStatus);
                 Integer voucherId = null;
                 if (session.getAttribute("customerVoucherUsing") != null) {
                     CustomerVoucher customerVoucherUsing = (CustomerVoucher) session.getAttribute("customerVoucherUsing");
@@ -260,6 +290,10 @@ public class BuyProductsServlet extends HttpServlet {
                 try {
                     newOrder = od.placeOrderTransaction(o, cartSelected, cus.getId(), urlBuy, voucherId);
                 } catch (SQLException ex) {
+                    if (vnpayCheckoutRequest) {
+                        writeJsonError(response, HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
+                        return;
+                    }
                     session.setAttribute("message", ex.getMessage());
                     response.sendRedirect("cart");
                     return;
@@ -268,20 +302,45 @@ public class BuyProductsServlet extends HttpServlet {
                 session.setAttribute("numOfProCartOfCus", ca.getNumberOfProduct(cus.getId()));
                 //gui mail xac nhan don hang thanh cong
                 sendOrderConfirmationEmail(cus, o, cartSelected, o.getTotalAmount());
+                if (vnpayPayment && vnpayCheckoutRequest) {
+                    clearCheckoutSession(session);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    Map<String, Object> result = new LinkedHashMap<>();
+                    result.put("success", true);
+                    result.put("orderId", newOrder);
+                    result.put("paymentStatus", "PENDING");
+                    response.getWriter().write(GSON.toJson(result));
+                    return;
+                }
                 session.setAttribute("newOrder", newOrder);
                 request.getRequestDispatcher("ConfirmView.jsp").forward(request, response);
-                session.removeAttribute("order");
-                session.removeAttribute("cartSelected");
-                session.removeAttribute("discount");
-                session.removeAttribute("customerVoucherUsing");
-                session.removeAttribute("shipAddress");
-                session.removeAttribute("numOfItems");
+                clearCheckoutSession(session);
             }
         } else {
             response.sendRedirect("customerLogin");
         }
     }
     //phuong thuc gui mail
+
+    private void writeJsonError(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("success", false);
+        result.put("message", message);
+        response.getWriter().write(GSON.toJson(result));
+    }
+
+    private void clearCheckoutSession(HttpSession session) {
+        session.removeAttribute("order");
+        session.removeAttribute("cartSelected");
+        session.removeAttribute("discount");
+        session.removeAttribute("customerVoucherUsing");
+        session.removeAttribute("shipAddress");
+        session.removeAttribute("numOfItems");
+    }
 
     private void sendOrderConfirmationEmail(Customer customer, Order order, List<Cart> cartItems, long totalAmount) {
         try {
@@ -310,8 +369,17 @@ public class BuyProductsServlet extends HttpServlet {
 
             sb.append("</table><br>");
             sb.append("<b>Total Amount:</b> ").append(String.format("%d", totalAmount)).append(" VND<br>");
+            if (order.getDepositAmount() > 0) {
+                sb.append("<b>Deposit:</b> ").append(String.format("%d", order.getDepositAmount()))
+                        .append(" VND<br>");
+                sb.append("<b>Remaining Due:</b> ").append(String.format("%d", order.getAmountDue()))
+                        .append(" VND<br>");
+            }
+            sb.append("<b>Payment:</b> ").append(order.getPaymentMethod() == null ? "COD" : order.getPaymentMethod())
+                    .append(" (").append(order.getPaymentStatus() == null ? "pending" : order.getPaymentStatus())
+                    .append(")<br>");
             sb.append("<br>Thank you for choosing <b>SMARTTICK</b>!<br>");
-            sb.append("If you have any questions, feel free to contact us.<br><br>");
+            sb.append("If you have any questions, contact us at ").append(SUPPORT_EMAIL).append(".<br><br>");
 
             email.setContent(sb.toString());
 

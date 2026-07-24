@@ -1,4 +1,4 @@
-<%@page import="Models.Employee"%>
+﻿<%@page import="Models.Employee"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -66,7 +66,7 @@
         </style>
     </head>
 
-    <body>
+    <body class="admin-ops-page">
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>
             <div class="content">
             <jsp:include page="HeaderDashboard.jsp"></jsp:include>

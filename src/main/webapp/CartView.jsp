@@ -166,13 +166,13 @@
                                     </div>
                                     <div class="btnSummary">
                                         <c:if test="${cartList.isEmpty()}">
-                                            <button form="cartSelected" type="submit"
+                                            <button form="cartSelected" type="button"
                                                     style="background-color: #0156ff; border: #0156ff solid 1px; color: white;"
                                                     id="checkout" disabled>Proceed to Checkout
                                             </button>
                                         </c:if>
                                         <c:if test="${!cartList.isEmpty()}"> 
-                                            <button form="cartSelected" type="submit"
+                                            <button form="cartSelected" type="button"
                                                     style="background-color: #0156ff; border: #0156ff solid 1px; color: white;"
                                                     id="checkout">Proceed to Checkout
                                             </button>
@@ -254,17 +254,17 @@
                         <div class="modal-body text-dark">
                             <c:choose>
                                 <c:when test="${sessionScope.message.contains('a maximum')}">
-                                    <p> You are allowed to buy a maximum quantity of <b>5</b>! 
+                                    <p> This quantity is above the normal online limit.
                                         <br>
                                         Or if you want to buy more, contact us at: 
-                                        <a href="mailto:kieuthy@gmail.com" class="text-primary">kieuthy@gmail.com</a>
+                                        <a href="mailto:duyminhnguyen247@gmail.com" class="text-primary">duyminhnguyen247@gmail.com</a>
                                     </p>
                                 </c:when>
                                 <c:when test="${sessionScope.message.contains('total amount too big')}">
                                     <p> You can buy product online with the total amount <br> under <b>100,000,000 VND</b>! 
                                         <br>
                                         Or if you want to buy, contact us at: 
-                                        <a href="mailto:kieuthy@gmail.com" class="text-primary">kieuthy@gmail.com</a>
+                                        <a href="mailto:duyminhnguyen247@gmail.com" class="text-primary">duyminhnguyen247@gmail.com</a>
                                     </p>
                                 </c:when>
                                 <c:otherwise>
@@ -380,7 +380,8 @@
                             });
                 }
 
-                document.getElementById("checkout").addEventListener("click", function () {
+                document.getElementById("checkout").addEventListener("click", function (event) {
+                    event.preventDefault();
                     // Lấy tất cả các checkbox trong form
                     const checkboxes = document.querySelectorAll("input[name='cartSelected']");
                     let isChecked = false;

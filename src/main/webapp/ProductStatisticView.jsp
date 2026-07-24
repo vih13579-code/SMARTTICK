@@ -1,4 +1,4 @@
-
+﻿
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -34,19 +34,19 @@
                 border-radius: 10px;
                 box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
                 width: 40%;
-                min-width: 530px; /* Đảm bảo không bị bó hẹp */
+                min-width: 530px; /* Äáº£m báº£o khÃ´ng bá»‹ bÃ³ háº¹p */
             }
 
             canvas {
                 max-height: 300px;
-                max-width: 100%; /* Đảm bảo không bị tràn */
+                max-width: 100%; /* Äáº£m báº£o khÃ´ng bá»‹ trÃ n */
             }
 
             .truncate-text {
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                max-width: 200px; /* Giới hạn chiều dài chữ */
+                max-width: 200px; /* Giá»›i háº¡n chiá»u dÃ i chá»¯ */
                 display: inline-block;
             }
 
@@ -100,11 +100,11 @@
                 padding: 20px;
             }
 
-            /* Giữ header cố định */
+            /* Giá»¯ header cá»‘ Ä‘á»‹nh */
             .header {
                 position: fixed;
                 top: 0;
-                left: 260px; /* vì sidebar chiếm 250px */
+                left: 260px; /* vÃ¬ sidebar chiáº¿m 250px */
                 right: 10px;
                 margin-top: 10px;
                 z-index: 1000;
@@ -174,9 +174,9 @@
                 display: flex;
                 align-items: center;
                 width: 100%;
-                max-width: 300px; /* Giảm kích thước tối đa */
+                max-width: 300px; /* Giáº£m kÃ­ch thÆ°á»›c tá»‘i Ä‘a */
                 background: white;
-                border-radius: 13px; /* Bo góc mềm hơn */
+                border-radius: 13px; /* Bo gÃ³c má»m hÆ¡n */
                 overflow: hidden;
                 border: 2px solid #7D69FF;
                 margin-bottom: 15px;
@@ -186,14 +186,14 @@
                 flex: 1;
                 border: none;
                 outline: none;
-                padding: 8px 12px; /* Giảm padding để nhỏ hơn */
-                font-size: 14px; /* Giảm kích thước chữ */
+                padding: 8px 12px; /* Giáº£m padding Ä‘á»ƒ nhá» hÆ¡n */
+                font-size: 14px; /* Giáº£m kÃ­ch thÆ°á»›c chá»¯ */
                 color: #555;
             }
 
             .search-button {
                 border: none;
-                padding: 8px 12px; /* Giảm padding của nút */
+                padding: 8px 12px; /* Giáº£m padding cá»§a nÃºt */
                 cursor: pointer;
                 display: flex;
                 align-items: center;
@@ -242,7 +242,7 @@
             }
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>
             <div class="content">
                 <div class="hi">
@@ -318,7 +318,7 @@
                         }
                     });
 
-                    // Showing chú thích màu sắc dưới biểu đồ
+                    // Showing chÃº thÃ­ch mÃ u sáº¯c dÆ°á»›i biá»ƒu Ä‘á»“
                     if (canvasId === "categorySalesChart" || canvasId === "lowStockChart") {
                         let legendId = canvasId === "categorySalesChart" ? "categoryLegend" : "lowStockLegend";
                         let legendDiv = document.getElementById(legendId);
@@ -331,7 +331,7 @@
                     }
                 }
 
-                // CSS để hiển thị chú thích màu sắc đẹp mắt
+                // CSS Ä‘á»ƒ hiá»ƒn thá»‹ chÃº thÃ­ch mÃ u sáº¯c Ä‘áº¹p máº¯t
                 const style = document.createElement('style');
                 style.innerHTML = `
     .chart-legend {
@@ -360,3 +360,4 @@
         </script>
     </body>
 </html>
+

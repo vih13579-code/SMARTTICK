@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <!DOCTYPE html>
 <html>
@@ -81,8 +81,8 @@
             .fixed-header {
                 position: fixed;
                 top: 0;
-                left: 250px; /* Điều chỉnh để tránh che sidebar */
-                width: calc(100% - 250px); /* Chiều rộng trừ đi sidebar */
+                left: 250px; /* Äiá»u chá»‰nh Ä‘á»ƒ trÃ¡nh che sidebar */
+                width: calc(100% - 250px); /* Chiá»u rá»™ng trá»« Ä‘i sidebar */
                 /*background-color: white;*/
                 z-index: 1050;
                 padding: 10px 20px;
@@ -92,7 +92,7 @@
         </style>
         <title>Delete Order Page</title>
     </head>
-    <body>
+    <body class="admin-ops-page">
 
         <jsp:include page="SidebarDashboard.jsp" />
         <div class="fixed-header"><jsp:include page="HeaderDashboard.jsp"></jsp:include></div>
@@ -124,7 +124,7 @@
             <div class="modal-content">
                 <h3>Orders to be Deleted</h3>
                 <div id="orderList">
-                    <!-- Danh sách orders sẽ được load tại đây -->
+                    <!-- Danh sÃ¡ch orders sáº½ Ä‘Æ°á»£c load táº¡i Ä‘Ã¢y -->
                 </div>
                 <button id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete</button>
                 <button id="cancelPreviewBtn" class="btn btn-secondary">Cancel</button>
@@ -139,10 +139,10 @@
             </div>
         </div>
         <script>
-            // Hàm hiển thị modal preview sau khi lấy danh sách orders cần xóa
+            // HÃ m hiá»ƒn thá»‹ modal preview sau khi láº¥y danh sÃ¡ch orders cáº§n xÃ³a
             function previewOrders() {
                 const timeframe = document.getElementById("delete").value;
-                // Gọi AJAX để lấy danh sách orders (giả sử servlet PreviewDeleteOrderServlet trả về HTML)
+                // Gá»i AJAX Ä‘á»ƒ láº¥y danh sÃ¡ch orders (giáº£ sá»­ servlet PreviewDeleteOrderServlet tráº£ vá» HTML)
                 fetch("DeleteOrderServlet?delete=" + timeframe)
                         .then(response => response.text())
                         .then(data => {
@@ -152,10 +152,10 @@
                         .catch(error => console.error("Error fetching preview orders:", error));
             }
 
-            // Khi người dùng nhấn "Yes, Delete", gửi yêu cầu xóa orders
+            // Khi ngÆ°á»i dÃ¹ng nháº¥n "Yes, Delete", gá»­i yÃªu cáº§u xÃ³a orders
             document.getElementById("confirmDeleteBtn").onclick = function () {
                 const timeframe = document.getElementById("delete").value;
-                // Gửi yêu cầu POST tới DeleteOrderServlet
+                // Gá»­i yÃªu cáº§u POST tá»›i DeleteOrderServlet
                 fetch("DeleteOrderServlet", {
                     method: "POST",
                     headers: {
@@ -179,7 +179,7 @@
 
             };
 
-            // Khi người dùng nhấn Cancel trong modal preview
+            // Khi ngÆ°á»i dÃ¹ng nháº¥n Cancel trong modal preview
             document.getElementById("cancelPreviewBtn").onclick = function () {
                 document.getElementById("previewModal").style.display = "none";
             };
@@ -187,3 +187,4 @@
 
     </body>
 </html>
+

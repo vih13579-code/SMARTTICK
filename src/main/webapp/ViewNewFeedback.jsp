@@ -1,4 +1,4 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+﻿<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
@@ -18,7 +18,7 @@
             }
             /* Modal Success */
             .modal {
-                display: none; /* Modal mặc định ẩn */
+                display: none; /* Modal máº·c Ä‘á»‹nh áº©n */
                 position: fixed;
                 z-index: 1000;
                 left: 0;
@@ -129,8 +129,8 @@
             .fixed-header {
                 position: fixed;
                 top: 0;
-                left: 250px; /* Điều chỉnh để tránh che sidebar */
-                width: calc(100% - 250px); /* Chiều rộng trừ đi sidebar */
+                left: 250px; /* Äiá»u chá»‰nh Ä‘á»ƒ trÃ¡nh che sidebar */
+                width: calc(100% - 250px); /* Chiá»u rá»™ng trá»« Ä‘i sidebar */
                 /*background-color: white;*/
                 z-index: 1050;
                 padding: 10px 20px;
@@ -142,7 +142,7 @@
             }
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
 
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>
         <div class="fixed-header"><jsp:include page="HeaderDashboard.jsp"></jsp:include> </div>
@@ -202,7 +202,7 @@
                     ${rate.isDeleted ? "This feedback was hidden for some reason." : rate.comment}
                 </p>
 
-                <!-- Toggle Hidden/Hiện -->
+                <!-- Toggle Hidden/Hiá»‡n -->
                 <button id="toggle-btn-${rate.rateID}" class="btn btn-toggle ${rate.isDeleted ? 'btn-warning' : 'btn-success'} btn-sm" onclick="toggleVisibility(${rate.rateID}, ${rate.isDeleted ? 1 : 0})">
                     <i class="fa ${rate.isDeleted ? 'fa-eye' : 'fa-eye-slash'}"></i>
                     ${rate.isDeleted ? "Show" : "Hidden"}
@@ -295,19 +295,19 @@
 
 
         <script>
-            // Hàm hiển thị popup thành công và tự động chuyển hướng sau 2 giây
+            // HÃ m hiá»ƒn thá»‹ popup thÃ nh cÃ´ng vÃ  tá»± Ä‘á»™ng chuyá»ƒn hÆ°á»›ng sau 2 giÃ¢y
             function showSuccessAndRedirect() {
-                // Showing modal thành công
+                // Showing modal thÃ nh cÃ´ng
                 var successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 successModal.show();
 
-                // Chuyển hướng sau 2 giây
+                // Chuyá»ƒn hÆ°á»›ng sau 2 giÃ¢y
                 setTimeout(function () {
-                    window.location.href = "ViewListFeedbackServlet"; // Cập nhật URL nếu cần
+                    window.location.href = "ViewListFeedbackServlet"; // Cáº­p nháº­t URL náº¿u cáº§n
                 }, 2000);
             }
 
-// Hàm xử lý khi cập nhật trả lời
+// HÃ m xá»­ lÃ½ khi cáº­p nháº­t tráº£ lá»i
             function updateReply() {
                 let replyID = document.getElementById("updateReplyID").value;
                 let updatedText = document.getElementById("updateReplyText").value;
@@ -320,7 +320,7 @@
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         let response = xhr.responseText.trim();
                         if (response === "Success") {
-                            showSuccessAndRedirect(); // Showing popup thành công và chuyển hướng
+                            showSuccessAndRedirect(); // Showing popup thÃ nh cÃ´ng vÃ  chuyá»ƒn hÆ°á»›ng
                         } else {
                             alert("Failed to update the reply. Please try again.");
                         }
@@ -329,7 +329,7 @@
                 xhr.send("replyID=" + replyID + "&answer=" + encodeURIComponent(updatedText));
             }
 
-// Hàm xử lý khi xóa trả lời
+// HÃ m xá»­ lÃ½ khi xÃ³a tráº£ lá»i
             function deleteReply() {
                 let replyID = document.getElementById("deleteReplyID").value;
 
@@ -338,13 +338,13 @@
                 xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState === 4 && xhr.status === 200) {
-                        showSuccessAndRedirect(); // Showing popup thành công và chuyển hướng
+                        showSuccessAndRedirect(); // Showing popup thÃ nh cÃ´ng vÃ  chuyá»ƒn hÆ°á»›ng
                     }
                 };
                 xhr.send("replyID=" + replyID);
             }
 
-// Hàm xử lý khi submit trả lời
+// HÃ m xá»­ lÃ½ khi submit tráº£ lá»i
             function submitReply(rateID) {
                 let replyText = document.querySelector("#replyForm-" + rateID + " textarea").value;
                 let xhr = new XMLHttpRequest();
@@ -355,7 +355,7 @@
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         let response = xhr.responseText.trim();
                         if (response === "Success") {
-                            showSuccessAndRedirect(); // Showing popup thành công và chuyển hướng
+                            showSuccessAndRedirect(); // Showing popup thÃ nh cÃ´ng vÃ  chuyá»ƒn hÆ°á»›ng
                         } else {
                             alert("Failed to submit the reply. Please try again.");
                         }
@@ -416,7 +416,7 @@
                 let modalElement = document.getElementById("updateModal");
                 let modal = new bootstrap.Modal(modalElement);
 
-                // Gán giá trị cho input trước khi mở modal
+                // GÃ¡n giÃ¡ trá»‹ cho input trÆ°á»›c khi má»Ÿ modal
                 document.getElementById("updateReplyID").value = replyID;
                 document.getElementById("updateReplyText").value = replyText;
                 document.getElementById("updateRateID").value = rateID;
@@ -424,7 +424,7 @@
                 // Showing modal
                 modal.show();
 
-                // Đợi modal hiển thị xong rồi mới focus vào input
+                // Äá»£i modal hiá»ƒn thá»‹ xong rá»“i má»›i focus vÃ o input
                 setTimeout(() => {
                     document.getElementById("updateReplyText").focus();
                 }, 300);
@@ -442,7 +442,7 @@
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         let response = xhr.responseText.trim();
                         if (response === "Success") {
-                            location.reload(); // 🔄 Reload lại trang sau khi cập nhật
+                            location.reload(); // ðŸ”„ Reload láº¡i trang sau khi cáº­p nháº­t
                         } else {
                             alert("Failed to update the reply. Please try again.");
                         }
@@ -476,4 +476,5 @@
 
     </body>
 </html>
+
 

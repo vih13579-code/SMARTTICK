@@ -13,6 +13,7 @@ BEGIN TRY
     DROP TABLE IF EXISTS dbo.ProductRatings;
     DROP TABLE IF EXISTS dbo.Carts;
     DROP TABLE IF EXISTS dbo.OrderDetails;
+    DROP TABLE IF EXISTS dbo.Payments;
     DROP TABLE IF EXISTS dbo.Orders;
     DROP TABLE IF EXISTS dbo.CustomerVoucher;
     DROP TABLE IF EXISTS dbo.Addresses;
@@ -182,9 +183,40 @@ BEGIN TRY
         [Status] INT NOT NULL CONSTRAINT DF_Orders_Status DEFAULT 1,
         TotalAmount BIGINT NOT NULL CONSTRAINT DF_Orders_Total DEFAULT 0,
         Discount INT NOT NULL CONSTRAINT DF_Orders_Discount DEFAULT 0,
+        PaymentMethod VARCHAR(30) NOT NULL CONSTRAINT DF_Orders_PaymentMethod DEFAULT 'cod',
+        PaymentStatus VARCHAR(30) NOT NULL CONSTRAINT DF_Orders_PaymentStatus DEFAULT 'PENDING',
+        DepositAmount BIGINT NOT NULL CONSTRAINT DF_Orders_DepositAmount DEFAULT 0,
+        AmountDue BIGINT NOT NULL CONSTRAINT DF_Orders_AmountDue DEFAULT 0,
+        PaymentReference VARCHAR(64) NULL,
+        PaidAt DATETIME NULL,
         CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerID) REFERENCES dbo.Customers(CustomerID),
         CONSTRAINT FK_Orders_OrderStatus FOREIGN KEY ([Status]) REFERENCES dbo.OrderStatus(ID),
-        CONSTRAINT CK_Orders_Total CHECK (TotalAmount >= 0)
+        CONSTRAINT CK_Orders_Total CHECK (TotalAmount >= 0),
+        CONSTRAINT CK_Orders_DepositAmount CHECK (DepositAmount >= 0),
+        CONSTRAINT CK_Orders_AmountDue CHECK (AmountDue >= 0)
+    );
+
+    CREATE TABLE dbo.Payments (
+        ID BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Payments PRIMARY KEY,
+        OrderID INT NOT NULL,
+        Provider VARCHAR(50) NOT NULL,
+        TransactionRef VARCHAR(100) NOT NULL,
+        VnpayTransactionNo VARCHAR(100) NULL,
+        Amount BIGINT NOT NULL,
+        [Status] VARCHAR(20) NOT NULL,
+        ResponseCode VARCHAR(10) NULL,
+        TransactionStatus VARCHAR(10) NULL,
+        BankCode VARCHAR(50) NULL,
+        BankTransactionNo VARCHAR(100) NULL,
+        PayDate DATETIME NULL,
+        RawResponse NVARCHAR(MAX) NULL,
+        ExpiresAt DATETIME NOT NULL,
+        CreatedAt DATETIME NOT NULL CONSTRAINT DF_Payments_CreatedAt DEFAULT GETDATE(),
+        UpdatedAt DATETIME NOT NULL CONSTRAINT DF_Payments_UpdatedAt DEFAULT GETDATE(),
+        CONSTRAINT UQ_Payments_TransactionRef UNIQUE (TransactionRef),
+        CONSTRAINT FK_Payments_Orders FOREIGN KEY (OrderID) REFERENCES dbo.Orders(OrderID),
+        CONSTRAINT CK_Payments_Amount CHECK (Amount > 0),
+        CONSTRAINT CK_Payments_Status CHECK ([Status] IN ('PENDING','PAID','FAILED','CANCELLED','EXPIRED'))
     );
 
     CREATE TABLE dbo.OrderDetails (
@@ -264,6 +296,7 @@ BEGIN TRY
     CREATE INDEX IX_Products_Name_Model ON dbo.Products(FullName, Model);
     CREATE INDEX IX_Orders_Customer_Date ON dbo.Orders(CustomerID, OrderedDate DESC);
     CREATE INDEX IX_Orders_Status ON dbo.Orders([Status]);
+    CREATE INDEX IX_Payments_Order_Status ON dbo.Payments(OrderID, [Status], CreatedAt DESC);
     CREATE INDEX IX_Ratings_Product ON dbo.ProductRatings(ProductID, CreatedDate DESC);
 
     COMMIT TRANSACTION;

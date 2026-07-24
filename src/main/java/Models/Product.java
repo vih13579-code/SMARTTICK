@@ -31,6 +31,7 @@ public class Product {
 
     private HashMap<String, String> attributes;
     private List<AttributeDetail> attributeDetails;
+    private List<ProductVariant> variants;
 
     public Product() {
     }
@@ -363,6 +364,14 @@ public class Product {
 
     public void setAttributeDetails(List<AttributeDetail> attributeDetails) {
         this.attributeDetails = attributeDetails;
+    }
+
+    public List<ProductVariant> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(List<ProductVariant> variants) {
+        this.variants = variants;
     }
     
 }

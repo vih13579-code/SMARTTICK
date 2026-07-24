@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -102,7 +102,7 @@
             }
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>
             <div class="content">
             <jsp:include page="HeaderDashboard.jsp"></jsp:include>
@@ -247,3 +247,4 @@
         </div>
     </body>
 </html>
+

@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,7 +65,7 @@
             }
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-2">
@@ -122,7 +122,7 @@
         <script>
             function confirmLogout() {
                 if (confirm("Are you sure you want to log out?")) {
-                    // Chuyển hướng tới trang logout hoặc gọi API logout
+                    // Chuyá»ƒn hÆ°á»›ng tá»›i trang logout hoáº·c gá»i API logout
                     window.location.href = "${pageContext.request.contextPath}/Logout";
                 }
             }
@@ -152,3 +152,4 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
+
