@@ -5,13 +5,13 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** In-memory payment callback store used only by the classroom demo flow. */
-public final class DemoPaymentStore {
+/** In-memory QR payment callback store used by the local checkout flow. */
+public final class QrPaymentStore {
     private static final long LIFETIME_MILLIS = 10 * 60 * 1000L;
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final Map<String, Payment> PAYMENTS = new ConcurrentHashMap<>();
 
-    private DemoPaymentStore() { }
+    private QrPaymentStore() { }
 
     public static Payment create(int customerId, long amount, String confirmationUrlPrefix) {
         byte[] bytes = new byte[24];

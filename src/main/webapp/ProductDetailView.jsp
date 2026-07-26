@@ -67,7 +67,7 @@
                             <button class="btn btn-gold" type="submit">Buy Now</button>
                         </form>
                     </div>
-                    <p class="bulk-note">Orders from 6 units use a 30% deposit via VNPAY QR Sandbox.</p>
+                    <p class="bulk-note">Secure QR payment is available during checkout.</p>
                 </div>
             </c:if>
 

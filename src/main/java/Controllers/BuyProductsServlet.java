@@ -17,7 +17,7 @@ import Models.Email;
 import Models.EmailUtils;
 import Models.Order;
 import Models.Product;
-import com.google.gson.Gson;
+import Utils.QrPaymentStore;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -28,15 +28,12 @@ import javax.servlet.http.HttpSession;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.sql.SQLException;
 
 @WebServlet(name = "buyProductsServlet", urlPatterns = {"/order"})
 public class BuyProductsServlet extends HttpServlet {
     private static final String SUPPORT_EMAIL = "duyminhnguyen247@gmail.com";
-    private static final Gson GSON = new Gson();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -136,11 +133,6 @@ public class BuyProductsServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         String action = request.getParameter("buyProductAction");
-        boolean vnpayCheckoutRequest = "true".equalsIgnoreCase(request.getParameter("vnpayCheckout"))
-                || "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
-        if ((action == null || action.trim().isEmpty()) && vnpayCheckoutRequest) {
-            action = "placeOrder";
-        }
         OrderDAO od = new OrderDAO();
         CartDAO ca = new CartDAO();
         ProductDAO p = new ProductDAO();
@@ -255,31 +247,25 @@ public class BuyProductsServlet extends HttpServlet {
                 session.setAttribute("order", new Order(fullname, phone, address));
                 request.getRequestDispatcher("ConfirmView.jsp").forward(request, response);
             } else if (action.equals("placeOrder")) {
+                String paymentToken = request.getParameter("paymentToken");
+                String sessionPaymentToken = (String) session.getAttribute("qrPaymentToken");
+                if (paymentToken == null || !paymentToken.equals(sessionPaymentToken)
+                        || !QrPaymentStore.isPaid(paymentToken, cus.getId())) {
+                    session.setAttribute("message", "Please scan the QR code and wait for payment confirmation.");
+                    response.sendRedirect("ConfirmView.jsp");
+                    return;
+                }
                 String urlBuy = (String) session.getAttribute("url");
                 System.out.println("URL" + urlBuy);
                 Order o = (Order) session.getAttribute("order");
                 if (o == null) {
-                    if (vnpayCheckoutRequest) {
-                        writeJsonError(response, HttpServletResponse.SC_CONFLICT,
-                                "Checkout session has expired. Please return to the cart.");
-                        return;
-                    }
                     session.setAttribute("message", "Please confirm shipping information before placing order.");
                     response.sendRedirect("CheckoutView.jsp");
                     return;
                 }
-                String paymentMethod = request.getParameter("paymentMethod");
-                if (paymentMethod == null || paymentMethod.trim().isEmpty()) {
-                    paymentMethod = "cod";
-                }
-                if (!"cod".equalsIgnoreCase(paymentMethod)
-                        && !"vnpay_qr".equalsIgnoreCase(paymentMethod)) {
-                    paymentMethod = "cod";
-                }
-                boolean vnpayPayment = "vnpay_qr".equalsIgnoreCase(paymentMethod);
-                String paymentStatus = "PENDING";
-                o.setPaymentMethod(paymentMethod);
-                o.setPaymentStatus(paymentStatus);
+                o.setPaymentMethod("qr_payment");
+                o.setPaymentStatus("paid");
+                o.setPaymentReference(paymentToken);
                 Integer voucherId = null;
                 if (session.getAttribute("customerVoucherUsing") != null) {
                     CustomerVoucher customerVoucherUsing = (CustomerVoucher) session.getAttribute("customerVoucherUsing");
@@ -290,29 +276,16 @@ public class BuyProductsServlet extends HttpServlet {
                 try {
                     newOrder = od.placeOrderTransaction(o, cartSelected, cus.getId(), urlBuy, voucherId);
                 } catch (SQLException ex) {
-                    if (vnpayCheckoutRequest) {
-                        writeJsonError(response, HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
-                        return;
-                    }
                     session.setAttribute("message", ex.getMessage());
                     response.sendRedirect("cart");
                     return;
                 }
                 session.setAttribute("orderStatus", "success");
+                QrPaymentStore.consume(paymentToken, cus.getId());
+                session.removeAttribute("qrPaymentToken");
                 session.setAttribute("numOfProCartOfCus", ca.getNumberOfProduct(cus.getId()));
                 //gui mail xac nhan don hang thanh cong
                 sendOrderConfirmationEmail(cus, o, cartSelected, o.getTotalAmount());
-                if (vnpayPayment && vnpayCheckoutRequest) {
-                    clearCheckoutSession(session);
-                    response.setContentType("application/json");
-                    response.setCharacterEncoding("UTF-8");
-                    Map<String, Object> result = new LinkedHashMap<>();
-                    result.put("success", true);
-                    result.put("orderId", newOrder);
-                    result.put("paymentStatus", "PENDING");
-                    response.getWriter().write(GSON.toJson(result));
-                    return;
-                }
                 session.setAttribute("newOrder", newOrder);
                 request.getRequestDispatcher("ConfirmView.jsp").forward(request, response);
                 clearCheckoutSession(session);
@@ -322,16 +295,6 @@ public class BuyProductsServlet extends HttpServlet {
         }
     }
     //phuong thuc gui mail
-
-    private void writeJsonError(HttpServletResponse response, int status, String message) throws IOException {
-        response.setStatus(status);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("success", false);
-        result.put("message", message);
-        response.getWriter().write(GSON.toJson(result));
-    }
 
     private void clearCheckoutSession(HttpSession session) {
         session.removeAttribute("order");
@@ -369,7 +332,11 @@ public class BuyProductsServlet extends HttpServlet {
 
             sb.append("</table><br>");
             sb.append("<b>Total Amount:</b> ").append(String.format("%d", totalAmount)).append(" VND<br>");
-            if (order.getDepositAmount() > 0) {
+            if ("qr_payment".equalsIgnoreCase(order.getPaymentMethod())
+                    && "paid".equalsIgnoreCase(order.getPaymentStatus())) {
+                sb.append("<b>Paid by QR:</b> ").append(String.format("%d", order.getTotalAmount()))
+                        .append(" VND<br>");
+            } else if (order.getDepositAmount() > 0) {
                 sb.append("<b>Deposit:</b> ").append(String.format("%d", order.getDepositAmount()))
                         .append(" VND<br>");
                 sb.append("<b>Remaining Due:</b> ").append(String.format("%d", order.getAmountDue()))

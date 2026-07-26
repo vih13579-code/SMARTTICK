@@ -1,4 +1,4 @@
--- Adds demo payment/deposit fields for checkout.
+-- Adds QR payment and deposit fields for checkout.
 USE [FWatch];
 GO
 
