@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -10,12 +10,12 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/fonts/themify-icons/themify-icons.css">
 </head>
-<body class="dashboard-page">
+<body class="dashboard-page admin-ops-page">
 <div class="dashboard-shell">
     <jsp:include page="SidebarDashboard.jsp"/>
     <main class="dash-main">
 
-        <%-- ═══ Page header ═══ --%>
+        <%-- â•â•â• Page header â•â•â• --%>
         <div class="dash-hero">
             <div class="dash-title">
                 <h1>Catalog Management</h1>
@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <%-- ═══ Alerts ═══ --%>
+        <%-- â•â•â• Alerts â•â•â• --%>
         <c:if test="${not empty sessionScope.success}">
             <div class="alert alert-success" style="border-radius:14px;margin-bottom:18px">
                 <c:out value="${sessionScope.success}"/>
@@ -37,7 +37,7 @@
             <c:remove var="error" scope="session"/>
         </c:if>
 
-        <%-- ═══ Tabs ═══ --%>
+        <%-- â•â•â• Tabs â•â•â• --%>
         <div class="dash-card">
             <div class="catalog-tabs" id="catalogTabs">
                 <button class="catalog-tab active" data-tab="category" type="button">
@@ -54,9 +54,9 @@
                 </button>
             </div>
 
-            <%-- ════════════════════════════════════════════
+            <%-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
                  TAB 1: CATEGORIES (Category)
-                 ════════════════════════════════════════════ --%>
+                 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --%>
             <div class="catalog-tab-panel active" id="panel-category">
                 <%-- Toolbar --%>
                 <div class="catalog-toolbar">
@@ -95,7 +95,7 @@
                                             <c:when test="${c.createdDate != null}">
                                                 <fmt:formatDate value="${c.createdDate}" pattern="dd/MM/yyyy"/>
                                             </c:when>
-                                            <c:otherwise>—</c:otherwise>
+                                            <c:otherwise>â€”</c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td>
@@ -140,9 +140,9 @@
                 <div class="catalog-pagination" id="paginationCat"></div>
             </div>
 
-            <%-- ════════════════════════════════════════════
+            <%-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
                  TAB 2: BRANDS (Brand)
-                 ════════════════════════════════════════════ --%>
+                 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --%>
             <div class="catalog-tab-panel" id="panel-brand">
                 <%-- Toolbar --%>
                 <div class="catalog-toolbar">
@@ -181,7 +181,7 @@
                                             <c:when test="${b.createdDate != null}">
                                                 <fmt:formatDate value="${b.createdDate}" pattern="dd/MM/yyyy"/>
                                             </c:when>
-                                            <c:otherwise>—</c:otherwise>
+                                            <c:otherwise>â€”</c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td>
@@ -225,9 +225,9 @@
             </div>
         </div><%-- /dash-card --%>
 
-        <%-- ═══════════════════════════════════════
+        <%-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
              MODAL: Create / Update
-             ═══════════════════════════════════════ --%>
+             â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --%>
         <div class="modal-overlay" id="modalCrud">
             <div class="modal-card">
                 <div class="modal-header">
@@ -250,9 +250,9 @@
             </div>
         </div>
 
-        <%-- ═══════════════════════════════════════
+        <%-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
              MODAL: Delete Confirm
-             ═══════════════════════════════════════ --%>
+             â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --%>
         <div class="modal-overlay" id="modalDelete">
             <div class="modal-card">
                 <div class="modal-header">
@@ -281,7 +281,7 @@
 </div>
 
 <script>
-/* ── Tabs ── */
+/* â”€â”€ Tabs â”€â”€ */
 (function(){
     const tabs = document.querySelectorAll('.catalog-tab');
     const panels = document.querySelectorAll('.catalog-tab-panel');
@@ -296,7 +296,7 @@
     tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
 })();
 
-/* ── Search (client-side filter) ── */
+/* â”€â”€ Search (client-side filter) â”€â”€ */
 function bindSearch(inputId, tbodyId, paginationId) {
     const input = document.getElementById(inputId);
     const tbody = document.getElementById(tbodyId);
@@ -314,7 +314,7 @@ function bindSearch(inputId, tbodyId, paginationId) {
 bindSearch('searchCategory', 'bodyCat', 'paginationCat');
 bindSearch('searchBrand', 'bodyBrand', 'paginationBrand');
 
-/* ── Pagination ── */
+/* â”€â”€ Pagination â”€â”€ */
 const PAGE_SIZE = 10;
 function paginate(tbodyId, paginationId, page) {
     const tbody = document.getElementById(tbodyId);
@@ -344,14 +344,14 @@ function paginate(tbodyId, paginationId, page) {
     const from = total === 0 ? 0 : (page-1)*PAGE_SIZE + 1;
     const to = Math.min(page*PAGE_SIZE, total);
 
-    let html = '<span class="page-info">Showing ' + from + '–' + to + ' / ' + total + '</span>';
+    let html = '<span class="page-info">Showing ' + from + 'â€“' + to + ' / ' + total + '</span>';
     if (pages > 1) {
         html += '<div class="page-btns">';
-        html += '<button class="page-btn" onclick="paginate(\''+tbodyId+'\',\''+paginationId+'\','+(page-1)+')" '+(page===1?'disabled':'')+'>‹</button>';
+        html += '<button class="page-btn" onclick="paginate(\''+tbodyId+'\',\''+paginationId+'\','+(page-1)+')" '+(page===1?'disabled':'')+'>â€¹</button>';
         for (let i = 1; i <= pages; i++) {
             html += '<button class="page-btn'+(i===page?' active':'')+'" onclick="paginate(\''+tbodyId+'\',\''+paginationId+'\','+i+')">'+i+'</button>';
         }
-        html += '<button class="page-btn" onclick="paginate(\''+tbodyId+'\',\''+paginationId+'\','+(page+1)+')" '+(page===pages?'disabled':'')+'>›</button>';
+        html += '<button class="page-btn" onclick="paginate(\''+tbodyId+'\',\''+paginationId+'\','+(page+1)+')" '+(page===pages?'disabled':'')+'>â€º</button>';
         html += '</div>';
     }
     pag.innerHTML = html;
@@ -359,7 +359,7 @@ function paginate(tbodyId, paginationId, page) {
 paginate('bodyCat', 'paginationCat', 1);
 paginate('bodyBrand', 'paginationBrand', 1);
 
-/* ── Modal: Create / Update ── */
+/* â”€â”€ Modal: Create / Update â”€â”€ */
 function openModal(action, type, id, name) {
     const isCategory = type === 'category';
     const isCreate = action === 'create';
@@ -377,7 +377,7 @@ function openModal(action, type, id, name) {
     setTimeout(() => document.getElementById('fName').focus(), 200);
 }
 
-/* ── Modal: Delete Confirm ── */
+/* â”€â”€ Modal: Delete Confirm â”€â”€ */
 function openDelete(type, id, name, count) {
     document.getElementById('deleteName').textContent = name;
     document.getElementById('dType').value = type;
@@ -399,7 +399,7 @@ function openDelete(type, id, name, count) {
     showOverlay('modalDelete');
 }
 
-/* ── Overlay helpers ── */
+/* â”€â”€ Overlay helpers â”€â”€ */
 function showOverlay(id) {
     document.getElementById(id).classList.add('show');
     document.body.style.overflow = 'hidden';
@@ -419,10 +419,11 @@ document.addEventListener('keydown', e => {
     }
 });
 
-/* ── Auto-dismiss alerts ── */
+/* â”€â”€ Auto-dismiss alerts â”€â”€ */
 document.querySelectorAll('.alert').forEach(el => {
     setTimeout(() => { el.style.transition = 'opacity .4s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 400); }, 4000);
 });
 </script>
 </body>
 </html>
+

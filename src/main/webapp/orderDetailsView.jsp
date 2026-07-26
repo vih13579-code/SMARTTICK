@@ -1,5 +1,6 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8"%> 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html> 
 <html lang="en">
     <head>
@@ -127,7 +128,7 @@
 
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <div class="fixed-header"><jsp:include page="HeaderDashboard.jsp"></jsp:include>
                 <p></p>
                 <h2><i class="fa-solid fa-receipt"></i> Order Details</h2>
@@ -154,8 +155,14 @@
                                         <c:if test="${data.status == 4}">Delivered</c:if>
                                         <c:if test="${data.status == 5}">Cancel</c:if>
                                         </span></p>
-                                    <p><strong>Total Amount:</strong> <span>${data.totalAmount}</span></p>
-                                <p><strong>Discount:</strong> <span>${data.discount}</span></p>
+                                    <p><strong>Total Amount:</strong> <span><fmt:formatNumber value="${data.totalAmount}" pattern="#,##0"/> VND</span></p>
+                                <p><strong>Discount:</strong> <span><fmt:formatNumber value="${data.discount}" pattern="#,##0"/> VND</span></p>
+                                <p><strong>Payment Method:</strong> <span>${empty data.paymentMethod ? 'COD' : data.paymentMethod}</span></p>
+                                <p><strong>Payment Status:</strong> <span>${empty data.paymentStatus ? 'pending' : data.paymentStatus}</span></p>
+                                <c:if test="${data.depositAmount > 0}">
+                                    <p><strong>Deposit:</strong> <span><fmt:formatNumber value="${data.depositAmount}" pattern="#,##0"/> VND</span></p>
+                                    <p><strong>Remaining Due:</strong> <span><fmt:formatNumber value="${data.amountDue}" pattern="#,##0"/> VND</span></p>
+                                </c:if>
                             </div>
 
                             <h3><i class="fa-solid fa-box"></i> Order Items</h3>

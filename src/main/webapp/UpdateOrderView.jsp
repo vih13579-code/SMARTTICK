@@ -249,7 +249,7 @@
 
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <div class="fixed-header"><jsp:include page="HeaderDashboard.jsp"></jsp:include>
                 <p></p>
 

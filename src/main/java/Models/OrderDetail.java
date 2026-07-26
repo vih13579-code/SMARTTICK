@@ -13,6 +13,8 @@ public class OrderDetail {
     private String Category;
     private String ProductName;
     private String Image;
+    private Integer VariantID;
+    private String ColorName;
 
     public OrderDetail() {
     }
@@ -32,6 +34,13 @@ public class OrderDetail {
         this.Category = category;
         this.ProductName = ProductName;
         this.Image = Image;
+    }
+
+    public OrderDetail(int OrderID, int ProductID, Integer variantID, int Quantity, long Price, String category,
+            String ProductName, String Image, String colorName) {
+        this(OrderID, ProductID, Quantity, Price, category, ProductName, Image);
+        this.VariantID = variantID;
+        this.ColorName = colorName;
     }
 
     public String getCategory() {
@@ -56,6 +65,22 @@ public class OrderDetail {
 
     public void setImage(String Image) {
         this.Image = Image;
+    }
+
+    public Integer getVariantID() {
+        return VariantID;
+    }
+
+    public void setVariantID(Integer VariantID) {
+        this.VariantID = VariantID;
+    }
+
+    public String getColorName() {
+        return ColorName;
+    }
+
+    public void setColorName(String ColorName) {
+        this.ColorName = ColorName;
     }
 
     public int getOrderID() {

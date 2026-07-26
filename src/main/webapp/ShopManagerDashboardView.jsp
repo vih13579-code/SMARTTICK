@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -10,7 +10,7 @@
     <title>Admin Dashboard | SMARTTICK</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css?v=20260702-dashboard">
 </head>
-<body class="dashboard-page">
+<body class="dashboard-page admin-ops-page">
 <div class="dashboard-shell">
     <jsp:include page="SidebarDashboard.jsp"/>
     <main class="dash-main">
@@ -252,3 +252,4 @@
 </div>
 </body>
 </html>
+

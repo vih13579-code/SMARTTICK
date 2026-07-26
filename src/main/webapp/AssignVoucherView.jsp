@@ -61,7 +61,7 @@
         }
     </style>
 </head>
-<body>
+<body class="admin-ops-page">
 
 <div class="sidebar-container">
     <jsp:include page="SidebarDashboard.jsp" />

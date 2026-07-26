@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
@@ -42,7 +42,7 @@
             .star-rating i {
                 color: #FFD700;
             }
-            /* Đặt header ở góc phải màn hình */
+            /* Äáº·t header á»Ÿ gÃ³c pháº£i mÃ n hÃ¬nh */
             .header-container {
                 position: fixed;
                 top: 0;
@@ -50,7 +50,7 @@
                 z-index: 1000;
                 width: auto;
             }
-            /* Sidebar cố định ở góc trái */
+            /* Sidebar cá»‘ Ä‘á»‹nh á»Ÿ gÃ³c trÃ¡i */
             .sidebar-container {
                 position: fixed;
                 top: 0;
@@ -58,7 +58,7 @@
                 z-index: 2000;
                 height: 100%;
             }
-            /* Responsive cho màn hình nhỏ */
+            /* Responsive cho mÃ n hÃ¬nh nhá» */
             @media (max-width: 768px) {
                 .container-feedback {
                     margin-left: 0;
@@ -67,8 +67,8 @@
             }
         </style>
     </head>
-    <body>
-        <!-- Sidebar được cố định ở góc trái -->
+    <body class="admin-ops-page">
+        <!-- Sidebar Ä‘Æ°á»£c cá»‘ Ä‘á»‹nh á»Ÿ gÃ³c trÃ¡i -->
         <div class="sidebar-container">
              <jsp:include page="SidebarDashboard.jsp"></jsp:include>
         </div>
@@ -145,3 +145,4 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
+

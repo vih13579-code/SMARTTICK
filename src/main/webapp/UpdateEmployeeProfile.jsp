@@ -1,4 +1,4 @@
-
+﻿
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
@@ -77,7 +77,7 @@
             }
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-2">
@@ -230,4 +230,5 @@
         <script src="${pageContext.request.contextPath}/assets/js/file-input.js"></script>
     </body>
 </html>
+
 

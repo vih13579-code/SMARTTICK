@@ -23,6 +23,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class OrderDAO {
+    private static final int BULK_DEPOSIT_QUANTITY = 6;
+    private static final int BULK_DEPOSIT_PERCENT = 30;
 
     DBContext db = new DBContext();
     Connection connector = db.getConnection();
@@ -69,6 +71,7 @@ public class OrderDAO {
                 o.setOrderDate(rs.getString("OrderedDate"));
                 o.setStatus(rs.getInt("Status"));
                 o.setDiscount(rs.getInt("Discount"));
+                readPaymentFields(rs, o);
             }
         } catch (Exception e) {
         }
@@ -182,8 +185,8 @@ public class OrderDAO {
                 connector.rollback();
                 return 0;
             }
-            if (status == 5) {
-                restoreStockForOrder(connector, orderID);
+            if (status == 4) {
+                deductStockForDeliveredOrder(connector, orderID);
             }
             String sql = status == 4
                     ? "UPDATE Orders SET Status = ?, DeliveredDate = DATEADD(HOUR, 7, GETUTCDATE()) WHERE OrderID = ?"
@@ -216,6 +219,11 @@ public class OrderDAO {
     public int forceUpdateOrder(int orderID, int status) {
         int count = 0;
         try {
+            connector.setAutoCommit(false);
+            int currentStatus = getOrderStatusForUpdate(connector, orderID);
+            if (status == 4 && currentStatus != 4) {
+                deductStockForDeliveredOrder(connector, orderID);
+            }
             String sql = status == 4
                     ? "UPDATE Orders SET Status = ?, DeliveredDate = DATEADD(HOUR, 7, GETUTCDATE()) WHERE OrderID = ?"
                     : "UPDATE Orders SET Status = ? WHERE OrderID = ?";
@@ -224,8 +232,18 @@ public class OrderDAO {
                 pre.setInt(2, orderID);
                 count = pre.executeUpdate();
             }
+            connector.commit();
         } catch (Exception e) {
+            try {
+                connector.rollback();
+            } catch (SQLException ignored) {
+            }
             Logger.getLogger(OrderDAO.class.getName()).log(Level.SEVERE, null, e);
+        } finally {
+            try {
+                connector.setAutoCommit(true);
+            } catch (SQLException ignored) {
+            }
         }
         return count;
     }
@@ -271,9 +289,34 @@ public class OrderDAO {
 
             int discount = calculateValidDiscount(connector, customerId, voucherId, subtotal);
             long finalTotal = Math.max(0, subtotal - discount);
+            int totalQuantity = 0;
+            for (Cart item : selectedItems) {
+                totalQuantity += item.getQuantity();
+            }
+            long depositAmount = totalQuantity >= BULK_DEPOSIT_QUANTITY
+                    ? Math.round(finalTotal * (BULK_DEPOSIT_PERCENT / 100.0))
+                    : 0;
+            long amountDue = Math.max(0, finalTotal - depositAmount);
+            order.setDepositAmount(depositAmount);
+            order.setAmountDue(amountDue);
+            if (order.getPaymentMethod() == null || order.getPaymentMethod().trim().isEmpty()) {
+                order.setPaymentMethod("cod");
+            }
+            if (order.getPaymentStatus() == null || order.getPaymentStatus().trim().isEmpty()) {
+                order.setPaymentStatus(depositAmount > 0 ? "deposit_pending" : "pending");
+            }
+            order.setPaymentReference(null);
 
-            String orderSql = "INSERT INTO [Orders] (CustomerID, FullName, PhoneNumber, [Address], TotalAmount, [Status], OrderedDate, Discount) "
-                    + "VALUES (?, ?, ?, ?, ?, 1, DATEADD(HOUR, 7, GETUTCDATE()), ?)";
+            boolean hasPaymentColumns = columnExists(connector, "Orders", "PaymentMethod")
+                    && columnExists(connector, "Orders", "PaymentStatus")
+                    && columnExists(connector, "Orders", "DepositAmount")
+                    && columnExists(connector, "Orders", "AmountDue")
+                    && columnExists(connector, "Orders", "PaymentReference");
+            String orderSql = hasPaymentColumns
+                    ? "INSERT INTO [Orders] (CustomerID, FullName, PhoneNumber, [Address], TotalAmount, [Status], OrderedDate, Discount, PaymentMethod, PaymentStatus, DepositAmount, AmountDue, PaymentReference) "
+                            + "VALUES (?, ?, ?, ?, ?, 1, DATEADD(HOUR, 7, GETUTCDATE()), ?, ?, ?, ?, ?, ?)"
+                    : "INSERT INTO [Orders] (CustomerID, FullName, PhoneNumber, [Address], TotalAmount, [Status], OrderedDate, Discount) "
+                            + "VALUES (?, ?, ?, ?, ?, 1, DATEADD(HOUR, 7, GETUTCDATE()), ?)";
             int orderId;
             try (PreparedStatement ps = connector.prepareStatement(orderSql, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setInt(1, customerId);
@@ -282,6 +325,13 @@ public class OrderDAO {
                 ps.setString(4, order.getAddress());
                 ps.setLong(5, finalTotal);
                 ps.setInt(6, discount);
+                if (hasPaymentColumns) {
+                    ps.setString(7, order.getPaymentMethod());
+                    ps.setString(8, order.getPaymentStatus());
+                    ps.setLong(9, depositAmount);
+                    ps.setLong(10, amountDue);
+                    ps.setString(11, order.getPaymentReference());
+                }
                 if (ps.executeUpdate() == 0) {
                     throw new SQLException("Cannot create order.");
                 }
@@ -295,8 +345,6 @@ public class OrderDAO {
 
             try (PreparedStatement detailPs = connector.prepareStatement(
                     "INSERT INTO [OrderDetails] (OrderID, ProductID, Quantity, Price) VALUES (?, ?, ?, ?)");
-                    PreparedStatement stockPs = connector.prepareStatement(
-                            "UPDATE Products SET Stock = Stock - ? WHERE ProductID = ? AND Stock >= ? AND IsDeleted = 0");
                     PreparedStatement cartPs = connector
                             .prepareStatement("DELETE FROM Carts WHERE ProductID = ? AND CustomerID = ?")) {
                 for (Cart item : selectedItems) {
@@ -307,11 +355,6 @@ public class OrderDAO {
                     detailPs.setLong(4, price);
                     detailPs.addBatch();
 
-                    stockPs.setInt(1, item.getQuantity());
-                    stockPs.setInt(2, item.getProductID());
-                    stockPs.setInt(3, item.getQuantity());
-                    stockPs.addBatch();
-
                     if (!"buyNow".equalsIgnoreCase(source)) {
                         cartPs.setInt(1, item.getProductID());
                         cartPs.setInt(2, customerId);
@@ -319,11 +362,6 @@ public class OrderDAO {
                     }
                 }
                 detailPs.executeBatch();
-                for (int affected : stockPs.executeBatch()) {
-                    if (affected == 0) {
-                        throw new SQLException("Stock changed while placing order.");
-                    }
-                }
                 if (!"buyNow".equalsIgnoreCase(source)) {
                     cartPs.executeBatch();
                 }
@@ -368,7 +406,6 @@ public class OrderDAO {
                 connector.rollback();
                 return 0;
             }
-            restoreStockForOrder(connector, orderId);
             try (PreparedStatement ps = connector.prepareStatement(
                     "UPDATE Orders SET Status = 5 WHERE OrderID = ? AND CustomerID = ? AND Status = 1")) {
                 ps.setInt(1, orderId);
@@ -436,6 +473,69 @@ public class OrderDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             ps.executeUpdate();
+        }
+    }
+
+    private boolean columnExists(Connection connection, String tableName, String columnName) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ? AND COLUMN_NAME = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, tableName);
+            ps.setString(2, columnName);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
+    }
+
+    private void readPaymentFields(ResultSet rs, Order order) {
+        try {
+            order.setPaymentMethod(rs.getString("PaymentMethod"));
+        } catch (SQLException ignored) {
+        }
+        try {
+            order.setPaymentStatus(rs.getString("PaymentStatus"));
+        } catch (SQLException ignored) {
+        }
+        try {
+            order.setDepositAmount(rs.getLong("DepositAmount"));
+        } catch (SQLException ignored) {
+        }
+        try {
+            order.setAmountDue(rs.getLong("AmountDue"));
+        } catch (SQLException ignored) {
+        }
+        try {
+            order.setPaymentReference(rs.getString("PaymentReference"));
+        } catch (SQLException ignored) {
+        }
+    }
+
+    private void deductStockForDeliveredOrder(Connection connection, int orderId) throws SQLException {
+        String sql = "SELECT od.ProductID, od.Quantity, p.Stock FROM OrderDetails od "
+                + "JOIN Products p ON p.ProductID = od.ProductID "
+                + "WHERE od.OrderID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int productId = rs.getInt("ProductID");
+                    int quantity = rs.getInt("Quantity");
+                    int stock = rs.getInt("Stock");
+                    if (stock < quantity) {
+                        throw new SQLException(
+                                "Not enough stock to complete delivery for product ID " + productId + ".");
+                    }
+                    try (PreparedStatement deduct = connection.prepareStatement(
+                            "UPDATE Products SET Stock = Stock - ? WHERE ProductID = ? AND IsDeleted = 0")) {
+                        deduct.setInt(1, quantity);
+                        deduct.setInt(2, productId);
+                        int affected = deduct.executeUpdate();
+                        if (affected == 0) {
+                            throw new SQLException("Unable to deduct stock for product ID " + productId + ".");
+                        }
+                    }
+                }
+            }
         }
     }
 

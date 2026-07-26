@@ -1,16 +1,5 @@
 target/
-*.class
-*.war
-*.ear
-*.log
-.DS_Store
-nbproject/private/
-.idea/
-*.iml
-.env
-db.properties
-email.properties
-google-oauth.properties
+src/main/resources/vnpay.properties
 src/main/resources/db.properties
 src/main/resources/email.properties
 src/main/resources/google-oauth.properties

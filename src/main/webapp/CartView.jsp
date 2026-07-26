@@ -65,11 +65,9 @@
                                                     <td class="th">
                                                         <input 
                                                             style="width: 60%; height: 40px; padding-left: 10px; font-weight: bold; background-color: #f5f7ff; border: #f5f7ff solid 1px;"
-                                                             type="number"
-                                                             min="1"
-                                                             max="${p.getStock()}"
-                                                             title="Available stock: ${p.getStock()}"
-                                                             value="${p.getQuantity()}"
+                                                            type="number" 
+                                                            min="1" 
+                                                            value="${p.getQuantity()}" 
                                                             name="quantity" 
                                                             id="quantity-${p.getProductID()}" 
                                                             onchange="updateQuantity(${p.getProductID()}, this.value)">
@@ -168,13 +166,13 @@
                                     </div>
                                     <div class="btnSummary">
                                         <c:if test="${cartList.isEmpty()}">
-                                            <button form="cartSelected" type="submit"
+                                            <button form="cartSelected" type="button"
                                                     style="background-color: #0156ff; border: #0156ff solid 1px; color: white;"
                                                     id="checkout" disabled>Proceed to Checkout
                                             </button>
                                         </c:if>
                                         <c:if test="${!cartList.isEmpty()}"> 
-                                            <button form="cartSelected" type="submit"
+                                            <button form="cartSelected" type="button"
                                                     style="background-color: #0156ff; border: #0156ff solid 1px; color: white;"
                                                     id="checkout">Proceed to Checkout
                                             </button>
@@ -255,11 +253,18 @@
                         </div>
                         <div class="modal-body text-dark">
                             <c:choose>
+                                <c:when test="${sessionScope.message.contains('a maximum')}">
+                                    <p> This quantity is above the normal online limit.
+                                        <br>
+                                        Or if you want to buy more, contact us at: 
+                                        <a href="mailto:duyminhnguyen247@gmail.com" class="text-primary">duyminhnguyen247@gmail.com</a>
+                                    </p>
+                                </c:when>
                                 <c:when test="${sessionScope.message.contains('total amount too big')}">
                                     <p> You can buy product online with the total amount <br> under <b>100,000,000 VND</b>! 
                                         <br>
                                         Or if you want to buy, contact us at: 
-                                        <a href="mailto:kieuthy@gmail.com" class="text-primary">kieuthy@gmail.com</a>
+                                        <a href="mailto:duyminhnguyen247@gmail.com" class="text-primary">duyminhnguyen247@gmail.com</a>
                                     </p>
                                 </c:when>
                                 <c:otherwise>
@@ -375,7 +380,8 @@
                             });
                 }
 
-                document.getElementById("checkout").addEventListener("click", function () {
+                document.getElementById("checkout").addEventListener("click", function (event) {
+                    event.preventDefault();
                     // Lấy tất cả các checkbox trong form
                     const checkboxes = document.querySelectorAll("input[name='cartSelected']");
                     let isChecked = false;

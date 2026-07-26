@@ -30,7 +30,7 @@
         }
     </style>
 </head>
-<body>
+<body class="admin-ops-page">
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar: Cột 1 -->

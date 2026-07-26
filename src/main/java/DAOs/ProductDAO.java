@@ -4,6 +4,7 @@ import DB.DBContext;
 import Models.AttributeDetail;
 import Models.Category;
 import Models.Product;
+import Models.ProductVariant;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -349,6 +350,7 @@ public class ProductDAO {
             attributeMap.put(detail.getAttributeName(), detail.getAttributeInfor());
         }
         product.setAttributes(attributeMap);
+        product.setVariants(getProductVariants(productId, true));
         return product;
     }
 
@@ -471,6 +473,134 @@ public class ProductDAO {
             LOGGER.log(Level.SEVERE, "Cannot update product", ex);
             return 0;
         }
+    }
+
+    public List<ProductVariant> getProductVariants(int productId, boolean activeOnly) {
+        List<ProductVariant> variants = new ArrayList<>();
+        String sql = "SELECT VariantID, ProductID, ColorName, ColorHex, Image, Stock, IsActive "
+                + "FROM ProductVariants WHERE ProductID = ? "
+                + (activeOnly ? "AND IsActive = 1 " : "")
+                + "ORDER BY IsActive DESC, VariantID ASC";
+        try (Connection connection = connection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, productId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    variants.add(new ProductVariant(
+                            rs.getInt("VariantID"),
+                            rs.getInt("ProductID"),
+                            rs.getString("ColorName"),
+                            rs.getString("ColorHex"),
+                            rs.getString("Image"),
+                            rs.getInt("Stock"),
+                            rs.getBoolean("IsActive")));
+                }
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.INFO, "Product variants are not available yet", ex);
+        }
+        return variants;
+    }
+
+    public ProductVariant getProductVariant(int productId, Integer variantId) {
+        if (variantId == null || variantId <= 0) {
+            return null;
+        }
+        String sql = "SELECT VariantID, ProductID, ColorName, ColorHex, Image, Stock, IsActive "
+                + "FROM ProductVariants WHERE ProductID = ? AND VariantID = ?";
+        try (Connection connection = connection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, productId);
+            statement.setInt(2, variantId);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return new ProductVariant(
+                            rs.getInt("VariantID"),
+                            rs.getInt("ProductID"),
+                            rs.getString("ColorName"),
+                            rs.getString("ColorHex"),
+                            rs.getString("Image"),
+                            rs.getInt("Stock"),
+                            rs.getBoolean("IsActive"));
+                }
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.INFO, "Cannot load product variant", ex);
+        }
+        return null;
+    }
+
+    public void replaceProductVariants(int productId, List<ProductVariant> variants) throws SQLException {
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                replaceProductVariants(connection, productId, variants);
+                connection.commit();
+            } catch (SQLException ex) {
+                connection.rollback();
+                throw ex;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        }
+    }
+
+    public void replaceProductVariants(Connection connection, int productId, List<ProductVariant> variants) throws SQLException {
+        if (variants == null || variants.isEmpty()) {
+            return;
+        }
+        try (PreparedStatement deactivate = connection.prepareStatement(
+                "UPDATE ProductVariants SET IsActive = 0 WHERE ProductID = ?")) {
+            deactivate.setInt(1, productId);
+            deactivate.executeUpdate();
+        }
+        String upsert = "MERGE ProductVariants AS target "
+                + "USING (SELECT ? AS VariantID, ? AS ProductID) AS source "
+                + "ON target.VariantID = source.VariantID AND target.ProductID = source.ProductID "
+                + "WHEN MATCHED THEN UPDATE SET ColorName = ?, ColorHex = ?, Image = ?, Stock = ?, IsActive = ? "
+                + "WHEN NOT MATCHED THEN INSERT (ProductID, ColorName, ColorHex, Image, Stock, IsActive) "
+                + "VALUES (?, ?, ?, ?, ?, ?);";
+        try (PreparedStatement statement = connection.prepareStatement(upsert)) {
+            for (ProductVariant variant : variants) {
+                int variantId = variant.getVariantId();
+                statement.setObject(1, variantId > 0 ? variantId : null);
+                statement.setInt(2, productId);
+                statement.setString(3, cleanColorName(variant.getColorName()));
+                statement.setString(4, cleanColorHex(variant.getColorHex()));
+                statement.setString(5, variant.getImage());
+                statement.setInt(6, Math.max(0, variant.getStock()));
+                statement.setBoolean(7, variant.isActive());
+                statement.setInt(8, productId);
+                statement.setString(9, cleanColorName(variant.getColorName()));
+                statement.setString(10, cleanColorHex(variant.getColorHex()));
+                statement.setString(11, variant.getImage());
+                statement.setInt(12, Math.max(0, variant.getStock()));
+                statement.setBoolean(13, variant.isActive());
+                statement.addBatch();
+            }
+            statement.executeBatch();
+        }
+        syncProductStockFromVariants(connection, productId);
+    }
+
+    private void syncProductStockFromVariants(Connection connection, int productId) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE Products SET Stock = COALESCE((SELECT SUM(Stock) FROM ProductVariants "
+                        + "WHERE ProductID = ? AND IsActive = 1), Stock) WHERE ProductID = ?")) {
+            statement.setInt(1, productId);
+            statement.setInt(2, productId);
+            statement.executeUpdate();
+        }
+    }
+
+    private String cleanColorName(String colorName) {
+        String value = colorName == null ? "" : colorName.trim();
+        return value.isEmpty() ? "Default" : value;
+    }
+
+    private String cleanColorHex(String colorHex) {
+        String value = colorHex == null ? "" : colorHex.trim();
+        return value.matches("^#[0-9A-Fa-f]{6}$") ? value : "#9ca3af";
     }
 
     public List<Product> searchProductByName(String keyword) {

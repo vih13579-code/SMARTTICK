@@ -53,6 +53,24 @@
                 background-color: #6f42c1;
                 color: #fff;
             }
+            body > .dash-side + .content .purchase-history-table {
+                color: #212529 !important;
+                background-color: #fff !important;
+            }
+            body > .dash-side + .content .purchase-history-table thead th {
+                background-color: #6f42c1 !important;
+                color: #fff !important;
+                border-color: #6f42c1 !important;
+            }
+            body > .dash-side + .content .purchase-history-table tbody td {
+                background-color: #fff !important;
+                color: #212529 !important;
+                border-color: #dee2e6 !important;
+            }
+            body > .dash-side + .content .purchase-history-table tbody tr:hover td {
+                background-color: #f8f9fa !important;
+                color: #212529 !important;
+            }
             .btn-back {
                 background-color: #6f42c1;
                 color: #fff;
@@ -73,7 +91,7 @@
             }
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>
 
             <div class="content">
@@ -87,19 +105,19 @@
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-md-4 text-center">
-                                    <c:choose>
-                                        <c:when test="${not empty customer.avatar && fn:startsWith(customer.avatar, 'http')}">
-                                            <img src="${customer.avatar}" alt="Avatar" class="avatar mb-3" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';">
-                                            <span class="avatar avatar-fallback mb-3" style="display:none">CU</span>
-                                        </c:when>
-                                        <c:when test="${not empty customer.avatar}">
-                                            <img src="${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/${customer.avatar}" alt="Avatar" class="avatar mb-3" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';">
-                                            <span class="avatar avatar-fallback mb-3" style="display:none">CU</span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="avatar avatar-fallback mb-3">CU</span>
-                                        </c:otherwise>
-                                    </c:choose>
+                                <c:choose>
+                                    <c:when test="${not empty customer.avatar && fn:startsWith(customer.avatar, 'http')}">
+                                        <img src="${customer.avatar}" alt="Avatar" class="avatar mb-3" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';">
+                                        <span class="avatar avatar-fallback mb-3" style="display:none">CU</span>
+                                    </c:when>
+                                    <c:when test="${not empty customer.avatar}">
+                                        <img src="${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/${customer.avatar}" alt="Avatar" class="avatar mb-3" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';">
+                                        <span class="avatar avatar-fallback mb-3" style="display:none">CU</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="avatar avatar-fallback mb-3">CU</span>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                             <div class="col-md-8">
                                 <div class="row mb-2">
@@ -151,7 +169,7 @@
                     <div class="card-body">
                         <c:if test="${not empty purchaseHistory}">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-hover">
+                                <table class="table table-bordered table-hover purchase-history-table">
                                     <thead>
                                         <tr>
                                             <th>Order ID</th>

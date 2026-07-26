@@ -5,6 +5,7 @@ import DAOs.ProductDAO;
 import Models.Cart;
 import Models.Customer;
 import Models.Product;
+import Models.ProductVariant;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -32,6 +33,7 @@ public class AddToCartServlet extends HttpServlet {
 
         int id;
         int quantity;
+        Integer variantId = parseOptionalInt(request.getParameter("variantId"));
         try {
             id = Integer.parseInt(productIdParam);
             quantity = parseQuantity(request.getParameter("quantity"));
@@ -48,18 +50,20 @@ public class AddToCartServlet extends HttpServlet {
 
         ProductDAO productDao = new ProductDAO();
         Product product = productDao.getProductByID(id);
-        if (product == null || product.getDeleted() != 0 || product.getStock() <= 0) {
+        ProductVariant variant = productDao.getProductVariant(id, variantId);
+        int availableStock = variant == null ? (product == null ? 0 : product.getStock()) : variant.getStock();
+        if (product == null || product.getDeleted() != 0 || availableStock <= 0 || (variantId != null && variant == null)) {
             session.setAttribute("message", "This product is not available.");
             response.sendRedirect("ProductDetailServlet?id=" + id);
             return;
         }
 
         CartDAO cartDao = new CartDAO();
-        Cart cartCheck = cartDao.getProductOfCart(cus.getId(), id);
+        Cart cartCheck = cartDao.getProductOfCart(cus.getId(), id, variantId);
         if (cartCheck != null) {
-            updateExistingCartItem(request, response, session, cus, product, cartDao, cartCheck, id, quantity);
+            updateExistingCartItem(response, session, cus, cartDao, cartCheck, id, variantId, quantity, availableStock);
         } else {
-            addNewCartItem(response, session, cus, product, cartDao, id, quantity);
+            addNewCartItem(response, session, cus, cartDao, id, variantId, quantity, availableStock);
         }
     }
 
@@ -70,28 +74,43 @@ public class AddToCartServlet extends HttpServlet {
         return Integer.parseInt(quantityParam);
     }
 
-    private void updateExistingCartItem(HttpServletRequest request, HttpServletResponse response, HttpSession session,
-            Customer cus, Product product, CartDAO cartDao, Cart cartCheck, int id, int quantity) throws IOException {
+    private Integer parseOptionalInt(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            int parsed = Integer.parseInt(value);
+            return parsed > 0 ? parsed : null;
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private void updateExistingCartItem(HttpServletResponse response, HttpSession session,
+            Customer cus, CartDAO cartDao, Cart cartCheck, int id, Integer variantId, int quantity, int availableStock)
+            throws IOException {
         int totalQuantity = cartCheck.getQuantity() + quantity;
 
-        if (product.getStock() >= totalQuantity) {
-            cartDao.updateProductQuantity(cartCheck.getProductID(), totalQuantity, cus.getId());
+        if (availableStock >= totalQuantity) {
+            cartDao.updateProductQuantity(cartCheck.getProductID(), variantId, totalQuantity, cus.getId());
             response.sendRedirect("cart");
         } else {
-            session.setAttribute("message", "Cannot add more. Stock: " + product.getStock()
+            session.setAttribute("message", "Cannot add more. Stock: " + availableStock
                     + "; already in cart: " + cartCheck.getQuantity() + ".");
             response.sendRedirect("ProductDetailServlet?id=" + id);
         }
     }
 
-    private void addNewCartItem(HttpServletResponse response, HttpSession session, Customer cus, Product product,
-            CartDAO cartDao, int id, int quantity) throws IOException {
-        if (product.getStock() < quantity) {
+    private void addNewCartItem(HttpServletResponse response, HttpSession session, Customer cus,
+            CartDAO cartDao, int id, Integer variantId, int quantity, int availableStock) throws IOException {
+        if (availableStock < quantity) {
             session.setAttribute("message", "Cannot add " + quantity + " item(s). Current stock: "
-                    + product.getStock() + ".");
+                    + availableStock + ".");
             response.sendRedirect("ProductDetailServlet?id=" + id);
         } else {
-            cartDao.addToCart(cus.getId(), new Cart(id, quantity));
+            Cart cart = new Cart(id, quantity);
+            cart.setVariantId(variantId);
+            cartDao.addToCart(cus.getId(), cart);
             response.sendRedirect("cart");
         }
     }

@@ -16,6 +16,11 @@ public class Order {
     private String deliveredDate;
     private int status;
     private int discount;
+    private String paymentMethod;
+    private String paymentStatus;
+    private long depositAmount;
+    private long amountDue;
+    private String paymentReference;
     public Order() {
     }
 
@@ -159,6 +164,46 @@ public class Order {
 
     public void setDiscount(int discount) {
         this.discount = discount;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public long getDepositAmount() {
+        return depositAmount;
+    }
+
+    public void setDepositAmount(long depositAmount) {
+        this.depositAmount = depositAmount;
+    }
+
+    public long getAmountDue() {
+        return amountDue;
+    }
+
+    public void setAmountDue(long amountDue) {
+        this.amountDue = amountDue;
+    }
+
+    public String getPaymentReference() {
+        return paymentReference;
+    }
+
+    public void setPaymentReference(String paymentReference) {
+        this.paymentReference = paymentReference;
     }
 }
 

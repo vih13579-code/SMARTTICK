@@ -1,7 +1,8 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/fonts/themify-icons/themify-icons.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css?v=20260702-dashboard">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ops.css?v=20260725-ops6">
 
 <header class="dash-topbar">
     <div class="dash-breadcrumb">
@@ -12,10 +13,6 @@
     </div>
 
     <div class="dash-tools">
-        <form class="dash-search" action="${pageContext.request.contextPath}/ProductListServlet" method="get">
-            <i class="ti-search"></i>
-            <input type="search" name="txt" placeholder="Search products, models...">
-        </form>
         <a class="icon-btn" href="${pageContext.request.contextPath}/NotificationServlet" title="Notifications" aria-label="Notifications">
             <i class="ti-bell"></i>
         </a>
@@ -37,3 +34,6 @@
         </a>
     </div>
 </header>
+
+
+

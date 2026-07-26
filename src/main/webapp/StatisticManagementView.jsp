@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
@@ -63,11 +63,11 @@
 
             canvas {
                 max-width: 100%;
-                height: 100%;  /* Đảm bảo biểu đồ chiếm chiều cao toàn bộ container */
+                height: 100%;  /* Äáº£m báº£o biá»ƒu Ä‘á»“ chiáº¿m chiá»u cao toÃ n bá»™ container */
             }
 
 
-            /* Nút */
+            /* NÃºt */
 
             .nav-buttons {
                 display: flex;
@@ -86,7 +86,7 @@
                 color: #8C52FF;
             }
 
-            /* Bảng có viền và header cố định khi cuộn */
+            /* Báº£ng cÃ³ viá»n vÃ  header cá»‘ Ä‘á»‹nh khi cuá»™n */
             .rounded-table {
                 border-radius: 10px;
                 overflow: hidden;
@@ -106,7 +106,7 @@
             }
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>  
             <div class="content">
                 <jsp:include page="HeaderDashboard.jsp"></jsp:include>
@@ -187,3 +187,4 @@
         </div>
     </body>
 </html>
+
