@@ -46,6 +46,43 @@ public class VoucherDAO {
         }
         return V;
     }
+
+    public List<Voucher> searchVouchers(String keyword) {
+        List<Voucher> vouchers = new ArrayList<>();
+        String sql = "SELECT * FROM Vouchers "
+                + "WHERE VoucherCode LIKE ? OR Description LIKE ? "
+                + "ORDER BY VoucherID DESC";
+
+        try (PreparedStatement pr = connector.prepareStatement(sql)) {
+            String searchValue = "%" + keyword + "%";
+            pr.setString(1, searchValue);
+            pr.setString(2, searchValue);
+
+            try (ResultSet rs = pr.executeQuery()) {
+                while (rs.next()) {
+                    Voucher voucher = new Voucher(
+                            rs.getInt("VoucherID"),
+                            rs.getString("VoucherCode"),
+                            rs.getInt("VoucherValue"),
+                            rs.getInt("VoucherType"),
+                            rs.getString("StartDate"),
+                            rs.getString("EndDate"),
+                            rs.getInt("UsedCount"),
+                            rs.getInt("MaxUsedCount"),
+                            rs.getInt("MaxDiscountAmount"),
+                            rs.getInt("MinOrderValue"),
+                            rs.getInt("Status"),
+                            rs.getString("Description")
+                    );
+                    vouchers.add(voucher);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error searching vouchers: " + e.getMessage());
+        }
+        return vouchers;
+    }
+
         public List<Voucher> getAllVoucherActivate() {
         List<Voucher> V = new ArrayList<>();
         try {
