@@ -15,6 +15,7 @@
 <c:set var="isCustomer" value="${fn:contains(uri, 'Customer')}" />
 <c:set var="isVoucher" value="${fn:contains(uri, 'Voucher')}" />
 <c:set var="isSupplier" value="${fn:contains(uri, 'Supplier')}" />
+<c:set var="isFeedback" value="${fn:contains(uri, 'Feedback') || fn:contains(uri, 'Reply')}" />
 <aside class="dash-side">
     <a class="brand-logo" href="${pageContext.request.contextPath}/admin/dashboard" aria-label="SMARTTICK dashboard">
         <img src="${pageContext.request.contextPath}/assets/imgs/Logo/smarttick-logo.png" alt="SMARTTICK">
@@ -48,6 +49,9 @@
         </a>
         <a class="dash-nav-link ${isSupplier ? 'active' : ''}" href="${pageContext.request.contextPath}/Supplier">
             <i class="ti-truck"></i><span>Suppliers</span>
+        </a>
+        <a class="dash-nav-link ${isFeedback ? 'active' : ''}" href="${pageContext.request.contextPath}/ViewListNewFeedbackServlet">
+            <i class="ti-comments"></i><span>Feedback</span>
         </a>
         <a class="dash-nav-link ${isStockImport ? 'active' : ''}" href="${pageContext.request.contextPath}/ImportOrder">
             <i class="ti-archive"></i><span>Stock Import</span>
