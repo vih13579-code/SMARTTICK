@@ -169,7 +169,7 @@
 
                                 <div class="mb-3 d-flex">
                                     <label class="form-label value">Date Of Birth</label>
-                                    <input type="date" class="form-control" name="dob" id="dob" value="${sessionScope.employee.getBirthday().toString()}" required>
+                                    <input type="date" class="form-control" name="dob" id="dob" value="${sessionScope.employee.birthday}" required>
 
                                 </div>
                                 <small id="dob-error" class="text-danger" style="display:none;">Invalid date of birth</small>
@@ -179,11 +179,11 @@
                                 <label class="form-label">Avatar</label>
                                 <div class="mb-5">
                                     <c:choose>
-                                        <c:when test="${!sessionScope.employee.getAvatar().equals('')}">
-                                            <img id="avatarPreview" class="avatar-preview" src="assets/imgs/EmployeeAvatar/${sessionScope.employee.getAvatar()}" alt="Avatar">
+                                        <c:when test="${not empty sessionScope.employee.avatar}">
+                                            <img id="avatarPreview" class="avatar-preview" src="${pageContext.request.contextPath}/assets/imgs/EmployeeAvatar/${sessionScope.employee.avatar}" alt="Avatar">
                                         </c:when>
                                         <c:otherwise>
-                                            <img id="avatarPreview" class="avatar-preview" src="assets/imgs/EmployeeAvatar/defauft_avatar.jpg" alt="Avatar">
+                                            <img id="avatarPreview" class="avatar-preview" src="${pageContext.request.contextPath}/assets/imgs/EmployeeAvatar/defauft_avatar.jpg" alt="Avatar">
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
