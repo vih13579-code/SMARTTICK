@@ -64,6 +64,10 @@
             <servlet-class>Controllers.CustomerListServlet</servlet-class>
         </servlet>
     <servlet>
+            <servlet-name>SearchCustomerServlet</servlet-name>
+            <servlet-class>Controllers.SearchCustomerServlet</servlet-class>
+        </servlet>
+    <servlet>
             <servlet-name>ProductListServlet</servlet-name>
             <servlet-class>Controllers.ProductListServlet</servlet-class>
         </servlet>
@@ -224,6 +228,10 @@
             <servlet-class>Controllers.NotificationServlet</servlet-class>
         </servlet>
     <servlet>
+            <servlet-name>SaveVoucherServlet</servlet-name>
+            <servlet-class>Controllers.SaveVoucherServlet</servlet-class>
+        </servlet>
+    <servlet>
             <servlet-name>SearchEmployeeServlet</servlet-name>
             <servlet-class>Controllers.SearchEmployeeServlet</servlet-class>
         </servlet>
@@ -278,6 +286,10 @@
     <servlet-mapping>
             <servlet-name>CustomerListServlet</servlet-name>
             <url-pattern>/CustomerListServlet</url-pattern>
+        </servlet-mapping>
+    <servlet-mapping>
+            <servlet-name>SearchCustomerServlet</servlet-name>
+            <url-pattern>/SearchCustomerServlet</url-pattern>
         </servlet-mapping>
     <servlet-mapping>
             <servlet-name>ProductListServlet</servlet-name>
@@ -414,6 +426,10 @@
     <servlet-mapping>
             <servlet-name>NotificationServlet</servlet-name>
             <url-pattern>/NotificationServlet</url-pattern>
+        </servlet-mapping>
+    <servlet-mapping>
+            <servlet-name>SaveVoucherServlet</servlet-name>
+            <url-pattern>/SaveVoucherServlet</url-pattern>
         </servlet-mapping>
     <servlet-mapping>
             <servlet-name>UpdateReplyServlet</servlet-name>

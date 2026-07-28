@@ -30,7 +30,7 @@ import javax.servlet.http.HttpSession;
     "/SearchVoucherServlet",
     "/AssignVoucherServlet", "/ViewListNewFeedbackServlet", "/ViewFeedbackForManagerServlet",
     "/UpdateStatusCommentServlet", "/ReplyFeedbackServlet", "/UpdateReplyServlet",
-    "/DeleteReplyServlet", "/NotificationServlet"
+    "/DeleteReplyServlet"
 })
 public class AdminAuthorizationFilter implements Filter {
     @Override public void init(FilterConfig filterConfig) { }

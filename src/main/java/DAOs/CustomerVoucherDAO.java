@@ -6,6 +6,7 @@ package DAOs;
 
 import DB.DBContext;
 import Models.CustomerVoucher;
+import Models.Voucher;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -48,6 +49,74 @@ public class CustomerVoucherDAO {
             System.out.println("Load customer vouchers error: " + e.getMessage());
         }
         return list;
+    }
+
+    public List<CustomerVoucher> getSavedVouchersOfCustomer(int customerID) {
+        List<CustomerVoucher> list = new ArrayList<>();
+        String sql = AVAILABLE_VOUCHER_SELECT + "ORDER BY v.EndDate ASC, v.VoucherID DESC";
+        try (PreparedStatement pre = connector.prepareStatement(sql)) {
+            pre.setInt(1, customerID);
+            try (ResultSet rs = pre.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapCustomerVoucher(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Load saved customer vouchers error: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public List<Voucher> getClaimableVouchersForCustomer(int customerID) {
+        List<Voucher> list = new ArrayList<>();
+        String sql = "SELECT v.* "
+                + "FROM Vouchers v "
+                + "WHERE v.Status = 1 "
+                + "AND v.StartDate <= GETDATE() "
+                + "AND v.EndDate >= GETDATE() "
+                + "AND (v.MaxUsedCount = 0 OR v.UsedCount < v.MaxUsedCount) "
+                + "AND NOT EXISTS ("
+                + "SELECT 1 FROM CustomerVoucher cv "
+                + "WHERE cv.CustomerID = ? AND cv.VoucherID = v.VoucherID AND cv.Quantity > 0) "
+                + "ORDER BY v.EndDate ASC, v.VoucherID DESC";
+        try (PreparedStatement ps = connector.prepareStatement(sql)) {
+            ps.setInt(1, customerID);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapVoucher(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Load claimable vouchers error: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public int saveVoucherForCustomer(int customerID, int voucherID) {
+        String sql = "INSERT INTO CustomerVoucher (CustomerID, VoucherID, ExpirationDate, Quantity) "
+                + "SELECT ?, v.VoucherID, NULL, 1 "
+                + "FROM Vouchers v "
+                + "JOIN Customers c ON c.CustomerID = ? "
+                + "WHERE v.VoucherID = ? "
+                + "AND c.IsBlock = 0 "
+                + "AND c.IsDeleted = 0 "
+                + "AND v.Status = 1 "
+                + "AND v.StartDate <= GETDATE() "
+                + "AND v.EndDate >= GETDATE() "
+                + "AND (v.MaxUsedCount = 0 OR v.UsedCount < v.MaxUsedCount) "
+                + "AND NOT EXISTS ("
+                + "SELECT 1 FROM CustomerVoucher cv "
+                + "WHERE cv.CustomerID = ? AND cv.VoucherID = v.VoucherID)";
+        try (PreparedStatement ps = connector.prepareStatement(sql)) {
+            ps.setInt(1, customerID);
+            ps.setInt(2, customerID);
+            ps.setInt(3, voucherID);
+            ps.setInt(4, customerID);
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Save customer voucher error: " + e.getMessage());
+            return 0;
+        }
     }
 
     public int syncAvailableVouchersForCustomer(int customerID) {
@@ -227,6 +296,22 @@ public class CustomerVoucherDAO {
                 rs.getInt("CustomerID"),
                 rs.getString("ExpirationDate"),
                 rs.getInt("Quantity"),
+                rs.getInt("VoucherID"),
+                rs.getString("VoucherCode"),
+                rs.getInt("VoucherValue"),
+                rs.getInt("VoucherType"),
+                rs.getString("StartDate"),
+                rs.getString("EndDate"),
+                rs.getInt("UsedCount"),
+                rs.getInt("MaxUsedCount"),
+                rs.getInt("MaxDiscountAmount"),
+                rs.getInt("MinOrderValue"),
+                rs.getInt("Status"),
+                rs.getString("Description"));
+    }
+
+    private Voucher mapVoucher(ResultSet rs) throws SQLException {
+        return new Voucher(
                 rs.getInt("VoucherID"),
                 rs.getString("VoucherCode"),
                 rs.getInt("VoucherValue"),

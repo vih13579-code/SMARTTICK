@@ -13,7 +13,7 @@
     </div>
 
     <div class="dash-tools">
-        <a class="icon-btn" href="${pageContext.request.contextPath}/NotificationServlet" title="Notifications" aria-label="Notifications">
+        <a class="icon-btn" href="${pageContext.request.contextPath}/ViewListNewFeedbackServlet" title="Feedback notifications" aria-label="Feedback notifications">
             <i class="ti-bell"></i>
         </a>
         <a class="icon-btn" href="${pageContext.request.contextPath}/" title="View website" aria-label="View website">

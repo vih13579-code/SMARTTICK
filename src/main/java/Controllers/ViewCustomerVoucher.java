@@ -7,6 +7,7 @@ package Controllers;
 import DAOs.CustomerVoucherDAO;
 import Models.Customer;
 import Models.CustomerVoucher;
+import Models.Voucher;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -48,8 +49,10 @@ public class ViewCustomerVoucher extends HttpServlet {
         HttpSession session = request.getSession();
         Customer cus = (Customer) session.getAttribute("customer");
         CustomerVoucherDAO c = new CustomerVoucherDAO();
-        List<CustomerVoucher> list = c.getVoucherOfCustomer(cus.getId());
+        List<CustomerVoucher> list = c.getSavedVouchersOfCustomer(cus.getId());
+        List<Voucher> availableVouchers = c.getClaimableVouchersForCustomer(cus.getId());
         session.setAttribute("customerVoucher", list);
+        request.setAttribute("availableVouchers", availableVouchers);
         request.setAttribute("profilePage", "CustomerVoucherView.jsp");
         request.getRequestDispatcher("ProfileManagementView.jsp").forward(request, response);
     }
