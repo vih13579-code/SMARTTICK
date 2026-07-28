@@ -53,10 +53,20 @@
 
             .review-card {
                 background: white;
+                color: #1f2937;
                 padding: 15px;
                 border-radius: 10px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                 margin-bottom: 15px;
+            }
+
+            .review-card h5,
+            .review-card p {
+                color: #1f2937 !important;
+            }
+
+            .review-card small {
+                color: #6b7280 !important;
             }
 
             .profile {
@@ -76,7 +86,7 @@
             }
 
             .hidden-feedback {
-                color: gray;
+                color: #6b7280 !important;
                 font-style: italic;
             }
 
@@ -89,8 +99,14 @@
                 padding: 10px;
                 border-left: 4px solid #007bff;
                 background: #f1f1f1;
+                color: #1f2937;
                 border-radius: 5px;
                 margin-top: 10px;
+            }
+
+            .reply-container strong,
+            .reply-container p {
+                color: #1f2937 !important;
             }
 
             .reply-form {
