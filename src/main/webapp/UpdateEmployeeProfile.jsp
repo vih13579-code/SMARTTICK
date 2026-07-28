@@ -11,18 +11,19 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <style>
             body {
-                background-color: #f8f9fa;
+                background-color: #242424 !important;
             }
 
             .profile-container {
                 max-width: 1600px;
                 height: auto;
                 margin: 20px auto;
-                background: white;
-                color: #1f2937 !important;
+                background: #2f2f2f !important;
+                color: #f8fafc !important;
                 padding: 40px;
                 border-radius: 10px;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
                 display: flex;
                 flex-wrap: wrap;
                 justify-content: space-between;
@@ -35,11 +36,11 @@
             .profile-container label,
             .profile-container p,
             .avatar-container label {
-                color: #1f2937 !important;
+                color: #f8fafc !important;
             }
 
             .profile-container .fw-bold {
-                color: #111827 !important;
+                color: #ffffff !important;
             }
 
             .profile-container .form-control,
@@ -63,8 +64,8 @@
             }
 
             .profile-container .smart-file-input {
-                background-color: #ffffff;
-                color: #1f2937;
+                background-color: #333333;
+                color: #ffffff;
             }
             .avatar-container {
                 text-align: center;
@@ -74,7 +75,8 @@
                 width: 180px;
                 height: 180px;
                 border-radius: 50%;
-                border: 3px solid #ddd;
+                border: 3px solid rgba(255, 255, 255, 0.22);
+                background: #1f1f1f;
             }
             .value{
                 width: 150px;

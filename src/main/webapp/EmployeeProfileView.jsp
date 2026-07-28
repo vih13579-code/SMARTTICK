@@ -10,71 +10,67 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <style>
             body {
-                background-color: #f8f9fa;
+                background-color: #242424 !important;
             }
             .profile-container {
                 max-width: 800px;
                 margin: 20px auto;
-                background: white;
-                color: #1f2937 !important;
+                background: #2f2f2f !important;
+                color: #f8fafc !important;
                 padding: 40px;
                 border-radius: 10px;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
             }
             .profile-container h3 {
-                color: #111827 !important;
+                color: #ffffff !important;
                 font-weight: 800;
             }
             .profile-container p {
-                color: #374151 !important;
+                color: #e5e7eb !important;
                 font-weight: 500;
             }
             .profile-container .text-muted {
-                color: #4b5563 !important;
+                color: #cbd5e1 !important;
             }
             .avatar-preview {
                 width: 180px;
                 height: 180px;
                 border-radius: 50%;
                 object-fit: cover;
-                border: 3px solid #ddd;
+                border: 3px solid rgba(255, 255, 255, 0.22);
+                background: #1f1f1f;
                 display: block;
                 margin: 0 auto;
             }
             .info-label {
                 font-weight: bold;
-                color: #111827 !important;
+                color: #ffffff !important;
             }
             /* Popup styles */
             .popup {
-                display: block;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                justify-content: center;
-                align-items: center;
+                max-width: 800px;
+                margin: 16px auto 0;
             }
             .popup-content {
-                background-color: white;
-                padding: 30px;
+                background-color: rgba(57, 208, 111, 0.14);
+                border: 1px solid rgba(57, 208, 111, 0.32);
+                color: #d7ffe3;
+                padding: 14px 18px;
                 border-radius: 8px;
-                text-align: center;
-                width: 300px;
-                margin: 150px auto;
+                text-align: left;
             }
             .popup button {
-                background-color: #007bff;
+                background-color: #0d111b;
                 color: white;
-                padding: 10px 20px;
+                padding: 8px 16px;
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
+                margin-top: 8px;
             }
             .popup button:hover {
-                background-color: #0056b3;
+                background-color: #0d111b;
             }
         </style>
     </head>

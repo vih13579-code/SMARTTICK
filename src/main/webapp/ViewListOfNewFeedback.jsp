@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <style>
             body {
-                background-color: #f8f9fa;
+                background-color: #242424 !important;
             }
             .container-feedback {
                 margin-left: 270px;
@@ -28,14 +28,14 @@
             .card {
                 border: none;
                 border-radius: 10px;
-                background: #ffffff !important;
-                color: #1f2937 !important;
+                background: #2f2f2f !important;
+                color: #f8fafc !important;
             }
             .card-shadow {
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             }
             .feedback-table {
-                color: #1f2937 !important;
+                color: #f8fafc !important;
                 margin-bottom: 0;
             }
             .feedback-table thead th {
@@ -44,27 +44,25 @@
                 border-color: #454b52 !important;
             }
             .feedback-table tbody td {
-                background: #ffffff !important;
-                color: #1f2937 !important;
-                border-color: #dbe3ec !important;
+                background: #2f2f2f !important;
+                color: #f8fafc !important;
+                border-color: #454b52 !important;
                 font-weight: 600;
             }
             .table thead th {
                 border-bottom: 2px solid #dee2e6;
             }
-            .table-hover tbody tr:hover {
-                background-color: #f1f5f9 !important;
-            }
-            .feedback-table.table-hover tbody tr:hover td {
-                background-color: #f1f5f9 !important;
-                color: #111827 !important;
+            .feedback-table tbody tr:hover,
+            .feedback-table tbody tr:hover td {
+                background: #2f2f2f !important;
+                color: #f8fafc !important;
             }
             .new-feedback {
                 font-weight: 700;
             }
             .feedback-table tbody tr.new-feedback td {
-                background-color: #eaf6ff !important;
-                color: #172033 !important;
+                background-color: #2f2f2f !important;
+                color: #f8fafc !important;
             }
             .star-rating i {
                 color: #FFD700;
@@ -125,7 +123,7 @@
                     </c:if>
                 <div class="card card-shadow p-4">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle feedback-table">
+                        <table class="table align-middle feedback-table">
                             <thead>
                                 <tr>
                                     <th>#</th>
