@@ -270,7 +270,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <form id="importOrderForm" method="POST" action="ImportStock">
+                            <form id="importOrderForm" method="POST" action="${pageContext.request.contextPath}/ImportStock">
                                 <input type="hidden" name="supplierId" id="selectedSupplierId">
                                 <button type="submit" class="btn btn-success" id="confirmSelection" disabled>Confirm</button>
                             </form>
@@ -290,7 +290,7 @@
                         </div>
                         <div class="modal-body">
                             <form id="productInputForm">
-                                <input type="hidden" id="selectedSupplierId">
+                                <input type="hidden" id="productInputSupplierId">
 
                                 <div class="mb-3">
                                     <label for="inputQuantity" class="form-label">Quantity</label>
@@ -361,7 +361,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <form id="productOrderForm" method="POST" action="ImportStock">
+                            <form id="productOrderForm" method="POST" action="${pageContext.request.contextPath}/ImportStock">
                                 <input type="hidden" name="productId" id="selectedProductId" value="${p.getProductId()}">
                                 <input type="hidden" name="importQuantity" id="selectedProductQuantity">
                                 <input type="hidden" name="importPrice" id="selectedProductPrice">
@@ -382,7 +382,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="editProductForm" method="POST" action="ImportStock">
+                            <form id="editProductForm" method="POST" action="${pageContext.request.contextPath}/ImportStock">
                                 <input type="hidden" id="editProductId" name="productEditedId">
 
                                 <div class="mb-3">
@@ -426,6 +426,7 @@
             </div>
         </div>
 
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 let totalAmountElement = document.getElementById("totalAmount");
@@ -675,7 +676,7 @@
             function redirectToImport() {
                 const form = document.createElement("form");
                 form.method = "POST";
-                form.action = "ImportStock";
+                form.action = "${pageContext.request.contextPath}/ImportStock";
 
                 document.body.appendChild(form);
                 form.submit();
@@ -684,7 +685,7 @@
         </script>
         <script>
             function cancelImportOrder() {
-                window.location.href = 'ImportStock?status=cancel';
+                window.location.href = '${pageContext.request.contextPath}/ImportStock?status=cancel';
             }
         </script>
         <!-- submit final -->

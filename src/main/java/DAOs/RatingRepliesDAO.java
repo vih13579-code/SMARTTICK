@@ -19,7 +19,7 @@ public class RatingRepliesDAO {
 
     public List<RatingReplies> getAllRatingRepliesByProduct(int productId) {
         List<RatingReplies> list = new ArrayList<>();
-        String query = "SELECT rr.* FROM RatingReplies rr JOIN ProductRatings pr ON rr.RateID = pr.RateID WHERE pr.ProductID = ?";
+        String query = "SELECT rr.* FROM RatingReplies rr JOIN ProductRatings pr ON rr.RateID = pr.RateID WHERE pr.ProductID = ? AND pr.IsDeleted = 0";
         try {
             PreparedStatement pre = connector.prepareStatement(query);
             pre.setInt(1, productId);
@@ -81,7 +81,7 @@ public class RatingRepliesDAO {
 //        String query = "SELECT r.* FROM RatingReplies r JOIN ProductRatings pr ON r.rateID = pr.rateID WHERE pr.customerID = ? AND r.isRead = 0";
         String query = "SELECT rr.* FROM RatingReplies rr \n"
                 + "JOIN ProductRatings pr ON rr.RateID = pr.RateID\n"
-                + "WHERE pr.CustomerID =? ORDER BY pr.CreatedDate DESC";
+                + "WHERE pr.CustomerID =? AND pr.IsDeleted = 0 ORDER BY pr.CreatedDate DESC";
         try (
                  PreparedStatement stmt = connector.prepareStatement(query)) {
             stmt.setInt(1, customerID);

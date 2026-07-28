@@ -22,7 +22,7 @@ public class ProductRatingDAO {
         List<ProductRating> list = new ArrayList<>();
         String query = "SELECT P.* ,C.FullName FROM ProductRatings AS P\n"
                 + "JOIN Customers AS C ON C.CustomerID = P.CustomerID \n"
-                + "WHERE ProductID = ?  ORDER BY P.CreatedDate DESC";
+                + "WHERE ProductID = ? AND P.IsDeleted = 0 ORDER BY P.CreatedDate DESC";
         try {
             PreparedStatement pre = connector.prepareStatement(query);
             pre.setInt(1, productID);
@@ -52,7 +52,7 @@ public class ProductRatingDAO {
         float star = 0;
         String query = "SELECT COALESCE(ROUND(SUM(Star) * 1.0 / COUNT(Star), 0), 0) AS avs\n"
                 + "FROM ProductRatings as p  \n"
-                + "WHERE p.ProductID = ?";
+                + "WHERE p.ProductID = ? AND p.IsDeleted = 0";
         try {
             PreparedStatement pre = connector.prepareStatement(query);
             pre.setInt(1, productId);
@@ -71,7 +71,7 @@ public class ProductRatingDAO {
         ProductRating p = new ProductRating();
         String query = "SELECT COALESCE(ROUND(SUM(Star) * 1.0 / COUNT(Star), 0), 0) AS avs\n"
                 + "FROM ProductRatings as p  \n"
-                + "WHERE p.ProductID = ?";
+                + "WHERE p.ProductID = ? AND p.IsDeleted = 0";
         try {
             PreparedStatement pre = connector.prepareStatement(query);
             pre.setInt(1, productId);
