@@ -19,6 +19,7 @@
                 height: auto;
                 margin: 20px auto;
                 background: white;
+                color: #1f2937 !important;
                 padding: 40px;
                 border-radius: 10px;
                 box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -29,6 +30,41 @@
             }
             .form-container {
                 width: 60%;
+            }
+
+            .profile-container label,
+            .profile-container p,
+            .avatar-container label {
+                color: #1f2937 !important;
+            }
+
+            .profile-container .fw-bold {
+                color: #111827 !important;
+            }
+
+            .profile-container .form-control,
+            .profile-container .form-select {
+                background-color: #333333;
+                border-color: #4b5563;
+                color: #ffffff;
+            }
+
+            .profile-container .form-control:focus,
+            .profile-container .form-select:focus {
+                background-color: #333333;
+                border-color: #f4b400;
+                color: #ffffff;
+                box-shadow: 0 0 0 0.2rem rgba(244, 180, 0, 0.18);
+            }
+
+            .profile-container .form-select option {
+                background-color: #333333;
+                color: #ffffff;
+            }
+
+            .profile-container .smart-file-input {
+                background-color: #ffffff;
+                color: #1f2937;
             }
             .avatar-container {
                 text-align: center;
@@ -85,7 +121,7 @@
                     </div>
                     <div class="col-md-10" style="padding-top: 10px;">
                     <jsp:include page="HeaderDashboard.jsp"></jsp:include>
-                        <form action="UpdateEmployeeProfile" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+                        <form action="${pageContext.request.contextPath}/UpdateEmployeeProfile" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
 
                             <div class="profile-container">
 
