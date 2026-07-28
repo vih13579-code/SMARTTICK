@@ -154,11 +154,11 @@
                 return true;
             }
             function updateProfile(){
-                window.location.href = '/UpdateEmployeeProfile';
+                window.location.href = '${pageContext.request.contextPath}/UpdateEmployeeProfile';
             }
 
             function changePassword() {
-                window.location.href = '/ChangeEmployeePassword';
+                window.location.href = '${pageContext.request.contextPath}/ChangeEmployeePassword';
             }
 
         </script>
