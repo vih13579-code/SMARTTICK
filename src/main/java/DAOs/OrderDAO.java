@@ -293,10 +293,14 @@ public class OrderDAO {
             for (Cart item : selectedItems) {
                 totalQuantity += item.getQuantity();
             }
-            long depositAmount = totalQuantity >= BULK_DEPOSIT_QUANTITY
-                    ? Math.round(finalTotal * (BULK_DEPOSIT_PERCENT / 100.0))
-                    : 0;
-            long amountDue = Math.max(0, finalTotal - depositAmount);
+            boolean qrPaid = "qr_payment".equalsIgnoreCase(order.getPaymentMethod())
+                    && "paid".equalsIgnoreCase(order.getPaymentStatus());
+            long depositAmount = qrPaid
+                    ? finalTotal
+                    : (totalQuantity >= BULK_DEPOSIT_QUANTITY
+                            ? Math.round(finalTotal * (BULK_DEPOSIT_PERCENT / 100.0))
+                            : 0);
+            long amountDue = qrPaid ? 0 : Math.max(0, finalTotal - depositAmount);
             order.setDepositAmount(depositAmount);
             order.setAmountDue(amountDue);
             if (order.getPaymentMethod() == null || order.getPaymentMethod().trim().isEmpty()) {
@@ -305,7 +309,9 @@ public class OrderDAO {
             if (order.getPaymentStatus() == null || order.getPaymentStatus().trim().isEmpty()) {
                 order.setPaymentStatus(depositAmount > 0 ? "deposit_pending" : "pending");
             }
-            order.setPaymentReference(null);
+            if (!qrPaid) {
+                order.setPaymentReference(null);
+            }
 
             boolean hasPaymentColumns = columnExists(connector, "Orders", "PaymentMethod")
                     && columnExists(connector, "Orders", "PaymentStatus")

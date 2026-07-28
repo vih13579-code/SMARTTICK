@@ -21,8 +21,6 @@ import java.io.BufferedReader;
 
 @WebServlet(name = "UpdateCartServlet", urlPatterns = {"/updateCart"})
 public class UpdateCartServlet extends HttpServlet {
-    private static final String SUPPORT_EMAIL = "duyminhnguyen247@gmail.com";
-    private static final int MAX_CART_QUANTITY = 100;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -99,17 +97,11 @@ public class UpdateCartServlet extends HttpServlet {
             response.getWriter().write("{\"ok\":false,\"message\":\"Product is not available.\"}");
             return;
         }
-        if (quantity > MAX_CART_QUANTITY) {
-            session.setAttribute("message", "Please contact SMARTTICK at " + SUPPORT_EMAIL
-                    + " for orders over " + MAX_CART_QUANTITY + " units.");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"ok\":false,\"message\":\"Please contact support for bulk orders.\"}");
-            return;
-        }
         if (product.getStock() < quantity) {
-            session.setAttribute("message", "Sorry, the product quantity in stock is not enough.");
+            String message = "Only " + product.getStock() + " item(s) are currently available in stock.";
+            session.setAttribute("message", message);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"ok\":false,\"message\":\"Not enough stock.\"}");
+            response.getWriter().write("{\"ok\":false,\"message\":\"" + message + "\"}");
             return;
         }
         c.updateProductQuantity(productId, quantity, cus.getId());

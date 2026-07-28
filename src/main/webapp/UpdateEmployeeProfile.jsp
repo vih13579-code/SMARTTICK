@@ -11,19 +11,17 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <style>
             body {
-                background-color: #242424 !important;
+                background-color: #f8f9fa;
             }
 
             .profile-container {
                 max-width: 1600px;
                 height: auto;
                 margin: 20px auto;
-                background: #2f2f2f !important;
-                color: #f8fafc !important;
+                background: white;
                 padding: 40px;
                 border-radius: 10px;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                 display: flex;
                 flex-wrap: wrap;
                 justify-content: space-between;
@@ -31,41 +29,6 @@
             }
             .form-container {
                 width: 60%;
-            }
-
-            .profile-container label,
-            .profile-container p,
-            .avatar-container label {
-                color: #f8fafc !important;
-            }
-
-            .profile-container .fw-bold {
-                color: #ffffff !important;
-            }
-
-            .profile-container .form-control,
-            .profile-container .form-select {
-                background-color: #333333;
-                border-color: #4b5563;
-                color: #ffffff;
-            }
-
-            .profile-container .form-control:focus,
-            .profile-container .form-select:focus {
-                background-color: #333333;
-                border-color: #f4b400;
-                color: #ffffff;
-                box-shadow: 0 0 0 0.2rem rgba(244, 180, 0, 0.18);
-            }
-
-            .profile-container .form-select option {
-                background-color: #333333;
-                color: #ffffff;
-            }
-
-            .profile-container .smart-file-input {
-                background-color: #333333;
-                color: #ffffff;
             }
             .avatar-container {
                 text-align: center;
@@ -75,8 +38,7 @@
                 width: 180px;
                 height: 180px;
                 border-radius: 50%;
-                border: 3px solid rgba(255, 255, 255, 0.22);
-                background: #1f1f1f;
+                border: 3px solid #ddd;
             }
             .value{
                 width: 150px;
@@ -123,7 +85,7 @@
                     </div>
                     <div class="col-md-10" style="padding-top: 10px;">
                     <jsp:include page="HeaderDashboard.jsp"></jsp:include>
-                        <form action="${pageContext.request.contextPath}/UpdateEmployeeProfile" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+                        <form action="UpdateEmployeeProfile" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
 
                             <div class="profile-container">
 
@@ -171,7 +133,7 @@
 
                                 <div class="mb-3 d-flex">
                                     <label class="form-label value">Date Of Birth</label>
-                                    <input type="date" class="form-control" name="dob" id="dob" value="${sessionScope.employee.birthday}" required>
+                                    <input type="date" class="form-control" name="dob" id="dob" value="${sessionScope.employee.getBirthday().toString()}" required>
 
                                 </div>
                                 <small id="dob-error" class="text-danger" style="display:none;">Invalid date of birth</small>
@@ -181,11 +143,11 @@
                                 <label class="form-label">Avatar</label>
                                 <div class="mb-5">
                                     <c:choose>
-                                        <c:when test="${not empty sessionScope.employee.avatar}">
-                                            <img id="avatarPreview" class="avatar-preview" src="${pageContext.request.contextPath}/assets/imgs/EmployeeAvatar/${sessionScope.employee.avatar}" alt="Avatar">
+                                        <c:when test="${!sessionScope.employee.getAvatar().equals('')}">
+                                            <img id="avatarPreview" class="avatar-preview" src="assets/imgs/EmployeeAvatar/${sessionScope.employee.getAvatar()}" alt="Avatar">
                                         </c:when>
                                         <c:otherwise>
-                                            <img id="avatarPreview" class="avatar-preview" src="${pageContext.request.contextPath}/assets/imgs/EmployeeAvatar/defauft_avatar.jpg" alt="Avatar">
+                                            <img id="avatarPreview" class="avatar-preview" src="assets/imgs/EmployeeAvatar/defauft_avatar.jpg" alt="Avatar">
                                         </c:otherwise>
                                     </c:choose>
                                 </div>

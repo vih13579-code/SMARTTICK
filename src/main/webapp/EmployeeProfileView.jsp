@@ -10,67 +10,58 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <style>
             body {
-                background-color: #242424 !important;
+                background-color: #f8f9fa;
             }
             .profile-container {
                 max-width: 800px;
                 margin: 20px auto;
-                background: #2f2f2f !important;
-                color: #f8fafc !important;
+                background: white;
                 padding: 40px;
                 border-radius: 10px;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
-            }
-            .profile-container h3 {
-                color: #ffffff !important;
-                font-weight: 800;
-            }
-            .profile-container p {
-                color: #e5e7eb !important;
-                font-weight: 500;
-            }
-            .profile-container .text-muted {
-                color: #cbd5e1 !important;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             }
             .avatar-preview {
                 width: 180px;
                 height: 180px;
                 border-radius: 50%;
                 object-fit: cover;
-                border: 3px solid rgba(255, 255, 255, 0.22);
-                background: #1f1f1f;
+                border: 3px solid #ddd;
                 display: block;
                 margin: 0 auto;
             }
             .info-label {
                 font-weight: bold;
-                color: #ffffff !important;
             }
             /* Popup styles */
             .popup {
-                max-width: 800px;
-                margin: 16px auto 0;
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                justify-content: center;
+                align-items: center;
             }
             .popup-content {
-                background-color: rgba(57, 208, 111, 0.14);
-                border: 1px solid rgba(57, 208, 111, 0.32);
-                color: #d7ffe3;
-                padding: 14px 18px;
+                background-color: white;
+                padding: 30px;
                 border-radius: 8px;
-                text-align: left;
+                text-align: center;
+                width: 300px;
+                margin: 150px auto;
             }
             .popup button {
-                background-color: #0d111b;
+                background-color: #007bff;
                 color: white;
-                padding: 8px 16px;
+                padding: 10px 20px;
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
-                margin-top: 8px;
             }
             .popup button:hover {
-                background-color: #0d111b;
+                background-color: #0056b3;
             }
         </style>
     </head>

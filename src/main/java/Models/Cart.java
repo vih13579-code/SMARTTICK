@@ -12,6 +12,7 @@ public class Cart {
     private String fullName;
     private long price;
     private int category;
+    private int stock;
     private Integer variantId;
     private String colorName;
     private String colorHex;
@@ -33,8 +34,13 @@ public class Cart {
         this.category = category;
     }
 
+    public Cart(int productID, int quantity, String image, String fullName, long price, int category, int stock) {
+        this(productID, quantity, image, fullName, price, category);
+        this.stock = stock;
+    }
+
     public Cart(int productID, Integer variantId, int quantity, String image, String fullName, long price, int category,
-            String colorName, String colorHex) {
+            String colorName, String colorHex, int stock) {
         this.productID = productID;
         this.variantId = variantId;
         this.quantity = quantity;
@@ -44,6 +50,7 @@ public class Cart {
         this.category = category;
         this.colorName = colorName;
         this.colorHex = colorHex;
+        this.stock = stock;
     }
 
     public int getProductID() {
@@ -92,6 +99,14 @@ public class Cart {
 
     public void setCategory(int category) {
         this.category = category;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 
     public Integer getVariantId() {

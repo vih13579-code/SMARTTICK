@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <style>
             body {
-                background-color: #242424 !important;
+                background-color: #f8f9fa;
             }
             .container-feedback {
                 margin-left: 270px;
@@ -20,49 +20,24 @@
             }
             .container-feedback h2 {
                 font-weight: 700;
-                color: #f8fafc !important;
-            }
-            .container-feedback h3 {
-                color: #f8fafc !important;
+                color: #343a40;
             }
             .card {
                 border: none;
                 border-radius: 10px;
-                background: #2f2f2f !important;
-                color: #f8fafc !important;
             }
             .card-shadow {
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             }
-            .feedback-table {
-                color: #f8fafc !important;
-                margin-bottom: 0;
-            }
-            .feedback-table thead th {
-                background: #2f343a !important;
-                color: #f8fafc !important;
-                border-color: #454b52 !important;
-            }
-            .feedback-table tbody td {
-                background: #2f2f2f !important;
-                color: #f8fafc !important;
-                border-color: #454b52 !important;
-                font-weight: 600;
-            }
             .table thead th {
                 border-bottom: 2px solid #dee2e6;
             }
-            .feedback-table tbody tr:hover,
-            .feedback-table tbody tr:hover td {
-                background: #2f2f2f !important;
-                color: #f8fafc !important;
+            .table-hover tbody tr:hover {
+                background-color: #f1f1f1;
             }
             .new-feedback {
-                font-weight: 700;
-            }
-            .feedback-table tbody tr.new-feedback td {
-                background-color: #2f2f2f !important;
-                color: #f8fafc !important;
+                background-color: #e3f2fd;
+                font-weight: bold;
             }
             .star-rating i {
                 color: #FFD700;
@@ -123,8 +98,8 @@
                     </c:if>
                 <div class="card card-shadow p-4">
                     <div class="table-responsive">
-                        <table class="table align-middle feedback-table">
-                            <thead>
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
                                 <tr>
                                     <th>#</th>
                                     <th>Customer Name</th>

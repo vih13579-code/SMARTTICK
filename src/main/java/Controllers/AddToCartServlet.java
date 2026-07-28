@@ -16,7 +16,6 @@ import javax.servlet.http.HttpSession;
 
 @WebServlet(name = "AddToCartServlet", urlPatterns = {"/AddToCart"})
 public class AddToCartServlet extends HttpServlet {
-    private static final int MAX_CART_QUANTITY = 100;
 
     private void addProductToCart(HttpServletRequest request, HttpServletResponse response, boolean allowIdParam)
             throws ServletException, IOException {
@@ -92,25 +91,21 @@ public class AddToCartServlet extends HttpServlet {
             throws IOException {
         int totalQuantity = cartCheck.getQuantity() + quantity;
 
-        if (totalQuantity > MAX_CART_QUANTITY) {
-            session.setAttribute("message", "Please contact SMARTTICK for orders over " + MAX_CART_QUANTITY + " units.");
-            response.sendRedirect("ProductDetailServlet?id=" + id);
-        } else if (availableStock >= totalQuantity) {
+        if (availableStock >= totalQuantity) {
             cartDao.updateProductQuantity(cartCheck.getProductID(), variantId, totalQuantity, cus.getId());
             response.sendRedirect("cart");
         } else {
-            session.setAttribute("message", "Sorry, the product quantity in stock is not enough.");
+            session.setAttribute("message", "Cannot add more. Stock: " + availableStock
+                    + "; already in cart: " + cartCheck.getQuantity() + ".");
             response.sendRedirect("ProductDetailServlet?id=" + id);
         }
     }
 
     private void addNewCartItem(HttpServletResponse response, HttpSession session, Customer cus,
             CartDAO cartDao, int id, Integer variantId, int quantity, int availableStock) throws IOException {
-        if (quantity > MAX_CART_QUANTITY) {
-            session.setAttribute("message", "Please contact SMARTTICK for orders over " + MAX_CART_QUANTITY + " units.");
-            response.sendRedirect("ProductDetailServlet?id=" + id);
-        } else if (availableStock < quantity) {
-            session.setAttribute("message", "Sorry, the product quantity in stock is not enough.");
+        if (availableStock < quantity) {
+            session.setAttribute("message", "Cannot add " + quantity + " item(s). Current stock: "
+                    + availableStock + ".");
             response.sendRedirect("ProductDetailServlet?id=" + id);
         } else {
             Cart cart = new Cart(id, quantity);
