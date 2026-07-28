@@ -16,9 +16,21 @@
                 max-width: 800px;
                 margin: 20px auto;
                 background: white;
+                color: #1f2937 !important;
                 padding: 40px;
                 border-radius: 10px;
                 box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+            .profile-container h3 {
+                color: #111827 !important;
+                font-weight: 800;
+            }
+            .profile-container p {
+                color: #374151 !important;
+                font-weight: 500;
+            }
+            .profile-container .text-muted {
+                color: #4b5563 !important;
             }
             .avatar-preview {
                 width: 180px;
@@ -31,6 +43,7 @@
             }
             .info-label {
                 font-weight: bold;
+                color: #111827 !important;
             }
             /* Popup styles */
             .popup {

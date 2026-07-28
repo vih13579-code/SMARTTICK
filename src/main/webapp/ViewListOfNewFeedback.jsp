@@ -20,24 +20,51 @@
             }
             .container-feedback h2 {
                 font-weight: 700;
-                color: #343a40;
+                color: #f8fafc !important;
+            }
+            .container-feedback h3 {
+                color: #f8fafc !important;
             }
             .card {
                 border: none;
                 border-radius: 10px;
+                background: #ffffff !important;
+                color: #1f2937 !important;
             }
             .card-shadow {
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            .feedback-table {
+                color: #1f2937 !important;
+                margin-bottom: 0;
+            }
+            .feedback-table thead th {
+                background: #2f343a !important;
+                color: #f8fafc !important;
+                border-color: #454b52 !important;
+            }
+            .feedback-table tbody td {
+                background: #ffffff !important;
+                color: #1f2937 !important;
+                border-color: #dbe3ec !important;
+                font-weight: 600;
             }
             .table thead th {
                 border-bottom: 2px solid #dee2e6;
             }
             .table-hover tbody tr:hover {
-                background-color: #f1f1f1;
+                background-color: #f1f5f9 !important;
+            }
+            .feedback-table.table-hover tbody tr:hover td {
+                background-color: #f1f5f9 !important;
+                color: #111827 !important;
             }
             .new-feedback {
-                background-color: #e3f2fd;
-                font-weight: bold;
+                font-weight: 700;
+            }
+            .feedback-table tbody tr.new-feedback td {
+                background-color: #eaf6ff !important;
+                color: #172033 !important;
             }
             .star-rating i {
                 color: #FFD700;
@@ -98,8 +125,8 @@
                     </c:if>
                 <div class="card card-shadow p-4">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-dark">
+                        <table class="table table-hover align-middle feedback-table">
+                            <thead>
                                 <tr>
                                     <th>#</th>
                                     <th>Customer Name</th>
