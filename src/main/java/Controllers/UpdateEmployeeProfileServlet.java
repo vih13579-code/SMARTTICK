@@ -53,6 +53,24 @@ public class UpdateEmployeeProfileServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            response.sendRedirect(request.getContextPath() + "/EmployeeLogin");
+            return;
+        }
+
+        Employee emLogin = (Employee) session.getAttribute("employee");
+        if (emLogin == null) {
+            response.sendRedirect(request.getContextPath() + "/EmployeeLogin");
+            return;
+        }
+
+        EmployeeDAO emDAO = new EmployeeDAO();
+        Employee emView = emDAO.getEmployeeById(emLogin.getEmployeeId() + "");
+        if (emView != null) {
+            session.setAttribute("employee", emView);
+        }
+
         request.getRequestDispatcher("UpdateEmployeeProfile.jsp").forward(request, response);
     }
 
@@ -72,6 +90,7 @@ public class UpdateEmployeeProfileServlet extends HttpServlet {
         Employee em = (Employee) session.getAttribute("employee");
         if (em == null) {
             response.sendRedirect(request.getContextPath() + "/EmployeeLogin");
+            return;
         }
 
         Part img = request.getPart("avatar");
