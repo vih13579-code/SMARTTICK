@@ -130,7 +130,7 @@ public class RegisterServlet extends HttpServlet {
         Customer registeredCustomer = customerDAO.getCustomerLogin(customer.getEmail(), customer.getPassword());
         if (registeredCustomer != null) {
             CustomerVoucherDAO voucherDAO = new CustomerVoucherDAO();
-            voucherDAO.assignVoucherToCustomer(registeredCustomer.getId(), 1, 1, null);
+            voucherDAO.syncAvailableVouchersForCustomer(registeredCustomer.getId());
         }
         return true;
     }

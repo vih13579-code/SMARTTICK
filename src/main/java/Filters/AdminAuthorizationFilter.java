@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
     "/DeleteProductServlet", "/SearchProduct", "/ShopDashboardServlet",
     "/CustomerListServlet", "/SearchCustomerServlet", "/ViewEmployeeServlet",
     "/AddEmployeeServlet", "/UpdateEmployeeServlet", "/SearchEmployeeServlet",
+    "/DeleteEmployeeServlet",
     "/ViewOrderListServlet", "/ViewOrderDetailServlet", "/UpdateOrderServlet",
     "/DeleteOrderServlet", "/PreviewDeleteOrderServlet", "/Supplier", "/SearchSupplier",
     "/CreateSupplier", "/UpdateSupplier", "/DeleteSupplier", "/ImportOrder",
@@ -26,9 +27,10 @@ import javax.servlet.http.HttpSession;
     "/InventoryStatisticServlet", "/SearchInventoryServlet", "/RevenueStatisticServlet",
     "/ProductStatisticServlet", "/ViewVoucherListServlet", "/ViewVoucherDetailServlet",
     "/CreateVoucherServlet", "/UpdateVoucherServlet", "/DeleteVoucherServlet",
+    "/SearchVoucherServlet",
     "/AssignVoucherServlet", "/ViewListNewFeedbackServlet", "/ViewFeedbackForManagerServlet",
     "/UpdateStatusCommentServlet", "/ReplyFeedbackServlet", "/UpdateReplyServlet",
-    "/DeleteReplyServlet", "/NotificationServlet"
+    "/DeleteReplyServlet"
 })
 public class AdminAuthorizationFilter implements Filter {
     @Override public void init(FilterConfig filterConfig) { }

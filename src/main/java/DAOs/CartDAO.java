@@ -50,19 +50,19 @@ public class CartDAO {
             if (hasCartVariantColumn() && hasProductVariantsTable()) {
                 sql = "SELECT c.ProductID, c.ProductVariantID, c.Quantity, "
                         + "COALESCE(v.[Image], p.[Image]) AS Image, p.FullName, p.Price, p.CategoryID, "
-                        + "v.ColorName, v.ColorHex, COALESCE(v.Stock, p.Stock) AS Stock "
+                        + "v.ColorName, v.ColorHex "
                         + "FROM Carts c "
                         + "LEFT JOIN Products p ON c.ProductID = p.ProductID "
                         + "LEFT JOIN ProductVariants v ON c.ProductVariantID = v.VariantID AND v.ProductID = p.ProductID "
                         + "WHERE c.CustomerID = ? AND p.IsDeleted = 0 ORDER BY c.CustomerID DESC";
             } else if (hasCartVariantColumn()) {
                 sql = "SELECT c.ProductID, c.ProductVariantID, c.Quantity, p.[Image] AS Image, "
-                        + "p.FullName, p.Price, p.CategoryID, NULL AS ColorName, NULL AS ColorHex, p.Stock "
+                        + "p.FullName, p.Price, p.CategoryID, NULL AS ColorName, NULL AS ColorHex "
                         + "FROM Carts c "
                         + "LEFT JOIN Products p ON c.ProductID = p.ProductID "
                         + "WHERE c.CustomerID = ? AND p.IsDeleted = 0 ORDER BY c.CustomerID DESC";
             } else {
-                sql = "SELECT c.ProductID, c.Quantity, p.[Image] AS Image, p.FullName, p.Price, p.CategoryID, p.Stock "
+                sql = "SELECT c.ProductID, c.Quantity, p.[Image] AS Image, p.FullName, p.Price, p.CategoryID "
                         + "FROM Carts c "
                         + "LEFT JOIN Products p ON c.ProductID = p.ProductID "
                         + "WHERE c.CustomerID = ? AND p.IsDeleted = 0 ORDER BY c.CustomerID DESC";
@@ -75,10 +75,10 @@ public class CartDAO {
                     Integer variantId = rs.getObject("ProductVariantID") == null ? null : rs.getInt("ProductVariantID");
                     list.add(new Cart(rs.getInt("ProductID"), variantId, rs.getInt("Quantity"), rs.getString("Image"),
                             rs.getString("FullName"), rs.getLong("Price"), rs.getInt("CategoryID"),
-                            rs.getString("ColorName"), rs.getString("ColorHex"), rs.getInt("Stock")));
+                            rs.getString("ColorName"), rs.getString("ColorHex")));
                 } else {
                     list.add(new Cart(rs.getInt("ProductID"), rs.getInt("Quantity"), rs.getString("Image"),
-                            rs.getString("FullName"), rs.getLong("Price"), rs.getInt("CategoryID"), rs.getInt("Stock")));
+                            rs.getString("FullName"), rs.getLong("Price"), rs.getInt("CategoryID")));
                 }
             }
         } catch (SQLException e) {

@@ -78,11 +78,15 @@ public class NotificationServlet extends HttpServlet {
         // Nếu có yêu cầu AJAX (chuyển sang JSON)
         if (request.getParameter("ajax") != null && request.getParameter("ajax").equals("true")) {
             response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
             String json = new Gson().toJson(dataMap);
             response.getWriter().write(json);
             return;
         }
 
+        request.setAttribute("replies", list);
+        request.setAttribute("products", listpd);
+        request.getRequestDispatcher("notification.jsp").forward(request, response);
     }
 
     /**
@@ -104,7 +108,11 @@ public class NotificationServlet extends HttpServlet {
                 RatingRepliesDAO rrDAO = new RatingRepliesDAO();
                 rrDAO.markReplyAsRead(repliesID); 
 
-                response.getWriter().write("Success");
+                if ("true".equals(request.getParameter("ajax"))) {
+                    response.getWriter().write("Success");
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/NotificationServlet");
+                }
             } catch (NumberFormatException e) {
                 response.getWriter().write("Invalid ID");
             }

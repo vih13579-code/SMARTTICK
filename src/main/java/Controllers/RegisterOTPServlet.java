@@ -126,7 +126,7 @@ public class RegisterOTPServlet extends HttpServlet {
                 CustomerVoucherDAO cv = new CustomerVoucherDAO();
                 Customer cus = ctmDAO.getCustomerLogin(customer.getEmail(), customer.getPassword());
                 if (cus != null) {
-                    cv.assignVoucherToCustomer(cus.getId(), 1, 1, null);
+                    cv.syncAvailableVouchersForCustomer(cus.getId());
                 }
                 response.sendRedirect(request.getContextPath() + "/customerLogin");
             } else {

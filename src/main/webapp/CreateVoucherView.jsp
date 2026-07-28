@@ -9,14 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        .form-wrapper {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-top: 30px;
-        }
-
         .sidebar-container {
             background-color: white;
             height: 100vh;
@@ -28,37 +20,9 @@
             background-color: white;
             border-bottom: 1px solid #eee;
         }
-
-        body.admin-ops-page.voucher-form-page .form-wrapper {
-            color: #1f2937 !important;
-        }
-
-        body.admin-ops-page.voucher-form-page .form-wrapper h2,
-        body.admin-ops-page.voucher-form-page .form-wrapper .form-label {
-            color: #111827 !important;
-        }
-
-        body.admin-ops-page.voucher-form-page .form-wrapper .form-label {
-            font-weight: 600;
-        }
-
-        body.admin-ops-page.voucher-form-page .form-wrapper .form-control,
-        body.admin-ops-page.voucher-form-page .form-wrapper .form-select {
-            background-color: #f8fafc !important;
-            color: #111827 !important;
-            border: 1px solid #cbd5e1 !important;
-        }
-
-        body.admin-ops-page.voucher-form-page .form-wrapper .form-control:focus,
-        body.admin-ops-page.voucher-form-page .form-wrapper .form-select:focus {
-            background-color: #fff !important;
-            color: #111827 !important;
-            border-color: #d8ad5a !important;
-            box-shadow: 0 0 0 0.2rem rgba(216, 173, 90, 0.2) !important;
-        }
     </style>
 </head>
-<body class="admin-ops-page voucher-form-page">
+<body class="admin-ops-page">
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar: Cột 1 -->
@@ -67,14 +31,16 @@
             </div>
 
             <!-- Header: Trải dài từ cột 2 đến 6 -->
-            <div class="col-10 p-0">
+            <div class="col-10 p-0 voucher-main-content">
                 <div class="fixed-header">
                     <jsp:include page="HeaderDashboard.jsp"></jsp:include>
                 </div>
 
                 <!-- Nội dung chính: Form -->
-                <div class="row justify-content-center mt-4">
-                    <div class="col-8 col-md-6">
+                <div class="row justify-content-center mt-4 voucher-form-section">
+                    <div class="col-8 col-md-6 voucher-form-column">
+                        <h2 class="voucher-page-title">Create New Voucher</h2>
+
                         <c:if test="${not empty error}">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <i class="fa-solid fa-triangle-exclamation"></i> ${error}
@@ -82,8 +48,7 @@
                             </div>
                         </c:if>
 
-                        <div class="form-wrapper">
-                            <h2 class="mb-4">Create New Voucher</h2>
+                        <div class="form-wrapper voucher-form-wrapper">
                             <form action="CreateVoucherServlet" method="post">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -101,22 +66,22 @@
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Value</label>
-                                        <input type="number" name="voucherValue" class="form-control" required>
+                                        <input type="number" name="voucherValue" class="form-control" min="1" required>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Max Discount</label>
-                                        <input type="number" name="maxDiscountAmount" class="form-control">
+                                        <input type="number" name="maxDiscountAmount" class="form-control" min="0">
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Min Order Value</label>
-                                        <input type="number" name="minOrderValue" class="form-control" required>
+                                        <input type="number" name="minOrderValue" class="form-control" min="0" required>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Max Used Count</label>
-                                        <input type="number" name="maxUsedCount" class="form-control">
+                                        <input type="number" name="maxUsedCount" class="form-control" min="0">
                                     </div>
 
                                     <div class="col-md-6 mb-3">

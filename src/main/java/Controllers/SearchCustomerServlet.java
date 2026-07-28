@@ -6,7 +6,8 @@
 package Controllers;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +38,16 @@ public class SearchCustomerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        String keyword = request.getParameter("txt");
+        if (keyword == null) {
+            keyword = request.getParameter("keyword");
+        }
+        if (keyword == null) {
+            keyword = "";
+        }
+        response.sendRedirect(request.getContextPath()
+                + "/CustomerListServlet?txt="
+                + URLEncoder.encode(keyword.trim(), StandardCharsets.UTF_8.name()));
     } 
 
     /** 
@@ -50,7 +60,7 @@ public class SearchCustomerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /** 

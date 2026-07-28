@@ -63,7 +63,11 @@ public class DeleteReplyServlet extends HttpServlet {
             ProductRatingDAO prDAO = new ProductRatingDAO();
             RatingRepliesDAO rrDAO = new RatingRepliesDAO();
             RatingReplies r = rrDAO.getReplyByRepyID(id);
-            prDAO.markReplyAsUnRead(id);
+            if (r == null) {
+                response.sendRedirect("ViewListNewFeedbackServlet?success=failed");
+                return;
+            }
+            prDAO.markReplyAsUnRead(r.getRateID());
             boolean isdelete = rrDAO.DeleteRatingReply(id);
             if (isdelete) {
                 response.sendRedirect("ViewFeedbackForManagerServlet?rateID="+r.getRateID()+"&success=success");

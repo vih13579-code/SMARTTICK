@@ -65,16 +65,6 @@
             <artifactId>xml-apis</artifactId>
             <version>1.4.01</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>core</artifactId>
-            <version>3.5.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>javase</artifactId>
-            <version>3.5.3</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -96,12 +86,6 @@
                 <version>3.4.0</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <webResources>
-                        <resource>
-                            <directory>${project.basedir}/image</directory>
-                            <targetPath>assets/imgs/Products/real</targetPath>
-                        </resource>
-                    </webResources>
                 </configuration>
             </plugin>
         </plugins>

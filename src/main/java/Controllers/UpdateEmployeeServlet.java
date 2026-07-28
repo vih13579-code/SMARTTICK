@@ -41,7 +41,9 @@ public class UpdateEmployeeServlet extends HttpServlet {
             int employeeId = Integer.parseInt(request.getParameter("txtEmployeeId"));
             int roleId = Integer.parseInt(request.getParameter("txtRoleId"));
             String name = request.getParameter("txtName");
-            String password = request.getParameter("txtPass");
+            String newPassword = request.getParameter("txtPass");
+            String currentPassword = request.getParameter("currentPassword");
+            boolean passwordChanged = newPassword != null && !newPassword.trim().isEmpty();
             Date birthday = null;
             String birthdayStr = request.getParameter("txtBirthday");
             if (birthdayStr != null && !birthdayStr.isEmpty()) {
@@ -58,25 +60,25 @@ public class UpdateEmployeeServlet extends HttpServlet {
             
             if (!isValidName(name)) {
                 request.setAttribute("errorMsg", "Name must not exceed 255 characters and only contain letters.");
-                forwardToUpdatePage(request, response, employeeId, roleId, name, password, birthday, phone, email, gender, createdDate, status, avatar);
+                forwardToUpdatePage(request, response, employeeId, roleId, name, currentPassword, birthday, phone, email, gender, createdDate, status, avatar);
                 return;
             }
             
-            if (!isValidPassword(password) && !password.equals(request.getParameter("currentPassword"))) {
+            if (passwordChanged && !isValidPassword(newPassword)) {
                 request.setAttribute("errorMsg", "Password must be at least 8 characters, including 1 uppercase letter and 1 special character!");
-                forwardToUpdatePage(request, response, employeeId, roleId, name, password, birthday, phone, email, gender, createdDate, status, avatar);
+                forwardToUpdatePage(request, response, employeeId, roleId, name, currentPassword, birthday, phone, email, gender, createdDate, status, avatar);
                 return;
             }
             
             if (empDAO.isEmailExists(email) && !email.equals(request.getParameter("currentEmail"))) {
                 request.setAttribute("errorMsg", "Email already exists! Please choose another email.");
-                forwardToUpdatePage(request, response, employeeId, roleId, name, password, birthday, phone, email, gender, createdDate, status, avatar);
+                forwardToUpdatePage(request, response, employeeId, roleId, name, currentPassword, birthday, phone, email, gender, createdDate, status, avatar);
                 return;
             }
             
             if (!isValidPhoneNumber(phone)) {
                 request.setAttribute("errorMsg", "Phone number must be exactly 10 digits.");
-                forwardToUpdatePage(request, response, employeeId, roleId, name, password, birthday, phone, email, gender, createdDate, status, avatar);
+                forwardToUpdatePage(request, response, employeeId, roleId, name, currentPassword, birthday, phone, email, gender, createdDate, status, avatar);
                 return;
             }
             
@@ -94,18 +96,23 @@ public class UpdateEmployeeServlet extends HttpServlet {
                 avatar = request.getParameter("currentAvatar");
             }
             
-            Employee emp = new Employee(employeeId, name, birthday, password, phone, email, gender, createdDate, status, avatar, roleId);
+            String passwordForSave = passwordChanged ? empDAO.getMD5(newPassword) : currentPassword;
+            Employee emp = new Employee(employeeId, name, birthday, passwordForSave, phone, email, gender, createdDate, status, avatar, roleId);
             int result = empDAO.UpdateEmployee(emp);
             
             if (result > 0) {
-                if (!password.equals(request.getParameter("currentPassword"))) {
-                    sendPasswordChangeEmail(email, password);
+                if (passwordChanged) {
+                    sendPasswordChangeEmail(email, newPassword);
                 }
                 
                 request.setAttribute("popupSuccessMsg", "Updated successfully");
+                request.setAttribute("employee", emp);
+                request.setAttribute("currentAvatar", avatar);
                 request.getRequestDispatcher("UpdateEmployeeView.jsp").forward(request, response);
             } else {
                 request.setAttribute("popupErrorMsg", "Update failed! Please try again.");
+                request.setAttribute("employee", emp);
+                request.setAttribute("currentAvatar", avatar);
                 request.getRequestDispatcher("UpdateEmployeeView.jsp").forward(request, response);
             }
         } catch (NullPointerException e) {

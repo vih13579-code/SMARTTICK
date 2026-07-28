@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/fonts/themify-icons/themify-icons.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css?v=20260702-dashboard">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ops.css?v=20260725-ops6">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ops.css?v=20260728-voucher-form">
 
 <c:set var="uri" value="${pageContext.request.requestURI}" />
 <c:set var="isDashboard" value="${fn:contains(uri, '/admin/dashboard')}" />

@@ -20,56 +20,64 @@ public class AddAddressServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect(request.getContextPath() + "/ViewShippingAddress");
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        HttpSession session = request.getSession(false);
-        if (session == null) {
-            response.sendRedirect(request.getContextPath() + "/customerLogin");
-            return;
-        }
+        HttpSession session = request.getSession();
         Customer cus = (Customer) session.getAttribute("customer");
 
-        if (cus == null) {
-            response.sendRedirect(request.getContextPath() + "/customerLogin");
-            return;
-        }
+        if (cus != null) {
+            String url = request.getParameter("currentAddressPage");
+            AddressDAO add = new AddressDAO();
+            String province = value(request.getParameter("province"));
+            String district = value(request.getParameter("district"));
+            String ward = value(request.getParameter("ward"));
+            String address = value(request.getParameter("address"));
 
-        String currentPage = clean(request.getParameter("currentAddressPage"));
-        String province = clean(request.getParameter("province"));
-        String district = clean(request.getParameter("district"));
-        String ward = clean(request.getParameter("ward"));
-        String address = clean(request.getParameter("address"));
-        String redirect = request.getContextPath() + "/ViewShippingAddress"
-                + ("forOrder".equalsIgnoreCase(currentPage) ? "?action=forOrder" : "");
-
-        if (province.isEmpty() || district.isEmpty() || ward.isEmpty() || address.length() < 5) {
-            session.setAttribute("addressError", "Please enter a complete and valid address.");
-            response.sendRedirect(redirect);
-            return;
-        }
-
-        AddressDAO addressDAO = new AddressDAO();
-        boolean makeDefault = request.getParameter("isDefault") != null;
-        int id = addressDAO.addAddress(new Address(cus.getId(), makeDefault ? 1 : 0,
-                address + ", " + ward + ", " + district + ", " + province));
-        if (id > 0) {
-            if (makeDefault) {
-                addressDAO.disableDefaultAddress(id, cus.getId());
+            if (province.isEmpty() || district.isEmpty() || ward.isEmpty() || address.length() < 5) {
+                session.setAttribute("message", "Please select a complete Vietnam address.");
+                redirectToAddressPage(request, response, url);
+                return;
             }
-            session.setAttribute("message", "Add address successfully");
-        } else {
-            session.setAttribute("addressError", "Could not save the address. Please try again.");
+
+            String addressDetails = address + ", " + ward + ", " + district + ", " + province;
+            if (addressDetails.length() > 500) {
+                session.setAttribute("message", "Address must not exceed 500 characters.");
+                redirectToAddressPage(request, response, url);
+                return;
+            }
+
+            if (request.getParameter("isDefault") != null) {
+                int id = add.addAddress(new Address(cus.getId(), 1, addressDetails));
+                if (id > 0) {
+                    add.disableDefaultAddress(id, cus.getId());
+                    session.setAttribute("message", "Add address successfully");
+                } else {
+                    session.setAttribute("message", "Could not add address. Please try again.");
+                }
+            } else {
+                int id = add.addAddress(new Address(cus.getId(), 0, addressDetails));
+                session.setAttribute("message", id > 0
+                        ? "Add address successfully"
+                        : "Could not add address. Please try again.");
+            }
+            redirectToAddressPage(request, response, url);
         }
-        response.sendRedirect(redirect);
     }
 
-    private String clean(String value) {
-        return value == null ? "" : value.trim().replaceAll("\\s+", " ");
+    private String value(String input) {
+        return input == null ? "" : input.trim();
+    }
+
+    private void redirectToAddressPage(HttpServletRequest request, HttpServletResponse response, String page)
+            throws IOException {
+        String target = "forOrder".equalsIgnoreCase(page)
+                ? "/ViewShippingAddress?action=forOrder"
+                : "/ViewShippingAddress";
+        response.sendRedirect(request.getContextPath() + target);
     }
 
     /**

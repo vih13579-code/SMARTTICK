@@ -377,19 +377,10 @@ body>.dash-side+.content .smart-file-upload-name,
 .payment-box h3{font-size:18px;margin:0 0 12px}
 .payment-option{display:flex;align-items:center;gap:10px;margin:8px 0;font-weight:800}
 .payment-option input{width:18px;height:18px}
-.qr-payment-overlay{position:fixed;inset:0;z-index:2000;align-items:center;justify-content:center;padding:20px;background:rgba(3,10,20,.82)}
-.qr-payment-card{position:relative;width:min(94vw,520px);padding:28px;text-align:center;background:#fff;border-radius:22px;box-shadow:0 24px 70px rgba(0,0,0,.35)}
-.qr-payment-card h2{margin:8px 0 4px;color:var(--ink)}
-.qr-payment-card>p{margin:0 0 14px;color:var(--muted)}
-.qr-payment-close{position:absolute;right:16px;top:12px;border:0;background:transparent;font-size:28px;color:#687386;cursor:pointer}
-.qr-payment-card img{display:block;max-width:82vw;margin:14px auto 10px;border:10px solid #fff;border-radius:14px;box-shadow:0 4px 22px rgba(0,0,0,.12)}
-.qr-payment-amount{display:block;margin:8px 0;color:var(--ink);font-size:22px}
-.qr-payment-status{margin-top:10px;color:var(--gold-dark);font-weight:800}
-.qr-payment-status.paid{color:#15803d}
-.qr-payment-status.failed{color:#b91c1c}
-.qr-payment-help{font-size:13px!important;margin-top:10px!important}
-.qr-payment-address-wrap{margin-top:10px;text-align:left;font-size:12px;color:var(--muted)}
-.qr-payment-address-wrap div{margin-top:6px;overflow-wrap:anywhere}
+.vnpay-sandbox-info{display:grid;grid-template-columns:116px 1fr;gap:14px;align-items:center;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:14px;margin:14px 0}
+.vnpay-sandbox-info strong,.vnpay-sandbox-info span{display:block}
+.vnpay-sandbox-info span{font-size:13px;color:var(--muted);margin-top:4px}
+.vnpay-mark{background:#0066b3;color:#fff;font-size:14px;font-weight:900;text-align:center;padding:16px 8px;border-left:5px solid #e31e24;border-radius:4px}
 .payment-result-page{padding-top:42px;padding-bottom:64px;max-width:820px}
 .payment-result{text-align:center;border:1px solid var(--line);padding:34px;background:#fff;border-radius:8px}
 .payment-result h1{font-size:32px;margin:10px 0}

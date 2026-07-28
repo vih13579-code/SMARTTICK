@@ -7,18 +7,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Account | SMARTTICK</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
           crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css?v=customer-profile-restored">
     <c:set var="initialProfilePage" value="${empty param.profilePage ? (empty requestScope.profilePage ? 'CustomerProfileView.jsp' : requestScope.profilePage) : param.profilePage}" />
 </head>
 <body class="customer-account-page">
 <jsp:include page="header.jsp"/>
 
 <main class="section account-section">
-    <div class="container profile-shell">
+    <div class="container">
         <div class="section-head account-head">
             <div>
                 <span class="eyebrow">Customer Account</span>
@@ -38,38 +38,38 @@
         </c:if>
 
         <div class="account-layout">
-            <aside class="account-sidebar profile-sidebar">
-                <div class="account-user-card profile-user-card">
+            <aside class="account-sidebar">
+                <div class="account-user-card">
                     <c:set var="customerAvatar" value="${sessionScope.customer.avatar}" />
                     <c:choose>
                         <c:when test="${not empty customerAvatar && fn:startsWith(customerAvatar, 'http')}">
-                            <img id="avatar" class="account-avatar" src="${customerAvatar}" alt="Customer avatar" onerror="this.src='${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg'">
+                            <img class="account-avatar" src="${customerAvatar}" alt="Customer avatar" onerror="this.src='${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg'">
                         </c:when>
                         <c:when test="${not empty customerAvatar}">
-                            <img id="avatar" class="account-avatar" src="${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/${customerAvatar}" alt="Customer avatar" onerror="this.src='${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg'">
+                            <img class="account-avatar" src="${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/${customerAvatar}" alt="Customer avatar" onerror="this.src='${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg'">
                         </c:when>
                         <c:otherwise>
-                            <img id="avatar" class="account-avatar" src="${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg" alt="Customer avatar">
+                            <img class="account-avatar" src="${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg" alt="Customer avatar">
                         </c:otherwise>
                     </c:choose>
                     <strong><c:out value="${sessionScope.customer.fullName}"/></strong>
                     <span><c:out value="${sessionScope.customer.email}"/></span>
                 </div>
 
-                <nav class="account-nav profile-menu" aria-label="Account navigation">
-                    <a class="menu-item" href="${pageContext.request.contextPath}/viewCustomerProfile" data-page="CustomerProfileView.jsp"><i class="bi bi-person"></i> Profile</a>
+                <nav class="account-nav" aria-label="Account navigation">
+                    <a href="${pageContext.request.contextPath}/viewCustomerProfile" data-page="CustomerProfileView.jsp"><i class="bi bi-person"></i> Profile</a>
                     <c:if test="${empty sessionScope.customer.googleId}">
-                        <a class="menu-item" href="${pageContext.request.contextPath}/changeCustomerPassword" data-page="ChangeCustomerPasswordView.jsp"><i class="bi bi-shield-lock"></i> Change Password</a>
+                        <a href="${pageContext.request.contextPath}/changeCustomerPassword" data-page="ChangeCustomerPasswordView.jsp"><i class="bi bi-shield-lock"></i> Change Password</a>
                     </c:if>
-                    <a class="menu-item" href="${pageContext.request.contextPath}/ViewOrderHistory" data-page="OrdersHistoryView.jsp"><i class="bi bi-box-seam"></i> Order History</a>
-                    <a class="menu-item" href="${pageContext.request.contextPath}/ViewShippingAddress" data-page="AddressView.jsp"><i class="bi bi-geo-alt"></i> Addresses</a>
-                    <a class="menu-item" href="${pageContext.request.contextPath}/ViewCustomerVoucher" data-page="CustomerVoucherView.jsp"><i class="bi bi-ticket-perforated"></i> Voucher</a>
-                    <button class="menu-item" type="button" onclick="openDeleteAccountModal()"><i class="bi bi-trash3"></i> Request Account Deletion</button>
-                    <a class="menu-item danger" href="${pageContext.request.contextPath}/Logout" onclick="return confirm('Are you sure to logout?')"><i class="bi bi-box-arrow-right"></i> Log Out</a>
+                    <a href="${pageContext.request.contextPath}/ViewOrderHistory" data-page="OrdersHistoryView.jsp"><i class="bi bi-box-seam"></i> Order History</a>
+                    <a href="${pageContext.request.contextPath}/ViewShippingAddress" data-page="AddressView.jsp"><i class="bi bi-geo-alt"></i> Addresses</a>
+                    <a href="${pageContext.request.contextPath}/ViewCustomerVoucher" data-page="CustomerVoucherView.jsp"><i class="bi bi-ticket-perforated"></i> Voucher</a>
+                    <button type="button" onclick="openDeleteAccountModal()"><i class="bi bi-trash3"></i> Request Account Deletion</button>
+                    <a class="danger" href="${pageContext.request.contextPath}/Logout" onclick="return confirm('Are you sure to logout?')"><i class="bi bi-box-arrow-right"></i> Log Out</a>
                 </nav>
             </aside>
 
-            <section class="account-content-host profile-content-host panel" id="content" data-initial-page="${initialProfilePage}">
+            <section class="account-content-host panel" id="content" data-initial-page="${initialProfilePage}">
                 <div class="profile-loading">Loading...</div>
             </section>
         </div>
@@ -184,7 +184,7 @@
                 const newScript = document.createElement("script");
                 if (script.src) {
                     newScript.src = script.src;
-                    newScript.async = false;
+                    newScript.async = true;
                 } else {
                     newScript.textContent = script.textContent;
                 }

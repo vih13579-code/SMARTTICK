@@ -83,8 +83,8 @@
                             <th>Type</th>
                             <td>
                                 <c:choose>
-                                    <c:when test="${voucher.voucherType == 0}">Percent (%)</c:when>
-                                    <c:when test="${voucher.voucherType == 1}">Fixed price</c:when>
+                                    <c:when test="${voucher.voucherType == 1}">Percent (%)</c:when>
+                                    <c:when test="${voucher.voucherType == 0}">Fixed price</c:when>
                                     <c:otherwise>Unknown</c:otherwise>
                                 </c:choose>
                             </td>
