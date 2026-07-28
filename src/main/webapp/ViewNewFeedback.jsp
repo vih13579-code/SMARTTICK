@@ -53,10 +53,20 @@
 
             .review-card {
                 background: white;
+                color: #1f2937;
                 padding: 15px;
                 border-radius: 10px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                 margin-bottom: 15px;
+            }
+
+            .review-card h5,
+            .review-card p {
+                color: #1f2937 !important;
+            }
+
+            .review-card small {
+                color: #6b7280 !important;
             }
 
             .profile {
@@ -76,7 +86,7 @@
             }
 
             .hidden-feedback {
-                color: gray;
+                color: #6b7280 !important;
                 font-style: italic;
             }
 
@@ -89,8 +99,14 @@
                 padding: 10px;
                 border-left: 4px solid #007bff;
                 background: #f1f1f1;
+                color: #1f2937;
                 border-radius: 5px;
                 margin-top: 10px;
+            }
+
+            .reply-container strong,
+            .reply-container p {
+                color: #1f2937 !important;
             }
 
             .reply-form {
@@ -220,7 +236,11 @@
                             <strong>Shop Manager</strong>
                             <p>${reply.answer}</p>
 
-                            <button class="update-btn btn btn-primary btn-sm" onclick="openUpdateModal(${reply.replyID}, '${reply.answer}', ${rate.rateID})">
+                            <button class="update-btn btn btn-primary btn-sm"
+                                    data-reply-id="${reply.replyID}"
+                                    data-rate-id="${rate.rateID}"
+                                    data-answer="<c:out value='${reply.answer}'/>"
+                                    onclick="openUpdateModal(this)">
                                 <i class="fa fa-edit"></i> Update
                             </button>
 
@@ -234,7 +254,7 @@
 
                 <!-- Reply Form -->
                 <div id="replyForm-${rate.rateID}" class="reply-form">
-                    <form method="POST" action="ReplyFeedbackServlet">
+                    <form method="POST" action="${pageContext.request.contextPath}/ReplyFeedbackServlet">
                         <input type="hidden" name="rateID" value="${rate.rateID}">
                         <textarea required="true" name="Answer" class="form-control" placeholder="Write your reply..."></textarea>
                         <button type="submit" class="btn btn-primary btn-sm mt-2">Submit Reply</button>
@@ -295,76 +315,8 @@
 
 
         <script>
-            // HÃ m hiá»ƒn thá»‹ popup thÃ nh cÃ´ng vÃ  tá»± Ä‘á»™ng chuyá»ƒn hÆ°á»›ng sau 2 giÃ¢y
-            function showSuccessAndRedirect() {
-                // Showing modal thÃ nh cÃ´ng
-                var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                successModal.show();
-
-                // Chuyá»ƒn hÆ°á»›ng sau 2 giÃ¢y
-                setTimeout(function () {
-                    window.location.href = "ViewListFeedbackServlet"; // Cáº­p nháº­t URL náº¿u cáº§n
-                }, 2000);
-            }
-
-// HÃ m xá»­ lÃ½ khi cáº­p nháº­t tráº£ lá»i
-            function updateReply() {
-                let replyID = document.getElementById("updateReplyID").value;
-                let updatedText = document.getElementById("updateReplyText").value;
-
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "UpdateReplyServlet", true);
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        let response = xhr.responseText.trim();
-                        if (response === "Success") {
-                            showSuccessAndRedirect(); // Showing popup thÃ nh cÃ´ng vÃ  chuyá»ƒn hÆ°á»›ng
-                        } else {
-                            alert("Failed to update the reply. Please try again.");
-                        }
-                    }
-                };
-                xhr.send("replyID=" + replyID + "&answer=" + encodeURIComponent(updatedText));
-            }
-
-// HÃ m xá»­ lÃ½ khi xÃ³a tráº£ lá»i
-            function deleteReply() {
-                let replyID = document.getElementById("deleteReplyID").value;
-
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "DeleteReplyServlet", true);
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        showSuccessAndRedirect(); // Showing popup thÃ nh cÃ´ng vÃ  chuyá»ƒn hÆ°á»›ng
-                    }
-                };
-                xhr.send("replyID=" + replyID);
-            }
-
-// HÃ m xá»­ lÃ½ khi submit tráº£ lá»i
-            function submitReply(rateID) {
-                let replyText = document.querySelector("#replyForm-" + rateID + " textarea").value;
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "ReplyFeedbackServlet", true);
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        let response = xhr.responseText.trim();
-                        if (response === "Success") {
-                            showSuccessAndRedirect(); // Showing popup thÃ nh cÃ´ng vÃ  chuyá»ƒn hÆ°á»›ng
-                        } else {
-                            alert("Failed to submit the reply. Please try again.");
-                        }
-                    }
-                };
-                xhr.send("rateID=" + rateID + "&Answer=" + encodeURIComponent(replyText));
-            }
-
-
+            const appContext = '${pageContext.request.contextPath}';
+            const servletUrl = (path) => appContext + '/' + path;
 
             function toggleReplyForm(rateID) {
                 let form = document.getElementById("replyForm-" + rateID);
@@ -375,7 +327,7 @@
                 let newStatus = currentStatus === 1 ? 0 : 1;
 
                 let xhr = new XMLHttpRequest();
-                xhr.open("POST", "UpdateStatusCommentServlet", true);
+                xhr.open("POST", servletUrl("UpdateStatusCommentServlet"), true);
                 xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
                 xhr.onreadystatechange = function () {
@@ -412,19 +364,19 @@
                 xhr.send("rateID=" + rateID + "&isDeleted=" + newStatus);
             }
 
-            function openUpdateModal(replyID, replyText, rateID) {
+            function openUpdateModal(button) {
                 let modalElement = document.getElementById("updateModal");
                 let modal = new bootstrap.Modal(modalElement);
+                let replyID = button.dataset.replyId;
+                let replyText = button.dataset.answer || "";
+                let rateID = button.dataset.rateId;
 
-                // GÃ¡n giÃ¡ trá»‹ cho input trÆ°á»›c khi má»Ÿ modal
                 document.getElementById("updateReplyID").value = replyID;
                 document.getElementById("updateReplyText").value = replyText;
                 document.getElementById("updateRateID").value = rateID;
 
-                // Showing modal
                 modal.show();
 
-                // Äá»£i modal hiá»ƒn thá»‹ xong rá»“i má»›i focus vÃ o input
                 setTimeout(() => {
                     document.getElementById("updateReplyText").focus();
                 }, 300);
@@ -435,16 +387,16 @@
                 let updatedText = document.getElementById("updateReplyText").value;
 
                 let xhr = new XMLHttpRequest();
-                xhr.open("POST", "UpdateReplyServlet", true);
+                xhr.open("POST", servletUrl("UpdateReplyServlet"), true);
                 xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         let response = xhr.responseText.trim();
                         if (response === "Success") {
-                            location.reload(); // ðŸ”„ Reload láº¡i trang sau khi cáº­p nháº­t
+                            location.reload();
                         } else {
-                            alert("Failed to update the reply. Please try again.");
+                            alert("Failed to update the reply. Please try again. " + response);
                         }
                     }
                 };
@@ -463,11 +415,15 @@
                 let replyID = document.getElementById("deleteReplyID").value;
 
                 let xhr = new XMLHttpRequest();
-                xhr.open("POST", "DeleteReplyServlet", true);
+                xhr.open("POST", servletUrl("DeleteReplyServlet"), true);
                 xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        location.reload();
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            location.reload();
+                        } else {
+                            alert("Failed to delete the reply. Please try again.");
+                        }
                     }
                 };
                 xhr.send("replyID=" + replyID);
