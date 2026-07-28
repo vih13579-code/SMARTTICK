@@ -28,9 +28,37 @@
             background-color: white;
             border-bottom: 1px solid #eee;
         }
+
+        body.admin-ops-page.voucher-form-page .form-wrapper {
+            color: #1f2937 !important;
+        }
+
+        body.admin-ops-page.voucher-form-page .form-wrapper h2,
+        body.admin-ops-page.voucher-form-page .form-wrapper .form-label {
+            color: #111827 !important;
+        }
+
+        body.admin-ops-page.voucher-form-page .form-wrapper .form-label {
+            font-weight: 600;
+        }
+
+        body.admin-ops-page.voucher-form-page .form-wrapper .form-control,
+        body.admin-ops-page.voucher-form-page .form-wrapper .form-select {
+            background-color: #f8fafc !important;
+            color: #111827 !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+
+        body.admin-ops-page.voucher-form-page .form-wrapper .form-control:focus,
+        body.admin-ops-page.voucher-form-page .form-wrapper .form-select:focus {
+            background-color: #fff !important;
+            color: #111827 !important;
+            border-color: #d8ad5a !important;
+            box-shadow: 0 0 0 0.2rem rgba(216, 173, 90, 0.2) !important;
+        }
     </style>
 </head>
-<body class="admin-ops-page">
+<body class="admin-ops-page voucher-form-page">
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar: Cột 1 -->

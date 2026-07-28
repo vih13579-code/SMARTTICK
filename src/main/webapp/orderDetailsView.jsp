@@ -126,9 +126,71 @@
                 color: #f44336;
             }
 
+            body.admin-ops-page.order-detail-admin-page .order-info,
+            body.admin-ops-page.order-detail-admin-page .customer-info {
+                background-color: #fff !important;
+                color: #1f2937 !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-info h3,
+            body.admin-ops-page.order-detail-admin-page .customer-info h3 {
+                color: #111827 !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-info p,
+            body.admin-ops-page.order-detail-admin-page .customer-info p,
+            body.admin-ops-page.order-detail-admin-page .order-info strong,
+            body.admin-ops-page.order-detail-admin-page .customer-info strong {
+                color: #1f2937 !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-info p > span:not([class^="status-"]),
+            body.admin-ops-page.order-detail-admin-page .customer-info p > span {
+                color: #4b5563 !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-details {
+                background-color: #fff !important;
+                color: #1f2937 !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-details > div {
+                background-color: #f8fafc !important;
+                color: #1f2937 !important;
+                border-color: #d7dde7 !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-details span {
+                color: #374151 !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-details i {
+                color: #a97824 !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-info .status-1 {
+                color: #a16207 !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-info .status-2 {
+                color: #c2410c !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-info .status-3 {
+                color: #1d4ed8 !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-info .status-4 {
+                color: #15803d !important;
+            }
+
+            body.admin-ops-page.order-detail-admin-page .order-info .status-5 {
+                color: #b91c1c !important;
+            }
+
         </style>
     </head>
-    <body class="admin-ops-page">
+    <body class="admin-ops-page order-detail-admin-page">
         <div class="fixed-header"><jsp:include page="HeaderDashboard.jsp"></jsp:include>
                 <p></p>
                 <h2><i class="fa-solid fa-receipt"></i> Order Details</h2>
