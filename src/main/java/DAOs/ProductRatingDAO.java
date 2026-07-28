@@ -166,15 +166,27 @@ public class ProductRatingDAO {
     }
 
     public int addProductRating(int customerId, int productId, int star, String comment) {
+        return addProductRating(customerId, productId, 0, star, comment);
+    }
+
+    public int addProductRating(int customerId, int productId, int orderId, int star, String comment) {
         int count = 0;
-        String query = "INSERT INTO ProductRatings (CustomerID, ProductID, CreatedDate, Star, Comment, isDeleted, isRead) VALUES (?, ?, GETDATE(), ?, ?, 0, 0)";
+        String query = orderId > 0
+                ? "INSERT INTO ProductRatings (CustomerID, ProductID, OrderID, CreatedDate, Star, Comment, isDeleted, isRead) VALUES (?, ?, ?, GETDATE(), ?, ?, 0, 0)"
+                : "INSERT INTO ProductRatings (CustomerID, ProductID, CreatedDate, Star, Comment, isDeleted, isRead) VALUES (?, ?, GETDATE(), ?, ?, 0, 0)";
         try {
             PreparedStatement pre = connector.prepareStatement(query);
             pre.setInt(1, customerId);
             pre.setInt(2, productId);
-            pre.setInt(3, star);
-            pre.setString(4, comment);
-           count = pre.executeUpdate();
+            if (orderId > 0) {
+                pre.setInt(3, orderId);
+                pre.setInt(4, star);
+                pre.setString(5, comment);
+            } else {
+                pre.setInt(3, star);
+                pre.setString(4, comment);
+            }
+            count = pre.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }

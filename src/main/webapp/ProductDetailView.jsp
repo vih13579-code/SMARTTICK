@@ -12,9 +12,11 @@
 <body>
 <jsp:include page="header.jsp"/>
 <main class="container customer-page">
-    <c:if test="${not empty sessionScope.message}">
-        <div class="alert alert-danger"><c:out value="${sessionScope.message}"/></div>
-        <c:remove var="message" scope="session"/>
+    <c:if test="${not empty message}">
+        <div class="alert alert-danger"><c:out value="${message}"/></div>
+    </c:if>
+    <c:if test="${not empty successMessage}">
+        <div class="alert alert-success"><c:out value="${successMessage}"/></div>
     </c:if>
 
     <section class="detail">
@@ -105,6 +107,19 @@
                 <textarea name="comment" rows="4" required></textarea>
                 <button class="btn btn-primary" type="submit">Submit Review</button>
             </form>
+        </c:if>
+        <c:if test="${not isOk}">
+            <div class="panel">
+                <c:choose>
+                    <c:when test="${empty sessionScope.customer}">
+                        <p>Please sign in to write a review.</p>
+                        <a class="btn btn-primary" href="${pageContext.request.contextPath}/customerLogin">Sign In</a>
+                    </c:when>
+                    <c:otherwise>
+                        <p>You can review this product after a delivered order, once per product.</p>
+                    </c:otherwise>
+                </c:choose>
+            </div>
         </c:if>
         <c:forEach items="${dataRating}" var="r">
             <article class="panel">
