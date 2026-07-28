@@ -1,0 +1,35 @@
+.title{
+    display: flex;
+    align-items: center;
+    column-gap: 20px;
+}
+.title button{
+    height: 35px;
+    width: 200px;
+    border-radius: 15px;
+    background-color: black;
+    color: white;
+}
+.control-label {
+    font-weight: bold;
+}
+.form-group .control-label{
+    padding: 10px 0px 10px 0px;
+}
+.form-group input{
+    border: black solid 1px;
+}
+#text{
+    width: 70%;
+}
+.form-select{
+    width: 70%;
+    border: black solid 1px;
+}
+.infor button{
+    width: 25%;
+    text-align: center;
+    margin-top: 20px;
+    height: 50px;
+    border-radius: 20px;
+}

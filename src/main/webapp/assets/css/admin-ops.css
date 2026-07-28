@@ -1,0 +1,569 @@
+body.admin-ops-page {
+    --admin-sidebar-width: 248px;
+    --admin-content-x: 32px;
+    --admin-content-y: 24px;
+    display: block !important;
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: var(--dash-bg) !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .sidebar-container {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: var(--admin-sidebar-width) !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    overflow-y: auto;
+    background: #2b2b2b !important;
+    z-index: 30 !important;
+}
+
+body.admin-ops-page > .dash-side,
+body.admin-ops-page .dashboard-shell > .dash-side {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: var(--admin-sidebar-width) !important;
+    height: 100vh !important;
+    padding: 22px 16px !important;
+    overflow-y: auto;
+    background: #2b2b2b !important;
+    z-index: 30 !important;
+}
+
+body.admin-ops-page .sidebar-container .dash-side {
+    position: static !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    box-sizing: border-box !important;
+}
+
+body.admin-ops-page .dashboard-shell {
+    display: block !important;
+    min-height: 100vh;
+    background: var(--dash-bg) !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page > .content,
+body.admin-ops-page .main-layout,
+body.admin-ops-page .dashboard-shell > .dash-main {
+    display: block !important;
+    margin: 0 0 0 var(--admin-sidebar-width) !important;
+    width: auto !important;
+    max-width: calc(100vw - var(--admin-sidebar-width)) !important;
+    min-height: 100vh;
+    padding: var(--admin-content-y) var(--admin-content-x) 40px !important;
+    overflow-x: hidden;
+    background: var(--dash-bg) !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .main-layout > .content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: transparent !important;
+}
+
+body.admin-ops-page .main-layout > .main-content,
+body.admin-ops-page .content > .main-content {
+    margin: 0 !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: transparent !important;
+}
+
+body.admin-ops-page .dash-main {
+    background: var(--dash-bg) !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .fixed-header,
+body.admin-ops-page .hi,
+body.admin-ops-page .header {
+    position: static !important;
+    inset: auto !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 0 24px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    z-index: auto !important;
+}
+
+body.admin-ops-page .dash-topbar {
+    min-height: 56px !important;
+    height: auto !important;
+    margin: 0 0 24px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .dash-breadcrumb,
+body.admin-ops-page .dash-user {
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .container,
+body.admin-ops-page .container-fluid {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    background: transparent !important;
+}
+
+body.admin-ops-page h1,
+body.admin-ops-page h2,
+body.admin-ops-page h3 {
+    color: #fff !important;
+    margin-top: 0;
+}
+
+body.admin-ops-page .table-container,
+body.admin-ops-page .order-container,
+body.admin-ops-page .panel,
+body.admin-ops-page .filter-panel,
+body.admin-ops-page .card {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    padding: 20px !important;
+    border: 1px solid var(--dash-line) !important;
+    border-radius: 16px !important;
+    background: var(--dash-surface) !important;
+    color: var(--dash-text) !important;
+    box-shadow: none !important;
+}
+
+body.admin-ops-page .card {
+    padding: 0 !important;
+}
+
+body.admin-ops-page .card-body {
+    background: transparent !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .card-header {
+    background: var(--dash-surface-2) !important;
+    border-color: var(--dash-line) !important;
+    color: #fff !important;
+}
+
+body.admin-ops-page table,
+body.admin-ops-page .table,
+body.admin-ops-page .order-table,
+body.admin-ops-page .purchase-history-table {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 980px;
+    margin: 0 !important;
+    border-collapse: collapse !important;
+    background: transparent !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .table-container table,
+body.admin-ops-page .order-container table,
+body.admin-ops-page .panel table,
+body.admin-ops-page .card table {
+    min-width: 100%;
+}
+
+body.admin-ops-page th,
+body.admin-ops-page td,
+body.admin-ops-page .table th,
+body.admin-ops-page .table td,
+body.admin-ops-page .order-table th,
+body.admin-ops-page .order-table td,
+body.admin-ops-page .purchase-history-table th,
+body.admin-ops-page .purchase-history-table td {
+    background: transparent !important;
+    border-color: var(--dash-line) !important;
+    color: var(--dash-text) !important;
+    vertical-align: middle !important;
+    padding: 13px 14px !important;
+}
+
+body.admin-ops-page thead,
+body.admin-ops-page thead tr,
+body.admin-ops-page .table thead,
+body.admin-ops-page .table thead tr,
+body.admin-ops-page .order-table thead,
+body.admin-ops-page .order-table thead tr {
+    background: var(--dash-surface-2) !important;
+}
+
+body.admin-ops-page th,
+body.admin-ops-page .table th,
+body.admin-ops-page .order-table th,
+body.admin-ops-page .purchase-history-table th {
+    color: #c9c7bd !important;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+body.admin-ops-page tbody tr:hover,
+body.admin-ops-page tbody tr:hover td {
+    background: rgba(255, 255, 255, .05) !important;
+    color: #fff !important;
+}
+
+body.admin-ops-page .table-navigate,
+body.admin-ops-page .admin-toolbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 14px !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 18px;
+}
+
+body.admin-ops-page .filter-grid {
+    display: grid !important;
+    gap: 12px !important;
+    align-items: center;
+}
+
+body.admin-ops-page .table-navigate .table-navigate {
+    margin-bottom: 0;
+}
+
+body.admin-ops-page .search-container,
+body.admin-ops-page .search-box {
+    display: flex !important;
+    align-items: center !important;
+    width: min(380px, 100%) !important;
+    max-width: 380px !important;
+    margin: 0 0 18px !important;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .16) !important;
+    border-radius: 12px !important;
+    background: #343434 !important;
+}
+
+body.admin-ops-page input,
+body.admin-ops-page select,
+body.admin-ops-page textarea,
+body.admin-ops-page .form-control,
+body.admin-ops-page .form-select,
+body.admin-ops-page .search-input {
+    background: #343434 !important;
+    border-color: rgba(255, 255, 255, .16) !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+body.admin-ops-page .search-container .search-input {
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+body.admin-ops-page input::placeholder {
+    color: #aaa79e !important;
+}
+
+body.admin-ops-page input[type="date"] {
+    color-scheme: dark;
+}
+
+body.admin-ops-page .search-button {
+    min-width: 48px;
+    border: 0 !important;
+    background: var(--dash-blue) !important;
+    color: #fff !important;
+}
+
+body.admin-ops-page .btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 9px 14px !important;
+    border-radius: 10px !important;
+    font-weight: 800 !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+}
+
+body.admin-ops-page .table-actions {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+body.admin-ops-page .table-actions a {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 11px;
+    border-radius: 9px;
+    background: rgba(61, 156, 255, .16);
+    border: 1px solid rgba(61, 156, 255, .22);
+    color: #9ccfff !important;
+    font-weight: 800;
+}
+
+body.admin-ops-page .table-actions a.danger {
+    background: rgba(255, 77, 71, .16);
+    border-color: rgba(255, 77, 71, .24);
+    color: #ffaaa5 !important;
+}
+
+body.admin-ops-page .btn-primary,
+body.admin-ops-page .btn-success,
+body.admin-ops-page .btn-detail,
+body.admin-ops-page .btn-outline-info,
+body.admin-ops-page .btn-outline-primary,
+body.admin-ops-page .btn-outline-warning,
+body.admin-ops-page .btn-back {
+    background: var(--dash-blue) !important;
+    border-color: var(--dash-blue) !important;
+    color: #fff !important;
+}
+
+body.admin-ops-page .btn-primary:hover,
+body.admin-ops-page .btn-success:hover,
+body.admin-ops-page .btn-detail:hover,
+body.admin-ops-page .btn-outline-info:hover,
+body.admin-ops-page .btn-outline-primary:hover,
+body.admin-ops-page .btn-outline-warning:hover,
+body.admin-ops-page .btn-back:hover {
+    background: #1d82ed !important;
+    border-color: #1d82ed !important;
+    color: #fff !important;
+}
+
+body.admin-ops-page .btn-secondary {
+    background: #4a4a4a !important;
+    border-color: #4a4a4a !important;
+    color: #fff !important;
+}
+
+body.admin-ops-page .btn-danger,
+body.admin-ops-page .btn-outline-danger {
+    background: var(--dash-red) !important;
+    border-color: var(--dash-red) !important;
+    color: #fff !important;
+}
+
+body.admin-ops-page .badge,
+body.admin-ops-page .status {
+    border-radius: 999px !important;
+    font-weight: 900 !important;
+    white-space: nowrap;
+}
+
+body.admin-ops-page .status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 12px;
+}
+
+body.admin-ops-page .bg-success,
+body.admin-ops-page .badge-ok,
+body.admin-ops-page .delivered {
+    background: rgba(57, 208, 111, .2) !important;
+    color: #77e99d !important;
+}
+
+body.admin-ops-page .bg-danger,
+body.admin-ops-page .badge-off,
+body.admin-ops-page .cancelled {
+    background: rgba(255, 77, 71, .2) !important;
+    color: #ffaaa5 !important;
+}
+
+body.admin-ops-page .bg-primary,
+body.admin-ops-page .waiting-delivery {
+    background: rgba(61, 156, 255, .2) !important;
+    color: #9ccfff !important;
+}
+
+body.admin-ops-page .waiting {
+    background: rgba(216, 173, 90, .24) !important;
+    color: #ffe28e !important;
+}
+
+body.admin-ops-page .packaging {
+    background: rgba(191, 92, 255, .22) !important;
+    color: #d9b3ff !important;
+}
+
+body.admin-ops-page .modal-content {
+    border: 1px solid var(--dash-line) !important;
+    border-radius: 14px !important;
+    background: var(--dash-surface) !important;
+    color: #fff !important;
+}
+
+body.admin-ops-page .modal-header,
+body.admin-ops-page .modal-footer {
+    border-color: var(--dash-line) !important;
+}
+
+body.admin-ops-page .btn-close {
+    filter: invert(1) grayscale(1) brightness(1.8);
+}
+
+body.admin-ops-page .voucher-form-section {
+    margin-top: 0 !important;
+    padding: 0 0 40px;
+}
+
+body.admin-ops-page .voucher-main-content {
+    flex: 0 0 auto !important;
+    width: calc(100% - var(--admin-sidebar-width)) !important;
+    max-width: calc(100% - var(--admin-sidebar-width)) !important;
+    min-height: 100vh;
+    margin-left: var(--admin-sidebar-width) !important;
+    padding: 24px 32px 40px !important;
+    background: var(--dash-bg, #242424);
+}
+
+body.admin-ops-page .voucher-form-column {
+    width: min(820px, 100%) !important;
+    max-width: 820px !important;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+body.admin-ops-page .voucher-page-title {
+    margin: 0 0 22px !important;
+    color: #f7f3ea !important;
+    font-size: 34px;
+    font-weight: 800;
+    text-align: left !important;
+}
+
+body.admin-ops-page .voucher-form-wrapper {
+    margin-top: 0 !important;
+    padding: 30px !important;
+    border: 1px solid rgba(216, 173, 90, .24) !important;
+    border-radius: 14px !important;
+    background: var(--dash-surface, #303030) !important;
+    color: var(--dash-text, #f5f5f2) !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .2) !important;
+}
+
+body.admin-ops-page .voucher-form-wrapper .form-label {
+    margin-bottom: 8px;
+    color: #dedbd3 !important;
+    font-weight: 700;
+}
+
+body.admin-ops-page .voucher-form-wrapper .form-control,
+body.admin-ops-page .voucher-form-wrapper .form-select {
+    min-height: 50px;
+    padding: 11px 14px !important;
+    border: 1px solid #565656 !important;
+    background-color: #242424 !important;
+    color: #fff !important;
+    caret-color: #fff;
+}
+
+body.admin-ops-page .voucher-form-wrapper textarea.form-control {
+    min-height: 112px;
+    resize: vertical;
+}
+
+body.admin-ops-page .voucher-form-wrapper .form-control:hover,
+body.admin-ops-page .voucher-form-wrapper .form-select:hover {
+    border-color: #737373 !important;
+}
+
+body.admin-ops-page .voucher-form-wrapper .form-control:focus,
+body.admin-ops-page .voucher-form-wrapper .form-select:focus {
+    border-color: #d8ad5a !important;
+    box-shadow: 0 0 0 3px rgba(216, 173, 90, .18) !important;
+    outline: 0;
+}
+
+body.admin-ops-page .voucher-form-wrapper .form-select option {
+    background: #242424;
+    color: #fff;
+}
+
+body.admin-ops-page .voucher-form-wrapper input[type="datetime-local"] {
+    color-scheme: dark;
+}
+
+body.admin-ops-page .voucher-form-wrapper input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(1);
+    opacity: .78;
+}
+
+body.admin-ops-page .voucher-form-wrapper input:-webkit-autofill,
+body.admin-ops-page .voucher-form-wrapper input:-webkit-autofill:hover,
+body.admin-ops-page .voucher-form-wrapper input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #fff;
+    box-shadow: 0 0 0 1000px #242424 inset !important;
+}
+
+body.admin-ops-page .voucher-form-wrapper .btn {
+    min-width: 148px;
+}
+
+@media (max-width: 900px) {
+    body.admin-ops-page > .dash-side,
+    body.admin-ops-page .sidebar-container,
+    body.admin-ops-page .dashboard-shell > .dash-side {
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    body.admin-ops-page > .content,
+    body.admin-ops-page .main-layout,
+    body.admin-ops-page .dashboard-shell > .dash-main {
+        margin-left: 0 !important;
+        max-width: 100% !important;
+        padding: 18px !important;
+    }
+
+    body.admin-ops-page .voucher-form-wrapper {
+        padding: 22px !important;
+    }
+
+    body.admin-ops-page .voucher-main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding: 18px !important;
+    }
+
+    body.admin-ops-page .voucher-form-column {
+        width: 100%;
+    }
+
+    body.admin-ops-page .voucher-page-title {
+        font-size: 28px;
+    }
+}

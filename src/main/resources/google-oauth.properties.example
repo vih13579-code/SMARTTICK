@@ -1,0 +1,4 @@
+# Google OAuth Configuration template. Copy this file to google-oauth.properties and fill in your values.
+smarttick.google.clientId=your_google_client_id
+smarttick.google.clientSecret=your_google_client_secret
+smarttick.google.redirectUri=http://localhost:8080/SMARTTICK/GoogleLogin

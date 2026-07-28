@@ -1,0 +1,13 @@
+# VNPAY Sandbox only. Never put production credentials in this repository.
+vnpay.url=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+vnpay.tmnCode=
+vnpay.hashSecret=
+vnpay.returnUrl=https://YOUR_HTTPS_DOMAIN/SMARTTICK/api/payments/vnpay/return
+vnpay.ipnUrl=https://YOUR_HTTPS_DOMAIN/SMARTTICK/api/payments/vnpay/ipn
+vnpay.version=2.1.0
+vnpay.command=pay
+vnpay.currCode=VND
+# Leave blank so VNPAY shows the payment-method chooser.
+# Use VNPAYQR only when the Sandbox merchant explicitly supports that method.
+vnpay.bankCode=
+vnpay.expireMinutes=15
