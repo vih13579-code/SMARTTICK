@@ -48,6 +48,8 @@ public class UpdateVoucherServlet extends HttpServlet {
         VoucherDAO vDAO = new VoucherDAO();
 
         Voucher voucher = vDAO.getVoucher(voucherId);
+        voucher.setStartDate(toDateTimeLocalValue(voucher.getStartDate()));
+        voucher.setEndDate(toDateTimeLocalValue(voucher.getEndDate()));
         request.setAttribute("voucher", voucher);
         request.getRequestDispatcher("UpdateVoucherView.jsp").forward(request, response);
 
@@ -70,14 +72,14 @@ public class UpdateVoucherServlet extends HttpServlet {
             String code = request.getParameter("voucherCode").trim();
             int type = Integer.parseInt(request.getParameter("voucherType"));
             int value = Integer.parseInt(request.getParameter("voucherValue"));
-            int maxDiscount = Integer.parseInt(request.getParameter("maxDiscountAmount"));
+            int maxDiscount = parseIntOrDefault(request.getParameter("maxDiscountAmount"), 0);
             int minOrder = Integer.parseInt(request.getParameter("minOrderValue"));
 
             String rawStart = request.getParameter("startDate");
             String rawEnd = request.getParameter("endDate");
 
-            int used = Integer.parseInt(request.getParameter("usedCount"));
-            int maxUsed = Integer.parseInt(request.getParameter("maxUsedCount"));
+            int used = parseIntOrDefault(request.getParameter("usedCount"), 0);
+            int maxUsed = parseIntOrDefault(request.getParameter("maxUsedCount"), 0);
             int status = Integer.parseInt(request.getParameter("status"));
             String desc = request.getParameter("description");
 
@@ -94,8 +96,10 @@ public class UpdateVoucherServlet extends HttpServlet {
                 request.setAttribute("error", "Voucher Code must not exceed 10 characters.");
             } else if (start.isAfter(end)) {
                 request.setAttribute("error", "End date must be after start date.");
-            } else if (value < 0 || maxDiscount < 0 || minOrder < 0 || used < 0 || maxUsed < 0) {
+            } else if (value <= 0 || maxDiscount < 0 || minOrder < 0 || used < 0 || maxUsed < 0) {
                 request.setAttribute("error", "Numeric values must be non-negative.");
+            } else if (type == 1 && value > 100) {
+                request.setAttribute("error", "If the voucher type is percent, you cannot set a value greater than 100.");
             }
 
             // Nếu có lỗi → quay lại form
@@ -135,5 +139,20 @@ public class UpdateVoucherServlet extends HttpServlet {
     public String getServletInfo() {
         return "SMARTTICK servlet";
     }// </editor-fold>
+
+    private int parseIntOrDefault(String value, int defaultValue) {
+        if (value == null || value.trim().isEmpty()) {
+            return defaultValue;
+        }
+        return Integer.parseInt(value);
+    }
+
+    private String toDateTimeLocalValue(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return "";
+        }
+        String normalized = value.replace(" ", "T");
+        return normalized.length() >= 16 ? normalized.substring(0, 16) : normalized;
+    }
 
 }

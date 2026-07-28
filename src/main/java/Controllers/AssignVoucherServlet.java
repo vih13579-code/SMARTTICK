@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class AssignVoucherServlet extends HttpServlet {
@@ -152,63 +153,58 @@ public class AssignVoucherServlet extends HttpServlet {
             int quantity = Integer.parseInt(request.getParameter("quantity"));
             String rawExpire = request.getParameter("expirationDate");
 
-            String expirationDate = null;
             LocalDateTime now = LocalDateTime.now();
 
             if (quantity <= 0) {
                 throw new Exception("Quantity must be greater than 0.");
-            }else  if(quantity >2){
-             throw new Exception("Quantity must be smaller than 3.");
+            } else if (quantity > 2) {
+                throw new Exception("Quantity must be smaller than 3.");
             }
 
-            if (rawExpire != null && !rawExpire.isEmpty()) {
-                
-                rawExpire = rawExpire.replaceAll("\\.0$", "");
-
-                
-                LocalDateTime dt = LocalDateTime.parse(rawExpire, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
-                if (dt.isBefore(now)) {
-                    throw new Exception("Expiration date must be after the current time.");
-                }
-                expirationDate = dt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            }
-
-           
-            CustomerVoucherDAO cvDAO = new CustomerVoucherDAO();
-            if (cvDAO.isVoucherAlreadyAssigned(customerID, voucherID)) {
-                throw new Exception("The customer has been issued this voucher.");
-            }
-
-         
             VoucherDAO vDAO = new VoucherDAO();
             Voucher voucher = vDAO.getVoucher(voucherID);
-            
-            int limit = (voucher.getMaxUsedCount()-voucher.getUsedCount());
-            if(quantity > limit ){ 
-                throw new Exception("Voucher not enough.");
-            }
-            
-            if (voucher == null) {
+
+            if (voucher == null || voucher.getVoucherID() <= 0) {
                 throw new Exception("Voucher not found.");
             }
 
-           
-            LocalDateTime expirationDateTime = LocalDateTime.parse(expirationDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-           
-            String startDateString = voucher.getStartDate().split("\\.")[0];
-            String endDateString = voucher.getEndDate().split("\\.")[0];
-
-// Chuyển đổi chuỗi thành LocalDateTime với đúng định dạng
-            LocalDateTime startDate = LocalDateTime.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            LocalDateTime endDate = LocalDateTime.parse(endDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-            // Kiểm tra ngày hết hạn có nằm trong khoảng ngày của voucher không
-            if (expirationDateTime.isBefore(startDate) || expirationDateTime.isAfter(endDate)) {
-                throw new Exception("Expiration date must be between the voucher's start and end date.");
+            if (voucher.getStatus() != 1) {
+                throw new Exception("Voucher is inactive.");
             }
 
-            // Gán voucher cho khácah hàng
+            if (voucher.getMaxUsedCount() > 0) {
+                int remainingUses = voucher.getMaxUsedCount() - voucher.getUsedCount();
+                if (quantity > remainingUses) {
+                    throw new Exception("Voucher does not have enough remaining uses.");
+                }
+            }
+
+            LocalDateTime startDate = Timestamp.valueOf(voucher.getStartDate()).toLocalDateTime();
+            LocalDateTime endDate = Timestamp.valueOf(voucher.getEndDate()).toLocalDateTime();
+            if (endDate.isBefore(now)) {
+                throw new Exception("Voucher has expired.");
+            }
+
+            String expirationDate = null;
+            if (rawExpire != null && !rawExpire.trim().isEmpty()) {
+                LocalDateTime expirationDateTime = LocalDateTime.parse(
+                        rawExpire, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+                if (expirationDateTime.isBefore(now)) {
+                    throw new Exception("Expiration date must be after the current time.");
+                }
+                if (expirationDateTime.isBefore(startDate) || expirationDateTime.isAfter(endDate)) {
+                    throw new Exception("Expiration date must be between the voucher's start and end date.");
+                }
+                expirationDate = expirationDateTime.format(
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            }
+
+            CustomerVoucherDAO cvDAO = new CustomerVoucherDAO();
+            int currentQuantity = cvDAO.getVoucherQuantity(customerID, voucherID);
+            if (currentQuantity + quantity > 2) {
+                throw new Exception("A customer can hold at most 2 copies of the same voucher.");
+            }
+
             int count = cvDAO.assignVoucherToCustomer(customerID, voucherID, quantity, expirationDate);
             if (count > 0) {
                 response.sendRedirect("CustomerListServlet?success=assigned");
@@ -226,7 +222,7 @@ public class AssignVoucherServlet extends HttpServlet {
 
             int id = Integer.parseInt(request.getParameter("customerID"));
             request.setAttribute("customer", cDAO.getCustomerById(id));
-            request.setAttribute("vouchers", vDAO.getAllVoucher());
+            request.setAttribute("vouchers", vDAO.getAllVoucherActivate());
 
             request.getRequestDispatcher("AssignVoucherView.jsp").forward(request, response);
         }

@@ -10,6 +10,7 @@ import Models.Voucher;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,11 +47,48 @@ public class VoucherDAO {
         }
         return V;
     }
+
+    public List<Voucher> searchVouchers(String keyword) {
+        List<Voucher> vouchers = new ArrayList<>();
+        String sql = "SELECT * FROM Vouchers WHERE VoucherCode LIKE ? OR Description LIKE ? ORDER BY VoucherID DESC";
+        try ( PreparedStatement pr = connector.prepareStatement(sql)) {
+            String searchValue = "%" + keyword + "%";
+            pr.setString(1, searchValue);
+            pr.setString(2, searchValue);
+            ResultSet rs = pr.executeQuery();
+            while (rs.next()) {
+                Voucher voucher = new Voucher(
+                        rs.getInt("VoucherID"),
+                        rs.getString("VoucherCode"),
+                        rs.getInt("VoucherValue"),
+                        rs.getInt("VoucherType"),
+                        rs.getString("StartDate"),
+                        rs.getString("EndDate"),
+                        rs.getInt("UsedCount"),
+                        rs.getInt("MaxUsedCount"),
+                        rs.getInt("MaxDiscountAmount"),
+                        rs.getInt("MinOrderValue"),
+                        rs.getInt("Status"),
+                        rs.getString("Description")
+                );
+                vouchers.add(voucher);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error searching vouchers: " + e.getMessage());
+        }
+        return vouchers;
+    }
+
         public List<Voucher> getAllVoucherActivate() {
         List<Voucher> V = new ArrayList<>();
         try {
 
-            PreparedStatement pr = connector.prepareStatement("SELECT * FROM Vouchers WHERE Status =1");
+            PreparedStatement pr = connector.prepareStatement(
+                    "SELECT * FROM Vouchers "
+                    + "WHERE Status = 1 "
+                    + "AND EndDate >= GETDATE() "
+                    + "AND (MaxUsedCount = 0 OR UsedCount < MaxUsedCount) "
+                    + "ORDER BY EndDate ASC, VoucherID DESC");
             ResultSet rs = pr.executeQuery();
             while (rs.next()) {
                 Voucher voucher = new Voucher(
@@ -102,7 +140,6 @@ public class VoucherDAO {
     }
 
     public int updateVoucher(Voucher updated) {
-        int count = 0;
         String sql = "UPDATE Vouchers SET "
                 + "VoucherCode = ?, "
                 + "VoucherValue = ?, "
@@ -117,7 +154,12 @@ public class VoucherDAO {
                 + "Description = ? "
                 + "WHERE VoucherID = ?";
 
-        try ( PreparedStatement pr = connector.prepareStatement(sql)) {
+        boolean previousAutoCommit;
+        try {
+            previousAutoCommit = connector.getAutoCommit();
+            connector.setAutoCommit(false);
+            int count;
+            try (PreparedStatement pr = connector.prepareStatement(sql)) {
             pr.setString(1, updated.getVoucherCode());
             pr.setInt(2, updated.getVoucherValue());
             pr.setInt(3, updated.getVoucherType());
@@ -132,22 +174,61 @@ public class VoucherDAO {
             pr.setInt(12, updated.getVoucherID());
 
             count = pr.executeUpdate();
+            }
+
+            if (count > 0 && updated.getStatus() == 1) {
+                assignVoucherToAllEligibleCustomers(connector, updated.getVoucherID());
+            }
+            connector.commit();
+            connector.setAutoCommit(previousAutoCommit);
+            return count;
         } catch (SQLException e) {
+            rollbackQuietly();
             System.out.println("Error updating voucher: " + e.getMessage());
+            return 0;
         }
-        return count;
     }
 
     public int deleteVoucher(int voucherID) {
-        int count = 0;
-        String sql = "DELETE FROM Vouchers WHERE VoucherID = ?;";
-        try ( PreparedStatement ps = connector.prepareStatement(sql)) {
-            ps.setInt(1, voucherID);
-            count = ps.executeUpdate();
+        boolean previousAutoCommit = true;
+        try {
+            previousAutoCommit = connector.getAutoCommit();
+            connector.setAutoCommit(false);
+
+            try (PreparedStatement customerVoucherStatement = connector.prepareStatement(
+                    "DELETE FROM CustomerVoucher WHERE VoucherID = ?")) {
+                customerVoucherStatement.setInt(1, voucherID);
+                customerVoucherStatement.executeUpdate();
+            }
+
+            int count;
+            try (PreparedStatement voucherStatement = connector.prepareStatement(
+                    "DELETE FROM Vouchers WHERE VoucherID = ?")) {
+                voucherStatement.setInt(1, voucherID);
+                count = voucherStatement.executeUpdate();
+            }
+
+            if (count == 0) {
+                connector.rollback();
+                return 0;
+            }
+            connector.commit();
+            return count;
         } catch (SQLException e) {
+            try {
+                connector.rollback();
+            } catch (SQLException rollbackError) {
+                System.out.println("Voucher delete rollback error: " + rollbackError.getMessage());
+            }
             System.out.println("Delete error: " + e.getMessage());
+            return 0;
+        } finally {
+            try {
+                connector.setAutoCommit(previousAutoCommit);
+            } catch (SQLException e) {
+                System.out.println("Cannot restore voucher connection: " + e.getMessage());
+            }
         }
-        return count;
     }
 
 
@@ -167,24 +248,72 @@ public class VoucherDAO {
         String sql = "INSERT INTO Vouchers (VoucherCode, VoucherValue, VoucherType, StartDate, EndDate, "
                 + "UsedCount, MaxUsedCount, MaxDiscountAmount, MinOrderValue, Status, Description) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        int count = 0;
-        try ( PreparedStatement pr = connector.prepareStatement(sql)) {
-            pr.setString(1, v.getVoucherCode());
-            pr.setInt(2, v.getVoucherValue());
-            pr.setInt(3, v.getVoucherType());
-            pr.setString(4, v.getStartDate());
-            pr.setString(5, v.getEndDate());
-            pr.setInt(6, 0); // used count luôn là 0 khi tạo
-            pr.setInt(7, v.getMaxUsedCount());
-            pr.setInt(8, v.getMaxDiscountAmount());
-            pr.setInt(9, v.getMinOrderValue());
-            pr.setInt(10, v.getStatus());
-            pr.setString(11, v.getDescription());
+        boolean previousAutoCommit;
+        try {
+            previousAutoCommit = connector.getAutoCommit();
+            connector.setAutoCommit(false);
+            int count;
+            int voucherId;
+            try (PreparedStatement pr = connector.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                pr.setString(1, v.getVoucherCode());
+                pr.setInt(2, v.getVoucherValue());
+                pr.setInt(3, v.getVoucherType());
+                pr.setString(4, v.getStartDate());
+                pr.setString(5, v.getEndDate());
+                pr.setInt(6, 0);
+                pr.setInt(7, v.getMaxUsedCount());
+                pr.setInt(8, v.getMaxDiscountAmount());
+                pr.setInt(9, v.getMinOrderValue());
+                pr.setInt(10, v.getStatus());
+                pr.setString(11, v.getDescription());
 
-            count = pr.executeUpdate();
+                count = pr.executeUpdate();
+                try (ResultSet keys = pr.getGeneratedKeys()) {
+                    if (!keys.next()) {
+                        throw new SQLException("The created voucher ID could not be read.");
+                    }
+                    voucherId = keys.getInt(1);
+                }
+            }
+
+            if (v.getStatus() == 1) {
+                assignVoucherToAllEligibleCustomers(connector, voucherId);
+            }
+            connector.commit();
+            connector.setAutoCommit(previousAutoCommit);
+            return count;
         } catch (SQLException e) {
+            rollbackQuietly();
             System.out.println("Error inserting voucher: " + e.getMessage());
+            return 0;
         }
-        return count;
+    }
+
+    private int assignVoucherToAllEligibleCustomers(Connection connection, int voucherId)
+            throws SQLException {
+        String sql = "INSERT INTO CustomerVoucher (CustomerID, VoucherID, ExpirationDate, Quantity) "
+                + "SELECT c.CustomerID, v.VoucherID, NULL, 1 "
+                + "FROM Customers c CROSS JOIN Vouchers v "
+                + "WHERE v.VoucherID = ? "
+                + "AND v.Status = 1 "
+                + "AND v.EndDate >= GETDATE() "
+                + "AND c.IsBlock = 0 "
+                + "AND c.IsDeleted = 0 "
+                + "AND NOT EXISTS ("
+                + "SELECT 1 FROM CustomerVoucher cv "
+                + "WHERE cv.CustomerID = c.CustomerID AND cv.VoucherID = v.VoucherID)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, voucherId);
+            return ps.executeUpdate();
+        }
+    }
+
+    private void rollbackQuietly() {
+        try {
+            connector.rollback();
+            connector.setAutoCommit(true);
+        } catch (SQLException rollbackError) {
+            System.out.println("Voucher transaction rollback error: " + rollbackError.getMessage());
+        }
     }
 }

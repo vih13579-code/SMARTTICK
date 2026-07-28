@@ -59,8 +59,7 @@ public class AddressDAO {
             pr.setInt(1, customerID);
             ResultSet rs = pr.executeQuery();
             while (rs.next()) {
-                list.add(new Address(rs.getInt("AddressID"), rs.getInt("CustomerID"),
-                        rs.getInt("IsDefault"), rs.getString("AddressDetails")));
+                list.add(new Address(rs.getInt(1), rs.getInt(1), rs.getInt(4), rs.getString(3)));
             }
         } catch (SQLException e) {
             System.out.println(e + " ");
@@ -69,10 +68,11 @@ public class AddressDAO {
     }
 
     public void updateAddress(Address a) {
-        try {
-            PreparedStatement pr = connector.prepareStatement("UPDATE Addresses SET AddressDetails = '" + a.getAddressDetails() + "', IsDefault = ? WHERE AddressID = ?");
-            pr.setInt(1, a.getIsDefault());
-            pr.setInt(2, a.getAddressID());
+        String sql = "UPDATE Addresses SET AddressDetails = ?, IsDefault = ? WHERE AddressID = ?";
+        try (PreparedStatement pr = connector.prepareStatement(sql)) {
+            pr.setString(1, a.getAddressDetails());
+            pr.setInt(2, a.getIsDefault());
+            pr.setInt(3, a.getAddressID());
             pr.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e + " ");
@@ -80,24 +80,22 @@ public class AddressDAO {
     }
 
     public int addAddress(Address a) {
-        if (connector == null || a == null) {
-            return 0;
-        }
         String sql = "INSERT INTO Addresses (CustomerID, AddressDetails, IsDefault) VALUES (?, ?, ?)";
         try (PreparedStatement pr = connector.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pr.setInt(1, a.getCustomerID());
             pr.setString(2, a.getAddressDetails());
             pr.setInt(3, a.getIsDefault());
-            if (pr.executeUpdate() != 1) {
-                return 0;
-            }
+            pr.executeUpdate();
+
             try (ResultSet rs = pr.getGeneratedKeys()) {
-                return rs.next() ? rs.getInt(1) : 0;
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Cannot add address: " + e.getMessage());
-            return 0;
+            System.out.println(e + " ");
         }
+        return 0;
     }
 
     public void disableDefaultAddress(int addressID, int customerID) {

@@ -8,7 +8,6 @@ import DAOs.AddressDAO;
 import Models.Address;
 import Models.Customer;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -59,23 +58,40 @@ public class UpdateAddressServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         HttpSession session = request.getSession();
         Customer cus = (Customer) session.getAttribute("customer");
         if (cus != null) {
             AddressDAO add = new AddressDAO();
             int id = Integer.parseInt(request.getParameter("id"));
             String url = request.getParameter("currentAddressPage");
-            System.out.println("Context: " + url);
             if (request.getParameter("action") != null && request.getParameter("action").equals("setAsDefault")) {
                 add.setAsDefault(id);
                 add.disableDefaultAddress(id, cus.getId());
             } else {
-                String province = request.getParameter("province");
-                String district = request.getParameter("district");
-                String ward = request.getParameter("ward");
-                String address = request.getParameter("address");
+                String province = value(request.getParameter("province"));
+                String district = value(request.getParameter("district"));
+                String ward = value(request.getParameter("ward"));
+                String address = value(request.getParameter("address"));
+
+                if (province.isEmpty() || district.isEmpty() || ward.isEmpty() || address.length() < 5) {
+                    session.setAttribute("message", "Please select a complete Vietnam address.");
+                    redirectToAddressPage(request, response, url);
+                    return;
+                }
+
                 String addressDetails = address + ", " + ward + ", " + district + ", " + province;
+                if (addressDetails.length() > 500) {
+                    session.setAttribute("message", "Address must not exceed 500 characters.");
+                    redirectToAddressPage(request, response, url);
+                    return;
+                }
+
                 Address addObj = add.getAddressByID(id);
+                if (addObj == null || addObj.getCustomerID() != cus.getId()) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    return;
+                }
                 if (addObj.getIsDefault() == 1) {
                     addObj.setAddressDetails(addressDetails);
                     add.updateAddress(addObj);
@@ -89,12 +105,20 @@ public class UpdateAddressServlet extends HttpServlet {
                 }
             }
             session.setAttribute("message", "Update address successfully");
-            if (url.equalsIgnoreCase("addressPage")) {
-                response.sendRedirect("ViewShippingAddress");
-            } else if (url.equalsIgnoreCase("forOrder")) {
-                response.sendRedirect("ViewShippingAddress?action=forOrder");
-            }
+            redirectToAddressPage(request, response, url);
         }
+    }
+
+    private String value(String input) {
+        return input == null ? "" : input.trim();
+    }
+
+    private void redirectToAddressPage(HttpServletRequest request, HttpServletResponse response, String page)
+            throws IOException {
+        String target = "forOrder".equalsIgnoreCase(page)
+                ? "/ViewShippingAddress?action=forOrder"
+                : "/ViewShippingAddress";
+        response.sendRedirect(request.getContextPath() + target);
     }
 
     /**

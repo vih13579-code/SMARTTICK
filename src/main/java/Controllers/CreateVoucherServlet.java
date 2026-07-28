@@ -69,7 +69,7 @@ public class CreateVoucherServlet extends HttpServlet {
 
             int type = Integer.parseInt(request.getParameter("voucherType"));
             int value = Integer.parseInt(request.getParameter("voucherValue"));
-            int maxDiscount = Integer.parseInt(request.getParameter("maxDiscountAmount"));
+            int maxDiscount = parseIntOrDefault(request.getParameter("maxDiscountAmount"), 0);
             int minOrder = Integer.parseInt(request.getParameter("minOrderValue"));
 
             String rawStart = request.getParameter("startDate");
@@ -86,8 +86,13 @@ public class CreateVoucherServlet extends HttpServlet {
                 request.getRequestDispatcher("CreateVoucherView.jsp").forward(request, response);
                 return;
             }
+            if (value <= 0 || maxDiscount < 0 || minOrder < 0) {
+                request.setAttribute("error", "Numeric values must be valid positive values.");
+                request.getRequestDispatcher("CreateVoucherView.jsp").forward(request, response);
+                return;
+            }
             if(type == 1 && value > 100){
-            request.setAttribute("error", "If the voucher type is percent, you cannot set a value greater than 100.");
+                request.setAttribute("error", "If the voucher type is percent, you cannot set a value greater than 100.");
                 request.getRequestDispatcher("CreateVoucherView.jsp").forward(request, response);
                 return;
             }
@@ -95,7 +100,12 @@ public class CreateVoucherServlet extends HttpServlet {
             String startDate = start.format(sqlFormat);
             String endDate = end.format(sqlFormat);
 
-            int maxUsed = Integer.parseInt(request.getParameter("maxUsedCount"));
+            int maxUsed = parseIntOrDefault(request.getParameter("maxUsedCount"), 0);
+            if (maxUsed < 0) {
+                request.setAttribute("error", "Max Used Count must be non-negative.");
+                request.getRequestDispatcher("CreateVoucherView.jsp").forward(request, response);
+                return;
+            }
             int status = Integer.parseInt(request.getParameter("status"));
             String desc = request.getParameter("description");
 
@@ -133,5 +143,12 @@ public class CreateVoucherServlet extends HttpServlet {
     public String getServletInfo() {
         return "SMARTTICK servlet";
     }// </editor-fold>
+
+    private int parseIntOrDefault(String value, int defaultValue) {
+        if (value == null || value.trim().isEmpty()) {
+            return defaultValue;
+        }
+        return Integer.parseInt(value);
+    }
 
 }

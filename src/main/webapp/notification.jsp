@@ -4,40 +4,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>New Reply Notifications</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notifications | SMARTTICK</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css">
 </head>
 <body>
+<jsp:include page="header.jsp"/>
+<main class="container customer-page">
+    <section class="section alt">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow">Notifications</span>
+                <h2>Review Replies</h2>
+                <p class="section-sub">Replies from SMARTTICK to your product reviews.</p>
+            </div>
+        </div>
 
-
-      <div class="modal-body">
-        
-<!--        <div class="list-group">
-            <c:forEach items="${unreadReply}" var="rep">
-                <a href="replyDetail.jsp?replyID=${rep.replyID}" class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Reply #${rep.replyID}</h5>
-                        <small>${rep.isRead ? "Read" : "Unread"}</small>
-                    </div>
-                    <p class="mb-1">${rep.answer}</p>
-                </a>
-            </c:forEach>
-            <c:if test="${empty unreadReply}">
-                <p class="text-muted">No new replies.</p>
-            </c:if>
-        </div>-->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <a href="allReplies.jsp" class="btn btn-primary">View All</a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <c:choose>
+            <c:when test="${empty replies}">
+                <div class="panel">You have no notifications.</div>
+            </c:when>
+            <c:otherwise>
+                <div class="catalog-grid">
+                    <c:forEach items="${replies}" var="reply" varStatus="loop">
+                        <c:set var="product" value="${products[loop.index]}"/>
+                        <article class="panel">
+                            <span class="eyebrow">
+                                <c:choose>
+                                    <c:when test="${reply.isRead}">Read</c:when>
+                                    <c:otherwise>Unread</c:otherwise>
+                                </c:choose>
+                            </span>
+                            <h3><c:out value="${product.fullName}" default="Product review"/></h3>
+                            <p><c:out value="${reply.answer}"/></p>
+                            <div class="card-actions">
+                                <c:if test="${not empty product.productId && product.productId > 0}">
+                                    <a class="btn btn-outline" href="${pageContext.request.contextPath}/ProductDetailServlet?id=${product.productId}">View Product</a>
+                                </c:if>
+                                <c:if test="${!reply.isRead}">
+                                    <form method="post" action="${pageContext.request.contextPath}/NotificationServlet">
+                                        <input type="hidden" name="repliesID" value="${reply.replyID}">
+                                        <button class="btn btn-primary" type="submit">Mark as Read</button>
+                                    </form>
+                                </c:if>
+                            </div>
+                        </article>
+                    </c:forEach>
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </section>
+</main>
+<jsp:include page="footer.jsp"/>
 </body>
 </html>
-

@@ -1,158 +1,289 @@
-/* 
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/ClientSide/javascript.js to edit this template
- */
+(function () {
+    "use strict";
 
+    var form = document.getElementById("formAddress");
+    var provinceSelect = document.getElementById("city");
+    var districtSelect = document.getElementById("district");
+    var wardSelect = document.getElementById("ward");
+    var locationError = document.getElementById("location-error");
 
-var allData = [];
-var citis = document.getElementById("city");
-var districts = document.getElementById("district");
-var wards = document.getElementById("ward");
-
-var Parameter = {
-    url: "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json",
-    method: "GET",
-    responseType: "json"
-};
-
-// Đợi API tải xong rồi mới render
-axios(Parameter).then(function (result) {
-    allData = result.data;
-    if (allData.length > 0) {
-        renderCity(allData);
+    if (!form || !provinceSelect || !districtSelect || !wardSelect) {
+        return;
     }
-}).catch(function (error) {
-    console.error("Lỗi tải dữ liệu: ", error);
-});
 
-citis.onchange = function () {
-    if (allData.length > 0) {
-        loadDistricts(this.value);
+    var locations = [];
+    var locationUrl = form.getAttribute("data-location-url");
+
+    function setFirstOption(select, label) {
+        select.length = 0;
+        select.add(new Option(label, ""));
     }
-};
 
-districts.onchange = function () {
-    if (allData.length > 0) {
-        loadWards(this.value);
+    function setLoadingState() {
+        setFirstOption(provinceSelect, "Loading provinces...");
+        setFirstOption(districtSelect, "Select District");
+        setFirstOption(wardSelect, "Select Ward");
+        provinceSelect.disabled = true;
+        districtSelect.disabled = true;
+        wardSelect.disabled = true;
     }
-};
 
-function renderCity(data) {
-    for (const x of data) {
-        let translatedName = translateLocation(x.Name);
-        citis.options[citis.options.length] = new Option(translatedName, x.Id);
-    }
-}
-
-function loadDistricts(cityId) {
-    districts.length = 1;
-    wards.length = 1;
-    if (cityId !== "") {
-        let result = allData.find(n => n.Id === cityId);
-        for (const k of result.Districts) {
-            let translatedName = translateLocation(k.Name);
-            districts.options[districts.options.length] = new Option(translatedName, k.Id);
+    function showLocationError(message) {
+        if (locationError) {
+            locationError.textContent = message;
         }
     }
-}
 
-function loadWards(districtId) {
-    wards.length = 1;
-    let cityData = allData.find(n => n.Id === citis.value);
-    if (cityData && districtId !== "") {
-        let districtData = cityData.Districts.find(n => n.Id === districtId);
-        for (const w of districtData.Wards) {
-            let translatedName = translateLocation(w.Name);
-            wards.options[wards.options.length] = new Option(translatedName, w.Id);
-        }
-    }
-}
-function translateLocation(name) {
-    let temp = name;
-
-    if (temp.includes("Thành phố "))
-        temp = temp.replace("Thành phố ", "") + " City";
-    if (temp.includes("Tỉnh "))
-        temp = temp.replace("Tỉnh ", "") + " Province";
-    if (temp.includes("Huyện "))
-        temp = temp.replace("Huyện ", "") + " District";
-    if (temp.includes("Quận "))
-        temp = temp.replace("Quận ", "") + " District";
-    if (temp.includes("Thị xã "))
-        temp = temp.replace("Thị xã ", "") + " Town";
-    if (temp.includes("Thị trấn "))
-        temp = temp.replace("Thị trấn ", "") + " Town";
-    if (temp.includes("Phường "))
-        temp = temp.replace("Phường ", "") + " Ward";
-    if (temp.includes("Xã "))
-        temp = temp.replace("Xã ", "") + " Commune";
-
-    return removeDiacritics(temp); // Delete dấu tiếng Việt
-}
-
-function removeDiacritics(str) {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Loại bỏ dấu tiếng Việt
-}
-function openPopup(isUpdate, data = null) {
-    document.getElementById("add").style.display = "block";
-    document.getElementById("addoverlay").style.display = "block";
-
-    if (isUpdate && data) {
-        document.getElementById("popupLabel").innerHTML = "Update Address";
-        document.getElementById("addressInput").value = data.address || "";
-
-        // Chọn tỉnh/thành phố trước, rồi kích hoạt sự kiện change
-        setSelectValue("city", data.province, function () {
-            document.getElementById("city").dispatchEvent(new Event("change"));
-
-            // Chờ quận/huyện load xong rồi chọn
-            setTimeout(() => {
-                setSelectValue("district", data.district, function () {
-                    document.getElementById("district").dispatchEvent(new Event("change"));
-
-                    // Chờ xã/phường load xong rồi chọn
-                    setTimeout(() => {
-                        setSelectValue("ward", data.commune);
-                    }, 200);
-                });
-            }, 200);
+    function renderProvinces() {
+        setFirstOption(provinceSelect, "Select Province");
+        locations.forEach(function (province) {
+            var provinceName = toEnglishLocationName(province.Name);
+            provinceSelect.add(new Option(provinceName, provinceName));
         });
-    } else {
-        document.getElementById("popupLabel").innerHTML = "Add Address";
-        document.getElementById("addressInput").value = "";
-        document.getElementById("city").selectedIndex = 0;
-        document.getElementById("district").length = 1;
-        document.getElementById("ward").length = 1;
-}
-}
+        provinceSelect.disabled = false;
+        districtSelect.disabled = true;
+        wardSelect.disabled = true;
+        showLocationError("");
+    }
 
-function setSelectValue(selectId, value, callback = null) {
-    let select = document.getElementById(selectId);
-    let found = false;
+    function loadDistricts(provinceName) {
+        setFirstOption(districtSelect, "Select District");
+        setFirstOption(wardSelect, "Select Ward");
+        wardSelect.disabled = true;
 
-    for (let i = 0; i < select.options.length; i++) {
-        if (select.options[i].text === value) {
-            select.selectedIndex = i;
-            found = true;
-            break;
+        var province = locations.find(function (item) {
+            return normalizeLocation(toEnglishLocationName(item.Name)) === normalizeLocation(provinceName);
+        });
+
+        if (!province) {
+            districtSelect.disabled = true;
+            return;
         }
+
+        province.Districts.forEach(function (district) {
+            var districtName = toEnglishLocationName(district.Name);
+            districtSelect.add(new Option(districtName, districtName));
+        });
+        districtSelect.disabled = false;
     }
 
-    if (!found) {
-        select.selectedIndex = 0;
+    function loadWards(districtName) {
+        setFirstOption(wardSelect, "Select Ward");
+
+        var province = locations.find(function (item) {
+            return normalizeLocation(toEnglishLocationName(item.Name))
+                    === normalizeLocation(provinceSelect.value);
+        });
+        var district = province && province.Districts.find(function (item) {
+            return normalizeLocation(toEnglishLocationName(item.Name))
+                    === normalizeLocation(districtName);
+        });
+
+        if (!district) {
+            wardSelect.disabled = true;
+            return;
+        }
+
+        district.Wards.forEach(function (ward) {
+            var wardName = toEnglishLocationName(ward.Name);
+            wardSelect.add(new Option(wardName, wardName));
+        });
+        wardSelect.disabled = false;
     }
 
-    if (callback) {
-        callback();
-}
-}
+    function normalizeLocation(value) {
+        return (value || "")
+                .trim()
+                .toLocaleLowerCase("vi")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/\s+/g, " ");
+    }
 
+    function toEnglishLocationName(name) {
+        var replacements = [
+            [/^Thành phố\s+/i, "", " City"],
+            [/^Tỉnh\s+/i, "", " Province"],
+            [/^Huyện\s+/i, "", " District"],
+            [/^Quận\s+/i, "", " District"],
+            [/^Thị xã\s+/i, "", " Town"],
+            [/^Thị trấn\s+/i, "", " Town"],
+            [/^Phường\s+/i, "", " Ward"],
+            [/^Xã\s+/i, "", " Commune"]
+        ];
+        var result = name || "";
 
-function closeAddPopup() {
-    document.getElementById("add").style.display = "none";
-    document.getElementById("addoverlay").style.display = "none";
-    let selects = document.querySelectorAll("#add select");
-    selects.forEach(select => {
+        replacements.some(function (replacement) {
+            if (replacement[0].test(result)) {
+                result = result.replace(replacement[0], replacement[1]) + replacement[2];
+                return true;
+            }
+            return false;
+        });
+
+        return removeDiacritics(result);
+    }
+
+    function removeDiacritics(value) {
+        return (value || "")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/Đ/g, "D")
+                .replace(/đ/g, "d");
+    }
+
+    function setSelectedLocation(select, savedName) {
+        var target = normalizeLocation(savedName);
+        var englishTarget = normalizeLocation(toEnglishLocationName(savedName));
+
+        for (var index = 1; index < select.options.length; index++) {
+            var option = select.options[index];
+            if (normalizeLocation(option.text) === target
+                    || normalizeLocation(option.text) === englishTarget) {
+                select.selectedIndex = index;
+                return true;
+            }
+        }
+
         select.selectedIndex = 0;
+        return false;
+    }
+
+    function restoreAddressSelections(data) {
+        locationReady.then(function (isReady) {
+            if (!isReady) {
+                return;
+            }
+            if (!setSelectedLocation(provinceSelect, data.province)) {
+                showLocationError("The province from the saved address could not be found.");
+                return;
+            }
+
+            loadDistricts(provinceSelect.value);
+            if (!setSelectedLocation(districtSelect, data.district)) {
+                showLocationError("The district from the saved address could not be found.");
+                return;
+            }
+
+            loadWards(districtSelect.value);
+            if (!setSelectedLocation(wardSelect, data.commune)) {
+                showLocationError("The ward from the saved address could not be found.");
+            }
+        });
+    }
+
+    setLoadingState();
+
+    var locationReady = fetch(locationUrl, {cache: "force-cache"})
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status);
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error("Location data is empty");
+                }
+                locations = data;
+                renderProvinces();
+                return true;
+            })
+            .catch(function (error) {
+                setFirstOption(provinceSelect, "Unable to load provinces");
+                provinceSelect.disabled = true;
+                showLocationError("Unable to load Vietnam location data. Please reload the page.");
+                console.error("Cannot load Vietnam location data:", error);
+                return false;
+            });
+
+    provinceSelect.addEventListener("change", function () {
+        loadDistricts(this.value);
     });
-}
+
+    districtSelect.addEventListener("change", function () {
+        loadWards(this.value);
+    });
+
+    form.addEventListener("submit", function (event) {
+        var addressInput = document.getElementById("addressInput");
+        var addressError = document.getElementById("error-message");
+        var isValid = true;
+
+        addressError.textContent = "";
+        showLocationError("");
+
+        if (!provinceSelect.value || !districtSelect.value || !wardSelect.value) {
+            showLocationError("Please select a province, district, and ward.");
+            isValid = false;
+        }
+
+        if (addressInput.value.trim().length < 5) {
+            addressError.textContent = "Detailed address must be at least 5 characters.";
+            isValid = false;
+        }
+
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+
+    window.openPopupFromButton = function (button) {
+        window.openPopup(true, {
+            isDefault: button.getAttribute("data-isDefault").trim(),
+            id: button.getAttribute("data-id").trim(),
+            province: button.getAttribute("data-province").trim(),
+            district: button.getAttribute("data-district").trim(),
+            commune: button.getAttribute("data-commune").trim(),
+            address: button.getAttribute("data-address").trim()
+        });
+    };
+
+    window.openPopup = function (isUpdate, data) {
+        document.getElementById("add").style.display = "block";
+        document.getElementById("addoverlay").style.display = "block";
+        var addressInput = document.getElementById("addressInput");
+        var defaultSwitch = document.getElementById("flexSwitchCheckDefault");
+
+        showLocationError("");
+
+        if (isUpdate && data) {
+            document.getElementById("popupLabel").textContent = "Update Address";
+            addressInput.value = data.address || "";
+            form.action = "UpdateAddress?id=" + encodeURIComponent(data.id);
+
+            if (defaultSwitch) {
+                defaultSwitch.checked = data.isDefault === "1";
+                defaultSwitch.disabled = data.isDefault === "1";
+            }
+            restoreAddressSelections(data);
+            return;
+        }
+
+        document.getElementById("popupLabel").textContent = "Add Address";
+        addressInput.value = "";
+        form.action = "AddAddress";
+        provinceSelect.selectedIndex = 0;
+        loadDistricts("");
+
+        if (defaultSwitch && !form.querySelector('input[type="hidden"][name="isDefault"]')) {
+            defaultSwitch.checked = false;
+            defaultSwitch.disabled = false;
+        }
+    };
+
+    window.closeAddPopup = function () {
+        document.getElementById("add").style.display = "none";
+        document.getElementById("addoverlay").style.display = "none";
+        provinceSelect.selectedIndex = 0;
+        loadDistricts("");
+        showLocationError("");
+
+        var defaultSwitch = document.getElementById("flexSwitchCheckDefault");
+        if (defaultSwitch && !form.querySelector('input[type="hidden"][name="isDefault"]')) {
+            defaultSwitch.checked = false;
+            defaultSwitch.disabled = false;
+        }
+    };
+}());

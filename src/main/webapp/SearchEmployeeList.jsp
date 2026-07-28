@@ -150,6 +150,12 @@
             <div class="content">
             <jsp:include page="HeaderDashboard.jsp"></jsp:include>
                 <br>
+                <c:if test="${param.success == 'deletesuccess'}">
+                    <div class="alert alert-success text-center">Employee disabled successfully.</div>
+                </c:if>
+                <c:if test="${param.success == 'deletefailed'}">
+                    <div class="alert alert-danger text-center">Disable employee failed. Please try again.</div>
+                </c:if>
                 <div class="table-navigate">
                     <form action="SearchEmployeeServlet" method="GET" class="search-form">
                         <input type="text" name="query" value="${searchQuery}" placeholder="Search by Name...">
@@ -209,6 +215,12 @@
                                                 <a href="ViewEmployeeServlet?id=${e.employeeId}" style="background-color: red; color: white; text-decoration: none; padding: 3px 9px; border-radius: 5px; display: inline-block; cursor: pointer;">
                                                     <i class='bx bx-detail'></i> Detail
                                                 </a>
+                                                <form action="DeleteEmployeeServlet" method="post" style="display:inline;" onsubmit="return confirm('Disable this employee account?');">
+                                                    <input type="hidden" name="employeeId" value="${e.employeeId}">
+                                                    <button type="submit" style="background-color: #6c757d; color: white; border: none; padding: 3px 9px; border-radius: 5px; cursor: pointer;">
+                                                        <i class='bx bx-trash'></i> Delete
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     </c:forEach>

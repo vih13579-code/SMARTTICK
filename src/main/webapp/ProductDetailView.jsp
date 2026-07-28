@@ -21,15 +21,15 @@
         <div>
             <div class="gallery-main">
                 <img id="mainWatchImage"
-                     src="${pageContext.request.contextPath}/product-images/${product.image}?v=real1"
+                     src="${pageContext.request.contextPath}/product-images/${product.image}"
                      onerror="this.src='${pageContext.request.contextPath}/assets/imgs/Products/watches/watch-placeholder.svg'"
                      alt="SMARTTICK watch image">
             </div>
             <div class="thumbs">
-                <c:if test="${not empty product.image}"><img src="${pageContext.request.contextPath}/product-images/${product.image}?v=real1" onclick="document.getElementById('mainWatchImage').src=this.src" alt="Main image"></c:if>
-                <c:if test="${not empty product.image1}"><img src="${pageContext.request.contextPath}/product-images/${product.image1}?v=real1" onclick="document.getElementById('mainWatchImage').src=this.src" alt="Additional image"></c:if>
-                <c:if test="${not empty product.image2}"><img src="${pageContext.request.contextPath}/product-images/${product.image2}?v=real1" onclick="document.getElementById('mainWatchImage').src=this.src" alt="Additional image"></c:if>
-                <c:if test="${not empty product.image3}"><img src="${pageContext.request.contextPath}/product-images/${product.image3}?v=real1" onclick="document.getElementById('mainWatchImage').src=this.src" alt="Additional image"></c:if>
+                <c:if test="${not empty product.image}"><img src="${pageContext.request.contextPath}/product-images/${product.image}" onclick="document.getElementById('mainWatchImage').src=this.src" alt="Main image"></c:if>
+                <c:if test="${not empty product.image1}"><img src="${pageContext.request.contextPath}/product-images/${product.image1}" onclick="document.getElementById('mainWatchImage').src=this.src" alt="Additional image"></c:if>
+                <c:if test="${not empty product.image2}"><img src="${pageContext.request.contextPath}/product-images/${product.image2}" onclick="document.getElementById('mainWatchImage').src=this.src" alt="Additional image"></c:if>
+                <c:if test="${not empty product.image3}"><img src="${pageContext.request.contextPath}/product-images/${product.image3}" onclick="document.getElementById('mainWatchImage').src=this.src" alt="Additional image"></c:if>
             </div>
         </div>
 
@@ -67,7 +67,7 @@
                             <button class="btn btn-gold" type="submit">Buy Now</button>
                         </form>
                     </div>
-                    <p class="bulk-note">Secure QR payment is available during checkout.</p>
+                    <p class="bulk-note">Orders from 6 units use a 30% deposit via VNPAY QR Sandbox.</p>
                 </div>
             </c:if>
 

@@ -293,14 +293,10 @@ public class OrderDAO {
             for (Cart item : selectedItems) {
                 totalQuantity += item.getQuantity();
             }
-            boolean qrPaid = "qr_payment".equalsIgnoreCase(order.getPaymentMethod())
-                    && "paid".equalsIgnoreCase(order.getPaymentStatus());
-            long depositAmount = qrPaid
-                    ? finalTotal
-                    : (totalQuantity >= BULK_DEPOSIT_QUANTITY
-                            ? Math.round(finalTotal * (BULK_DEPOSIT_PERCENT / 100.0))
-                            : 0);
-            long amountDue = qrPaid ? 0 : Math.max(0, finalTotal - depositAmount);
+            long depositAmount = totalQuantity >= BULK_DEPOSIT_QUANTITY
+                    ? Math.round(finalTotal * (BULK_DEPOSIT_PERCENT / 100.0))
+                    : 0;
+            long amountDue = Math.max(0, finalTotal - depositAmount);
             order.setDepositAmount(depositAmount);
             order.setAmountDue(amountDue);
             if (order.getPaymentMethod() == null || order.getPaymentMethod().trim().isEmpty()) {
@@ -309,9 +305,7 @@ public class OrderDAO {
             if (order.getPaymentStatus() == null || order.getPaymentStatus().trim().isEmpty()) {
                 order.setPaymentStatus(depositAmount > 0 ? "deposit_pending" : "pending");
             }
-            if (!qrPaid) {
-                order.setPaymentReference(null);
-            }
+            order.setPaymentReference(null);
 
             boolean hasPaymentColumns = columnExists(connector, "Orders", "PaymentMethod")
                     && columnExists(connector, "Orders", "PaymentStatus")
@@ -594,17 +588,13 @@ public class OrderDAO {
 
     private void consumeVoucher(Connection connection, int customerId, int voucherId) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement(
-                "UPDATE CustomerVoucher SET Quantity = Quantity - 1 WHERE CustomerID = ? AND VoucherID = ? AND Quantity > 1")) {
+                "UPDATE CustomerVoucher SET Quantity = Quantity - 1 "
+                + "WHERE CustomerID = ? AND VoucherID = ? AND Quantity > 0")) {
             ps.setInt(1, customerId);
             ps.setInt(2, voucherId);
             int updated = ps.executeUpdate();
             if (updated == 0) {
-                try (PreparedStatement delete = connection.prepareStatement(
-                        "DELETE FROM CustomerVoucher WHERE CustomerID = ? AND VoucherID = ? AND Quantity = 1")) {
-                    delete.setInt(1, customerId);
-                    delete.setInt(2, voucherId);
-                    delete.executeUpdate();
-                }
+                throw new SQLException("Voucher is no longer available.");
             }
         }
         try (PreparedStatement ps = connection

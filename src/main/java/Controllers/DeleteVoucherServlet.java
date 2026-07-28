@@ -4,10 +4,8 @@
  */
 package Controllers;
 
-import DAOs.CustomerVoucherDAO;
 import DAOs.VoucherDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -55,17 +53,27 @@ public class DeleteVoucherServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int voucherID = Integer.parseInt(request.getParameter("voucherID"));
-        VoucherDAO dao = new VoucherDAO();
-        CustomerVoucherDAO cdao = new CustomerVoucherDAO();
-        cdao.deleteCustomerVoucher(voucherID);
-        int count = dao.deleteVoucher(voucherID);
-        if(count>0){
-       response.sendRedirect("ViewVoucherListServlet?success=deletesuccess");
-        }else{
-       response.sendRedirect("ViewVoucherListServlet?success=deletefailed");
+        String voucherIdText = request.getParameter("voucherID");
+        if (voucherIdText == null || !voucherIdText.trim().matches("\\d+")) {
+            response.sendRedirect(request.getContextPath()
+                    + "/ViewVoucherListServlet?success=deletefailed");
+            return;
         }
 
+        int voucherID;
+        try {
+            voucherID = Integer.parseInt(voucherIdText.trim());
+        } catch (NumberFormatException ex) {
+            response.sendRedirect(request.getContextPath()
+                    + "/ViewVoucherListServlet?success=deletefailed");
+            return;
+        }
+
+        VoucherDAO dao = new VoucherDAO();
+        int count = dao.deleteVoucher(voucherID);
+        String result = count > 0 ? "deletesuccess" : "deletefailed";
+        response.sendRedirect(request.getContextPath()
+                + "/ViewVoucherListServlet?success=" + result);
     }
 
     /**

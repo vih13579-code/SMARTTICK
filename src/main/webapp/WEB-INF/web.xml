@@ -64,6 +64,10 @@
             <servlet-class>Controllers.CustomerListServlet</servlet-class>
         </servlet>
     <servlet>
+            <servlet-name>SearchCustomerServlet</servlet-name>
+            <servlet-class>Controllers.SearchCustomerServlet</servlet-class>
+        </servlet>
+    <servlet>
             <servlet-name>ProductListServlet</servlet-name>
             <servlet-class>Controllers.ProductListServlet</servlet-class>
         </servlet>
@@ -192,6 +196,10 @@
             <servlet-class>Controllers.CreateVoucherServlet</servlet-class>
         </servlet>
     <servlet>
+            <servlet-name>SearchVoucherServlet</servlet-name>
+            <servlet-class>Controllers.SearchVoucherServlet</servlet-class>
+        </servlet>
+    <servlet>
             <servlet-name>AssignVoucherServlet</servlet-name>
             <servlet-class>Controllers.AssignVoucherServlet</servlet-class>
         </servlet>
@@ -204,6 +212,10 @@
             <servlet-class>Controllers.AddEmployeeServlet</servlet-class>
         </servlet>
     <servlet>
+            <servlet-name>DeleteEmployeeServlet</servlet-name>
+            <servlet-class>Controllers.DeleteEmployeeServlet</servlet-class>
+        </servlet>
+    <servlet>
             <servlet-name>ViewEmployeeServlet</servlet-name>
             <servlet-class>Controllers.ViewEmployeeServlet</servlet-class>
         </servlet>
@@ -214,6 +226,10 @@
     <servlet>
             <servlet-name>NotificationServlet</servlet-name>
             <servlet-class>Controllers.NotificationServlet</servlet-class>
+        </servlet>
+    <servlet>
+            <servlet-name>SaveVoucherServlet</servlet-name>
+            <servlet-class>Controllers.SaveVoucherServlet</servlet-class>
         </servlet>
     <servlet>
             <servlet-name>SearchEmployeeServlet</servlet-name>
@@ -230,6 +246,10 @@
     <servlet-mapping>
             <servlet-name>AddEmployeeServlet</servlet-name>
             <url-pattern>/AddEmployeeServlet</url-pattern>
+        </servlet-mapping>
+    <servlet-mapping>
+            <servlet-name>DeleteEmployeeServlet</servlet-name>
+            <url-pattern>/DeleteEmployeeServlet</url-pattern>
         </servlet-mapping>
     <servlet-mapping>
             <servlet-name>SearchEmployeeServlet</servlet-name>
@@ -266,6 +286,10 @@
     <servlet-mapping>
             <servlet-name>CustomerListServlet</servlet-name>
             <url-pattern>/CustomerListServlet</url-pattern>
+        </servlet-mapping>
+    <servlet-mapping>
+            <servlet-name>SearchCustomerServlet</servlet-name>
+            <url-pattern>/SearchCustomerServlet</url-pattern>
         </servlet-mapping>
     <servlet-mapping>
             <servlet-name>ProductListServlet</servlet-name>
@@ -404,6 +428,10 @@
             <url-pattern>/NotificationServlet</url-pattern>
         </servlet-mapping>
     <servlet-mapping>
+            <servlet-name>SaveVoucherServlet</servlet-name>
+            <url-pattern>/SaveVoucherServlet</url-pattern>
+        </servlet-mapping>
+    <servlet-mapping>
             <servlet-name>UpdateReplyServlet</servlet-name>
             <url-pattern>/UpdateReplyServlet</url-pattern>
         </servlet-mapping>
@@ -430,6 +458,10 @@
     <servlet-mapping>
             <servlet-name>CreateVoucherServlet</servlet-name>
             <url-pattern>/CreateVoucherServlet</url-pattern>
+        </servlet-mapping>
+    <servlet-mapping>
+            <servlet-name>SearchVoucherServlet</servlet-name>
+            <url-pattern>/SearchVoucherServlet</url-pattern>
         </servlet-mapping>
     <servlet-mapping>
             <servlet-name>AssignVoucherServlet</servlet-name>

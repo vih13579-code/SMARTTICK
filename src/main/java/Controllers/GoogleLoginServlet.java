@@ -155,7 +155,7 @@ public class GoogleLoginServlet extends HttpServlet {
 
         Customer createdCustomer = customerDAO.getGoogleCustomer(email, googleId);
         if (createdCustomer != null) {
-            new CustomerVoucherDAO().assignVoucherToCustomer(createdCustomer.getId(), 1, 1, null);
+            new CustomerVoucherDAO().syncAvailableVouchersForCustomer(createdCustomer.getId());
         }
         return createdCustomer;
     }

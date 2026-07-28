@@ -134,7 +134,7 @@
 
                                     <div class="mb-3 d-flex">
                                         <label class="form-label value">Password</label>
-                                        <input type="password"  class="form-control" name="txtPass" value="${txtPass != null ? txtPass : employee.password}" required />
+                                        <input type="password" class="form-control" name="txtPass" placeholder="Leave blank to keep current password" />
                                         <input type="hidden" name="currentPassword" value="${employee.password}" />
                                     </div>
 

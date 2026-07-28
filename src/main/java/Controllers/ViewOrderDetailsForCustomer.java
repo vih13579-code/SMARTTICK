@@ -52,9 +52,14 @@ public class ViewOrderDetailsForCustomer extends HttpServlet {
             return;
         }
         String id = request.getParameter("id");
+        if (id == null || !id.trim().matches("\\d+")) {
+            response.sendRedirect(request.getContextPath()
+                    + "/ViewOrderHistory?error=invalidOrder");
+            return;
+        }
         OrderDAO o = new OrderDAO();
         OrderDetailDAO od = new OrderDetailDAO();
-        Order order = o.getOrderByID(id);
+        Order order = o.getOrderByID(id.trim());
         if (order.getOrderID() == 0 || order.getAccountID() != customer.getId()) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;

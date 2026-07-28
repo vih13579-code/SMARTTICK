@@ -180,13 +180,22 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.48);
+                background: rgba(0, 0, 0, 0.68);
                 z-index: 1050;
             }
 
             .add .title {
                 margin-bottom: 16px;
                 font-weight: 800;
+            }
+
+            .add,
+            .add input,
+            .add select,
+            .add option,
+            .add button {
+                font-family: "Segoe UI", Arial, sans-serif;
+                letter-spacing: 0;
             }
 
             .add .modal-footer {
@@ -233,49 +242,28 @@
                 color: #d7cbb7;
             }
 
-            .customer-profile-page #content #add {
-                background: #ffffff !important;
-                color: #172033 !important;
-                border: 1px solid #e5e7eb !important;
-                box-shadow: 0 24px 70px rgba(0, 0, 0, .28) !important;
-                border-radius: 18px !important;
+            .customer-profile-page .add {
+                background: #2f2b24 !important;
+                color: #f7f3ea !important;
+                border-color: rgba(216, 173, 90, .28);
             }
 
-            .customer-profile-page #content #add label,
-            .customer-profile-page #content #add .title,
-            .customer-profile-page #content #add .form-check-label {
-                color: #172033 !important;
+            .customer-profile-page .add label,
+            .customer-profile-page .add .title,
+            .customer-profile-page .add .form-check-label {
+                color: #fff !important;
             }
 
-            .customer-profile-page #content #add .form-control,
-            .customer-profile-page #content #add .form-select {
-                background: #ffffff !important;
-                border: 1px solid #cbd5e1 !important;
-                color: #111827 !important;
-                opacity: 1 !important;
+            .customer-profile-page .add .form-control,
+            .customer-profile-page .add .form-select {
+                background: rgba(255, 255, 255, .08) !important;
+                border-color: rgba(255, 255, 255, .18) !important;
+                color: #fff !important;
             }
 
-            .customer-profile-page #content #add .form-control::placeholder {
-                color: #94a3b8 !important;
-                opacity: 1;
-            }
-
-            .customer-profile-page #content #add .form-control:focus,
-            .customer-profile-page #content #add .form-select:focus {
-                border-color: #d8ad5a !important;
-                box-shadow: 0 0 0 3px rgba(216, 173, 90, .18) !important;
-            }
-
-            .customer-profile-page #content #add .form-select option {
-                background: #fff;
-                color: #111827;
-            }
-
-            .customer-profile-page #content #addoverlay {
-                background: rgba(0, 0, 0, 0.48) !important;
-                border: 0 !important;
-                border-radius: 0 !important;
-                box-shadow: none !important;
+            .customer-profile-page .add .form-select option {
+                background: #24211b;
+                color: #fff;
             }
 
             @media (max-width: 700px) {
@@ -322,12 +310,6 @@
                     <button class="btn btn-add"
                             onclick="openPopup(false)">+ Add address</button>
                 </div>
-                <c:if test="${not empty sessionScope.addressError}">
-                    <div class="alert alert-danger" role="alert">
-                        <c:out value="${sessionScope.addressError}"/>
-                    </div>
-                    <c:remove var="addressError" scope="session"/>
-                </c:if>
 
                 <h4 class="address-section-title">Address</h4>
 
@@ -352,9 +334,8 @@
                                         Object arrObj = pageContext.getAttribute("arr");
 
                                         // Kiểm tra nếu không null và chuyển thành mảng String[]
-                                         if (arrObj instanceof String[]) {
-                                             String[] arr = (String[]) arrObj;
-                                             if (arr.length >= 4) {
+                                        if (arrObj instanceof String[]) {
+                                            String[] arr = (String[]) arrObj;
 
                                             // Xử lý mảng theo thuật toán của bạn
                                             String province = arr[arr.length - 1];
@@ -372,16 +353,10 @@
 
                                             // Trả kết quả lại JSTL
                                             request.setAttribute("province", province);
-                                             request.setAttribute("district", district);
-                                             request.setAttribute("commune", commune);
-                                             request.setAttribute("address", address);
-                                             } else {
-                                                 request.setAttribute("province", "");
-                                                 request.setAttribute("district", "");
-                                                 request.setAttribute("commune", "");
-                                                 request.setAttribute("address", String.join(", ", arr));
-                                             }
-                                         }
+                                            request.setAttribute("district", district);
+                                            request.setAttribute("commune", commune);
+                                            request.setAttribute("address", address);
+                                        }
                                     %>
 
 
@@ -476,7 +451,8 @@
             <div class="" style="display: flex; ">
                 <h4 class="title" id="popupLabel">Add Address</h4>
             </div>
-            <form method="POST" action="AddAddress" id="formAddress">
+            <form method="POST" action="AddAddress" id="formAddress"
+                  data-location-url="${pageContext.request.contextPath}/assets/data/vietnam-addresses.json">
                 <%
                     if (!action.equalsIgnoreCase("") && action.equalsIgnoreCase("forOrder")) {
                 %>
@@ -489,18 +465,22 @@
                 %>
                 <div class="mb-3">
                     <label for="city" class="form-label">Province</label>
-                    <input class="form-control" type="text" name="province" id="city"
-                           placeholder="Enter province or city" maxlength="100" required>
+                    <select class="form-select form-select-sm mb-3" name="province" id="city" aria-label=".form-select-sm" required>
+                        <option value="" selected>Loading provinces...</option>
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label for="district" class="form-label">District</label>
-                    <input class="form-control" type="text" name="district" id="district"
-                           placeholder="Enter district" maxlength="100" required>
+                    <select class="form-select form-select-sm mb-3"  name="district" id="district" aria-label=".form-select-sm" required>
+                        <option value="" selected>Select District</option>
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label for="ward" class="form-label">Ward</label>
-                    <input class="form-control" type="text" name="ward" id="ward"
-                           placeholder="Enter ward or commune" maxlength="100" required>
+                    <select class="form-select form-select-sm" name="ward" id="ward" aria-label=".form-select-sm" required>
+                        <option value="" selected>Select Ward</option>
+                    </select>
+                    <small id="location-error" class="form-text text-danger"></small>
                 </div>
                 <div class="mb-3">
                     <label for="address" class="form-label">Detailed Address:</label>
@@ -533,7 +513,7 @@
             </form>
         </div>
     </div>
-    <script>
+    <script type="text/plain" id="legacy-address-script">
                         document.getElementById('formAddress').addEventListener('submit', function (event) {
                             const addressInput = document.getElementById('addressInput');
                             const errorMessage = document.getElementById('error-message');
@@ -569,7 +549,6 @@
                         };
 
                         // Đợi API tải xong rồi mới render
-                        if (typeof axios !== "undefined") {
                         axios(Parameter)
                                 .then(function (result) {
                                     console.log("Dữ liệu API:", result.data); // Debug dữ liệu
@@ -581,7 +560,6 @@
                                 .catch(function (error) {
                                     console.error("Lỗi tải dữ liệu: ", error);
                                 });
-                        }
 
 
                         citis.onchange = function () {
@@ -710,21 +688,14 @@
                             } else {
                                 document.getElementById("popupLabel").innerHTML = "Add Address";
                                 document.getElementById("addressInput").value = "";
-                                document.getElementById("city").value = "";
-                                document.getElementById("district").value = "";
-                                document.getElementById("ward").value = "";
+                                document.getElementById("city").selectedIndex = 0;
+                                document.getElementById("district").length = 1;
+                                document.getElementById("ward").length = 1;
                         }
                         }
 
                         function setSelectValue(selectId, value, callback = null) {
                             let select = document.getElementById(selectId);
-                            if (select && select.tagName !== "SELECT") {
-                                select.value = value || "";
-                                if (callback) {
-                                    callback();
-                                }
-                                return;
-                            }
                             let found = false;
 
                             for (let i = 0; i < select.options.length; i++) {
@@ -748,9 +719,9 @@
                         function closeAddPopup() {
                             document.getElementById("add").style.display = "none";
                             document.getElementById("addoverlay").style.display = "none";
-                            let addressFields = document.querySelectorAll("#add input[name='province'], #add input[name='district'], #add input[name='ward'], #add input[name='address']");
-                            addressFields.forEach(field => {
-                                field.value = "";
+                            let selects = document.querySelectorAll("#add select");
+                            selects.forEach(select => {
+                                select.selectedIndex = 0;
                             });
         <% if (!first) {
         %>
@@ -768,6 +739,8 @@
                         console.log(document.getElementById("ward"));
 
     </script>
+    <script charset="UTF-8"
+            src="${pageContext.request.contextPath}/assets/js/address.js?v=20260728-all-english"></script>
 
 </body>
 

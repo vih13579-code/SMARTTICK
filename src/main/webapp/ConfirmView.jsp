@@ -10,19 +10,23 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
           crossorigin="anonymous">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css?v=qr-payment-1">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/popup.css?v=qr-payment-1">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/popup.css">
     <title>Checkout Confirmation | SMARTTICK</title>
 </head>
 <body>
 <jsp:include page="header.jsp"/>
 <main class="container checkout-page">
     <c:set var="subtotal" value="0"/>
+    <c:set var="totalQuantity" value="0"/>
     <c:forEach items="${sessionScope.cartSelected}" var="p">
         <c:set var="subtotal" value="${subtotal + (p.getPrice() * p.getQuantity())}"/>
+        <c:set var="totalQuantity" value="${totalQuantity + p.getQuantity()}"/>
     </c:forEach>
     <c:set var="discountValue" value="${empty sessionScope.discount ? 0 : sessionScope.discount}"/>
     <c:set var="finalTotal" value="${subtotal - discountValue < 0 ? 0 : subtotal - discountValue}"/>
+    <c:set var="depositAmount" value="${totalQuantity >= 6 ? finalTotal * 30 / 100 : 0}"/>
+    <c:set var="amountDue" value="${finalTotal - depositAmount}"/>
 
     <div class="checkout-head">
         <div>
@@ -87,17 +91,36 @@
             <div class="totals">
                 <div><span>Subtotal</span><b><fmt:formatNumber value="${subtotal}" type="currency"/></b></div>
                 <div><span>Discount</span><b><fmt:formatNumber value="${discountValue}" type="currency"/></b></div>
+                <c:if test="${depositAmount > 0}">
+                    <div><span>Deposit 30%</span><b><fmt:formatNumber value="${depositAmount}" type="currency"/></b></div>
+                    <div><span>Remaining</span><b><fmt:formatNumber value="${amountDue}" type="currency"/></b></div>
+                </c:if>
                 <div class="grand-total"><span>Total</span><b><fmt:formatNumber value="${finalTotal}" type="currency"/></b></div>
             </div>
 
-            <form id="placeOrderForm" class="payment-box" action="${pageContext.request.contextPath}/order" method="POST">
-                <h3>QR Payment</h3>
-                <p class="section-sub">Scan with a phone connected to the same Wi-Fi to confirm payment.</p>
-                <input id="paymentToken" name="paymentToken" type="hidden" value="">
+            <form id="checkoutPaymentForm" class="payment-box" action="${pageContext.request.contextPath}/order" method="POST">
+                <h3>Payment</h3>
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="cod" ${depositAmount > 0 ? '' : 'checked'}>
+                    <span>Cash on delivery</span>
+                </label>
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="vnpay_qr" ${depositAmount > 0 ? 'checked' : ''}>
+                    <span>VNPAY QR</span>
+                </label>
+                <div id="vnpaySandboxInfo" class="vnpay-sandbox-info">
+                    <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-VNPAY-QR-1.png" alt="VNPAY QR" style="width: 100%; max-height: 48px; object-fit: contain;">
+                    <div>
+                        <strong><fmt:formatNumber value="${depositAmount > 0 ? depositAmount : finalTotal}" type="currency"/></strong>
+                    </div>
+                </div>
                 <input type="hidden" name="buyProductAction" value="placeOrder">
+                <div id="paymentError" class="alert alert-danger" hidden></div>
                 <div class="payment-actions">
-                    <button id="startPaymentButton" class="btn btn-primary" type="button"
-                            onclick="startQrPayment()">Pay by QR</button>
+                    <button id="btnPlaceOrder" class="btn btn-primary" type="submit">Place Order</button>
+                    <button id="btnVnpayPay" class="btn btn-primary" type="submit">
+                        Thanh toán bằng VNPAY QR
+                    </button>
                     <button class="btn btn-outline" type="button" data-bs-toggle="modal" data-bs-target="#cancelPaymentModal">Cancel Payment</button>
                 </div>
             </form>
@@ -105,37 +128,19 @@
     </div>
 </main>
 
-<div id="qrPaymentOverlay" class="qr-payment-overlay" style="display:none;">
-    <section class="qr-payment-card" role="dialog" aria-modal="true" aria-labelledby="qrPaymentTitle">
-        <button type="button" class="qr-payment-close" onclick="closeQrPayment()" aria-label="Close">&times;</button>
-        <span class="eyebrow">SMARTTICK QR Payment</span>
-        <h2 id="qrPaymentTitle">Scan to confirm payment</h2>
-        <p>Use your phone camera to scan this QR code.</p>
-        <img id="qrPaymentQr" alt="Payment QR code" width="300" height="300"
-             onload="handleQrLoaded()" onerror="handleQrError()">
-        <strong class="qr-payment-amount"><fmt:formatNumber value="${finalTotal}" type="currency"/></strong>
-        <div id="qrPaymentStatus" class="qr-payment-status">Creating secure QR code...</div>
-        <p class="qr-payment-help">
-            Use a phone on the same Wi-Fi. The order is created automatically after scanning.
-        </p>
-        <details class="qr-payment-address-wrap">
-            <summary>QR callback address</summary>
-            <div id="qrPaymentAddress"></div>
-        </details>
-    </section>
-</div>
-
-<div class="popup" id="orderPopup" style="display:none;">
-    <div class="popup-content">
-        <img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" alt="success" style="width:82px;margin-bottom:15px;">
-        <h3>Order Successful</h3>
-        <p>Your order is waiting for shop acceptance.</p>
-        <div class="popup-actions">
-            <a class="btn btn-primary" href="odetailforcus?id=${sessionScope.newOrder}">OK</a>
-            <a class="btn btn-outline" href="${pageContext.request.contextPath}/Watches">Back to shop</a>
+<c:if test="${requestScope.orderCreated and requestScope.newOrderId > 0}">
+    <div class="popup" id="orderPopup" style="display:none;">
+        <div class="popup-content">
+            <img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" alt="success" style="width:82px;margin-bottom:15px;">
+            <h3>Order Successful</h3>
+            <p>Your order is waiting for shop acceptance.</p>
+            <div class="popup-actions">
+                <a class="btn btn-primary" href="${pageContext.request.contextPath}/odetailforcus?id=${requestScope.newOrderId}">OK</a>
+                <a class="btn btn-outline" href="${pageContext.request.contextPath}/Watches">Back to shop</a>
+            </div>
         </div>
     </div>
-</div>
+</c:if>
 
 <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -187,93 +192,114 @@
         crossorigin="anonymous"></script>
 <script>
     const contextPath = '${pageContext.request.contextPath}';
-    let qrPaymentTimer = null;
-    let qrPaymentLoaded = false;
+    const paymentForm = document.getElementById('checkoutPaymentForm');
+    const codButton = document.getElementById('btnPlaceOrder');
+    const vnpayButton = document.getElementById('btnVnpayPay');
+    const vnpayInfo = document.getElementById('vnpaySandboxInfo');
+    const paymentError = document.getElementById('paymentError');
+    const pendingOrderStorageKey = 'smarttickVnpayPendingOrderId';
+    const navigationEntry = performance.getEntriesByType
+        ? performance.getEntriesByType('navigation')[0] : null;
+    if (!navigationEntry || navigationEntry.type !== 'back_forward') {
+        sessionStorage.removeItem(pendingOrderStorageKey);
+    }
 
-    async function startQrPayment() {
-        const button = document.getElementById('startPaymentButton');
-        const overlay = document.getElementById('qrPaymentOverlay');
-        const status = document.getElementById('qrPaymentStatus');
-        button.disabled = true;
-        overlay.style.display = 'flex';
-        status.className = 'qr-payment-status';
-        status.textContent = 'Creating secure QR code...';
-        qrPaymentLoaded = false;
+    function selectedPaymentMethod() {
+        const selected = paymentForm.querySelector('input[name="paymentMethod"]:checked');
+        return selected ? selected.value : 'cod';
+    }
+
+    function updatePaymentControls() {
+        const isVnpay = selectedPaymentMethod() === 'vnpay_qr';
+        codButton.hidden = isVnpay;
+        vnpayButton.hidden = !isVnpay;
+        vnpayInfo.hidden = !isVnpay;
+    }
+
+    paymentForm.querySelectorAll('input[name="paymentMethod"]').forEach(function (input) {
+        input.addEventListener('change', updatePaymentControls);
+    });
+
+    paymentForm.addEventListener('submit', async function (event) {
+        if (selectedPaymentMethod() !== 'vnpay_qr') {
+            return;
+        }
+        event.preventDefault();
+        paymentError.hidden = true;
+        vnpayButton.disabled = true;
+        vnpayButton.textContent = 'Đang tạo giao dịch...';
+
         try {
-            const response = await fetch(contextPath + '/qr-payment/start', {
+            let orderId = sessionStorage.getItem(pendingOrderStorageKey);
+            if (!orderId) {
+                const orderData = new URLSearchParams(new FormData(paymentForm));
+                orderData.set('buyProductAction', 'placeOrder');
+                orderData.set('paymentMethod', 'vnpay_qr');
+                orderData.set('vnpayCheckout', 'true');
+                const orderResponse = await fetch(paymentForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: orderData.toString(),
+                    credentials: 'same-origin'
+                });
+                const orderResult = await readJsonResponse(orderResponse);
+                if (!orderResponse.ok || !orderResult.success) {
+                    throw new Error(orderResult.message || 'Không thể tạo đơn hàng.');
+                }
+                orderId = String(orderResult.orderId);
+                sessionStorage.setItem(pendingOrderStorageKey, orderId);
+            }
+
+            const createBody = new URLSearchParams();
+            createBody.set('orderId', orderId);
+            const paymentResponse = await fetch(contextPath + '/api/payments/vnpay/create', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
                 },
+                body: createBody.toString(),
                 credentials: 'same-origin'
             });
-            const data = await response.json();
-            if (!response.ok || !data.ok) {
-                throw new Error(data.message || 'Cannot start QR payment.');
-            }
-            document.getElementById('paymentToken').value = data.token;
-            document.getElementById('qrPaymentQr').src = data.qrUrl + '&t=' + Date.now();
-            document.getElementById('qrPaymentAddress').textContent = data.confirmationUrl;
-            status.textContent = 'Waiting for QR scan...';
-            beginPaymentPolling(data.token);
-        } catch (error) {
-            status.className = 'qr-payment-status failed';
-            status.textContent = error.message;
-            button.disabled = false;
-        }
-    }
-
-    function handleQrLoaded() {
-        qrPaymentLoaded = true;
-    }
-
-    function handleQrError() {
-        if (qrPaymentLoaded) {
-            return;
-        }
-        clearInterval(qrPaymentTimer);
-        const status = document.getElementById('qrPaymentStatus');
-        status.className = 'qr-payment-status failed';
-        status.textContent = 'Cannot load the QR image. Publish the project again, then retry.';
-        document.getElementById('startPaymentButton').disabled = false;
-    }
-
-    function beginPaymentPolling(token) {
-        clearInterval(qrPaymentTimer);
-        qrPaymentTimer = setInterval(async function () {
-            try {
-                const response = await fetch(
-                    contextPath + '/qr-payment/status?token=' + encodeURIComponent(token),
-                    {cache: 'no-store', credentials: 'same-origin'}
-                );
-                const data = await response.json();
-                if (data.status === 'PAID') {
-                    clearInterval(qrPaymentTimer);
-                    const status = document.getElementById('qrPaymentStatus');
-                    status.className = 'qr-payment-status paid';
-                    status.textContent = 'Payment confirmed! Creating your order...';
-                    setTimeout(function () {
-                        document.getElementById('placeOrderForm').submit();
-                    }, 700);
-                } else if (data.status === 'EXPIRED' || data.status === 'INVALID') {
-                    clearInterval(qrPaymentTimer);
-                    const status = document.getElementById('qrPaymentStatus');
-                    status.className = 'qr-payment-status failed';
-                    status.textContent = 'QR expired. Close and try again.';
-                    document.getElementById('startPaymentButton').disabled = false;
+            const paymentResult = await readJsonResponse(paymentResponse);
+            if (!paymentResponse.ok || !paymentResult.success || !paymentResult.paymentUrl) {
+                if (paymentResult.code === 'ORDER_NOT_FOUND'
+                        || paymentResult.code === 'ORDER_PAID') {
+                    sessionStorage.removeItem(pendingOrderStorageKey);
                 }
-            } catch (error) {
-                // Keep polling through short local-network interruptions.
+                throw new Error(paymentResult.message || 'Không thể tạo URL thanh toán VNPAY.');
             }
-        }, 1500);
+            window.location.assign(paymentResult.paymentUrl);
+        } catch (error) {
+            paymentError.textContent = error.message;
+            paymentError.hidden = false;
+            vnpayButton.disabled = false;
+            vnpayButton.textContent = 'Thử lại thanh toán VNPAY';
+        }
+    });
+
+    async function readJsonResponse(response) {
+        const responseText = await response.text();
+        try {
+            return JSON.parse(responseText);
+        } catch (error) {
+            console.error("JSON parse failed. Response text:", responseText);
+            if (response.redirected && response.url.indexOf('/customerLogin') !== -1) {
+                throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+            }
+            const snippet = responseText.substring(0, 150);
+            throw new Error(
+                'Máy chủ trả về dữ liệu không hợp lệ (HTTP ' + response.status + '). '
+                + 'Nội dung phản hồi: ' + snippet
+            );
+        }
     }
 
-    function closeQrPayment() {
-        clearInterval(qrPaymentTimer);
-        document.getElementById('qrPaymentOverlay').style.display = 'none';
-        document.getElementById('startPaymentButton').disabled = false;
-    }
+    updatePaymentControls();
 
     function openVoucherModal() {
         new bootstrap.Modal(document.getElementById('voucherModal')).show();
@@ -281,19 +307,12 @@
     function showPopup() {
         document.getElementById('orderPopup').style.display = 'flex';
     }
-    <%
-        String message = (String) session.getAttribute("orderStatus");
-        if (message != null && message.equals("success")) {
-            out.print("showPopup();");
-            session.removeAttribute("orderStatus");
-        }
-    %>
+    <c:if test="${requestScope.orderCreated and requestScope.newOrderId > 0}">
+        showPopup();
+    </c:if>
 </script>
 </body>
 <c:if test="${not empty sessionScope.message}">
     <c:remove var="message" scope="session"/>
-</c:if>
-<c:if test="${not empty sessionScope.newOrder}">
-    <c:remove var="newOrder" scope="session"/>
 </c:if>
 </html>

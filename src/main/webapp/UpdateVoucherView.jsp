@@ -22,18 +22,6 @@
                 border-bottom: 1px solid #eee;
             }
 
-            .form-wrapper {
-                background: #fff;
-                border-radius: 12px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                padding: 30px;
-                margin-top: 30px;
-            }
-
-            .form-label {
-                font-weight: 500;
-            }
-
             .btn i {
                 margin-right: 6px;
             }
@@ -48,16 +36,16 @@
                 </div>
 
                 <!-- Header + Content -->
-                <div class="col-10 p-0">
+                <div class="col-10 p-0 voucher-main-content">
                     <!-- Header -->
                     <div class="fixed-header">
                         <jsp:include page="HeaderDashboard.jsp" />
                     </div>
 
                     <!-- Main Content -->
-                    <div class="row justify-content-center mt-4">
-                        <div class="col-8 col-md-6">
-                            <h2 class="mb-4 text-center">Update Voucher</h2>
+                    <div class="row justify-content-center mt-4 voucher-form-section">
+                        <div class="col-8 col-md-6 voucher-form-column">
+                            <h2 class="voucher-page-title">Update Voucher</h2>
 
                             <c:if test="${not empty error}">
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -66,7 +54,7 @@
                                 </div>
                             </c:if>
 
-                            <div class="form-wrapper">
+                            <div class="form-wrapper voucher-form-wrapper">
                                 <form action="UpdateVoucherServlet" method="post">
                                     <input type="hidden" name="voucherID" value="${voucher.voucherID}" />
 
@@ -79,29 +67,29 @@
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Voucher Type</label>
                                             <select class="form-select" name="voucherType" required>
-                                                <option value="0" ${voucher.voucherType == 0 ? 'selected' : ''}>Percent (%)</option>
-                                                <option value="1" ${voucher.voucherType == 1 ? 'selected' : ''}>Fixed Price</option>
+                                                <option value="1" ${voucher.voucherType == 1 ? 'selected' : ''}>Percent (%)</option>
+                                                <option value="0" ${voucher.voucherType == 0 ? 'selected' : ''}>Fixed Price</option>
                                             </select>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Voucher Value</label>
-                                            <input type="number" name="voucherValue" class="form-control" value="${voucher.voucherValue}" required>
+                                            <input type="number" name="voucherValue" class="form-control" value="${voucher.voucherValue}" min="1" required>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Max Discount Amount</label>
-                                            <input type="number" name="maxDiscountAmount" class="form-control" value="${voucher.maxDiscountAmount}">
+                                            <input type="number" name="maxDiscountAmount" class="form-control" value="${voucher.maxDiscountAmount}" min="0">
                                         </div>
 
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Min Order Value</label>
-                                            <input type="number" name="minOrderValue" class="form-control" value="${voucher.minOrderValue}" required>
+                                            <input type="number" name="minOrderValue" class="form-control" value="${voucher.minOrderValue}" min="0" required>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Used Count</label>
-                                            <input type="number" name="usedCount" class="form-control" value="${voucher.usedCount}">
+                                            <input type="number" name="usedCount" class="form-control" value="${voucher.usedCount}" min="0">
                                         </div>
 
                                         <div class="col-md-6 mb-3">
@@ -118,7 +106,7 @@
 
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Max Used Count</label>
-                                            <input type="number" name="maxUsedCount" class="form-control" value="${voucher.maxUsedCount}">
+                                            <input type="number" name="maxUsedCount" class="form-control" value="${voucher.maxUsedCount}" min="0">
                                         </div>
 
                                         <div class="col-md-6 mb-3">

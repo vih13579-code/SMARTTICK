@@ -72,6 +72,21 @@
             .action-buttons .btn {
                 margin-bottom: 5px;
             }
+
+            .voucher-toolbar {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+            }
+
+            .voucher-search {
+                display: flex;
+                gap: 8px;
+                min-width: 320px;
+            }
         </style>
     </head>
     <body class="admin-ops-page">
@@ -102,13 +117,13 @@
                 </c:if>
   <c:if test="${param.success == 'deletesuccess'}">
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa-solid fa-circle-check me-2"></i> Voucher created successfully!
+                        <i class="fa-solid fa-circle-check me-2"></i> Voucher deleted successfully!
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 </c:if>
                 <c:if test="${param.success == 'deletefailed'}">
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa-solid fa-circle-check me-2"></i> Voucher deleted Unsuccessfully!
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fa-solid fa-circle-exclamation me-2"></i> Voucher could not be deleted.
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 </c:if>
@@ -126,9 +141,20 @@
                 </c:if>
 
                 <!-- Add New -->
-                <a href="CreateVoucherView.jsp" class="btn btn-success mb-3">
-                    <i class="fa-solid fa-plus"></i> Add New Voucher
-                </a>
+                <div class="voucher-toolbar">
+                    <form action="SearchVoucherServlet" method="GET" class="voucher-search">
+                        <input type="text" name="query" value="${searchQuery}" class="form-control" placeholder="Search by code or description">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-magnifying-glass"></i> Search
+                        </button>
+                        <c:if test="${not empty searchQuery}">
+                            <a href="ViewVoucherListServlet" class="btn btn-outline-secondary">Clear</a>
+                        </c:if>
+                    </form>
+                    <a href="CreateVoucherView.jsp" class="btn btn-success">
+                        <i class="fa-solid fa-plus"></i> Add New Voucher
+                    </a>
+                </div>
 
                 <!-- Voucher Table -->
                 <table class="table order-table table-bordered table-hover">
@@ -191,6 +217,11 @@
 
                             </tr>
                         </c:forEach>
+                        <c:if test="${empty Vouchers}">
+                            <tr>
+                                <td colspan="9" class="text-center text-danger fw-bold">No vouchers found!</td>
+                            </tr>
+                        </c:if>
                     </tbody>
                 </table>
             </div>
@@ -199,7 +230,7 @@
         <!-- Delete Confirmation Modal -->
         <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form method="post" action="DeleteVoucherServlet">
+                <form method="post" action="${pageContext.request.contextPath}/DeleteVoucherServlet">
                     <input type="hidden" name="voucherID" id="deleteVoucherId">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -219,14 +250,19 @@
         </div>
 
         <!-- JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+                crossorigin="anonymous"></script>
         <script>
             const deleteModal = document.getElementById('confirmDeleteModal');
-            deleteModal.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                const voucherID = button.getAttribute('data-id');
-                const input = deleteModal.querySelector('#deleteVoucherId');
-                input.value = voucherID;
-            });
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const voucherID = button.getAttribute('data-id');
+                    const input = deleteModal.querySelector('#deleteVoucherId');
+                    input.value = voucherID;
+                });
+            }
         </script>
 
     </body>
