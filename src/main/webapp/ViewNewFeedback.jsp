@@ -52,11 +52,31 @@
             }
 
             .review-card {
-                background: white;
+                background: #303030;
                 padding: 15px;
                 border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                border: 1px solid #484848;
+                box-shadow: none;
                 margin-bottom: 15px;
+                color: #ffffff;
+            }
+
+            body.admin-ops-page .review-card h5,
+            body.admin-ops-page .review-card p,
+            body.admin-ops-page .review-card strong {
+                color: #ffffff !important;
+            }
+
+            body.admin-ops-page .review-card small {
+                color: #b9b9b4 !important;
+            }
+
+            body.admin-ops-page .review-card > p {
+                color: #e1e1dd !important;
+            }
+
+            body.admin-ops-page .review-card > p.hidden-feedback {
+                color: #b9b9b4 !important;
             }
 
             .profile {
@@ -76,7 +96,7 @@
             }
 
             .hidden-feedback {
-                color: gray;
+                color: #b9b9b4;
                 font-style: italic;
             }
 
@@ -88,9 +108,18 @@
                 margin-left: 40px;
                 padding: 10px;
                 border-left: 4px solid #007bff;
-                background: #f1f1f1;
+                background: #3a3a3a;
                 border-radius: 5px;
                 margin-top: 10px;
+                color: #ffffff;
+            }
+
+            body.admin-ops-page .review-card .reply-container strong {
+                color: #ffffff !important;
+            }
+
+            body.admin-ops-page .review-card .reply-container p {
+                color: #ddddda !important;
             }
 
             .reply-form {

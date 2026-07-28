@@ -14,6 +14,7 @@
 <c:set var="isCatalog" value="${fn:contains(uri, 'catalog')}" />
 <c:set var="isCustomer" value="${fn:contains(uri, 'Customer')}" />
 <c:set var="isVoucher" value="${fn:contains(uri, 'Voucher')}" />
+<c:set var="isFeedback" value="${fn:contains(uri, 'Feedback')}" />
 <c:set var="isSupplier" value="${fn:contains(uri, 'Supplier')}" />
 <aside class="dash-side">
     <a class="brand-logo" href="${pageContext.request.contextPath}/admin/dashboard" aria-label="SMARTTICK dashboard">
@@ -42,6 +43,9 @@
         </a>
         <a class="dash-nav-link ${isOrder ? 'active' : ''}" href="${pageContext.request.contextPath}/ViewOrderListServlet">
             <i class="ti-receipt"></i><span>Orders</span>
+        </a>
+        <a class="dash-nav-link ${isFeedback ? 'active' : ''}" href="${pageContext.request.contextPath}/ViewListNewFeedbackServlet">
+            <i class="ti-comment-alt"></i><span>Feedback</span>
         </a>
         <a class="dash-nav-link ${isVoucher ? 'active' : ''}" href="${pageContext.request.contextPath}/ViewVoucherListServlet">
             <i class="ti-ticket"></i><span>Voucher</span>
