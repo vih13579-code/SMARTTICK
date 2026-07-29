@@ -15,17 +15,28 @@
             .profile-container {
                 max-width: 800px;
                 margin: 20px auto;
-                background: white;
+                background: #303030;
                 padding: 40px;
-                border-radius: 10px;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                border: 1px solid #484848;
+                border-radius: 16px;
+                box-shadow: none;
+                color: #ffffff;
+            }
+            body.admin-ops-page .profile-container h3,
+            body.admin-ops-page .profile-container p,
+            body.admin-ops-page .profile-container .info-label {
+                color: #ffffff !important;
+            }
+            body.admin-ops-page .profile-container .text-muted {
+                color: #c9c7bd !important;
             }
             .avatar-preview {
                 width: 180px;
                 height: 180px;
                 border-radius: 50%;
                 object-fit: cover;
-                border: 3px solid #ddd;
+                border: 3px solid #d7bb77;
+                background: #424242;
                 display: block;
                 margin: 0 auto;
             }
@@ -45,7 +56,9 @@
                 align-items: center;
             }
             .popup-content {
-                background-color: white;
+                background-color: #303030;
+                color: #ffffff;
+                border: 1px solid #484848;
                 padding: 30px;
                 border-radius: 8px;
                 text-align: center;

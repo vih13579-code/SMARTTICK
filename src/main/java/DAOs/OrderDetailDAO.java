@@ -63,13 +63,18 @@ public class OrderDetailDAO {
     }
 
     public boolean getCustomerByProductID(int customerId, int productId) {
-        boolean isOk = false;
+        return getReviewableOrderId(customerId, productId) > 0;
+    }
+
+    public int getReviewableOrderId(int customerId, int productId) {
+        int orderId = 0;
         String query = "SELECT CASE "
                 + "WHEN NOT EXISTS (SELECT 1 FROM ProductRatings WHERE CustomerID = ? AND ProductID = ?) "
-                + "AND EXISTS (SELECT 1 FROM OrderDetails od "
-                + "JOIN Orders o ON od.OrderID = o.OrderID "
-                + "WHERE o.CustomerID = ? AND od.ProductID = ? AND o.Status = 4) "
-                + "THEN 1 ELSE 0 END AS CanReview;";
+                + "THEN o.OrderID ELSE 0 END AS ReviewableOrderID "
+                + "FROM Orders o "
+                + "JOIN OrderDetails od ON od.OrderID = o.OrderID "
+                + "WHERE o.CustomerID = ? AND od.ProductID = ? AND o.Status = 4 "
+                + "ORDER BY COALESCE(o.DeliveredDate, o.OrderedDate) DESC, o.OrderID DESC;";
 
         try {
             PreparedStatement pre = connector.prepareStatement(query);
@@ -79,12 +84,12 @@ public class OrderDetailDAO {
             pre.setInt(4, productId);
             ResultSet rs = pre.executeQuery();
             if (rs.next()) {
-                isOk = rs.getBoolean("CanReview");
+                orderId = rs.getInt("ReviewableOrderID");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return isOk;
+        return orderId;
     }
 
     public static void main(String[] args) {

@@ -39,6 +39,11 @@ public class ProductDetailServlet extends HttpServlet {
             request.setAttribute("message", message);
             session.removeAttribute("message");
         }
+        Object successMessage = session.getAttribute("successMessage");
+        if (successMessage != null) {
+            request.setAttribute("successMessage", successMessage);
+            session.removeAttribute("successMessage");
+        }
         request.setAttribute("isOk", canReview);
         request.setAttribute("cartQuantity", cartQuantity);
         request.setAttribute("availableToAdd", Math.max(0, product.getStock() - cartQuantity));
@@ -52,20 +57,41 @@ public class ProductDetailServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Customer customer = (Customer) request.getSession().getAttribute("customer");
+        request.setCharacterEncoding("UTF-8");
+        HttpSession session = request.getSession();
+        Customer customer = (Customer) session.getAttribute("customer");
         if (customer == null) {
             response.sendRedirect(request.getContextPath() + "/customerLogin");
             return;
         }
         int productId = parseInt(request.getParameter("productId"));
+        Product product = new ProductDAO().getProductByID(productId);
+        if (product == null || product.getDeleted() == 1) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
         int star = parseInt(request.getParameter("star"));
         String comment = request.getParameter("comment");
         if (star < 1 || star > 5 || comment == null || comment.trim().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/ProductDetailServlet?id=" + productId + "&review=invalid");
+            session.setAttribute("message", "Please choose a rating and write your review before submitting.");
+            response.sendRedirect(request.getContextPath() + "/ProductDetailServlet?id=" + productId);
             return;
         }
-        new ProductRatingDAO().addProductRating(customer.getId(), productId, star, comment.trim());
-        response.sendRedirect(request.getContextPath() + "/ProductDetailServlet?id=" + productId + "&review=created");
+        OrderDetailDAO orderDetailDAO = new OrderDetailDAO();
+        int orderId = orderDetailDAO.getReviewableOrderId(customer.getId(), productId);
+        if (orderId <= 0) {
+            session.setAttribute("message", "You can review this product after a delivered order, once per product.");
+            response.sendRedirect(request.getContextPath() + "/ProductDetailServlet?id=" + productId);
+            return;
+        }
+        int created = new ProductRatingDAO().addProductRating(
+                customer.getId(), productId, orderId, star, comment.trim());
+        if (created > 0) {
+            session.setAttribute("successMessage", "Thank you. Your review has been submitted.");
+        } else {
+            session.setAttribute("message", "Could not submit your review. Please try again.");
+        }
+        response.sendRedirect(request.getContextPath() + "/ProductDetailServlet?id=" + productId);
     }
 
     private int parseInt(String value) {
