@@ -6,7 +6,6 @@ package Controllers;
 
 import DAOs.ProductRatingDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -54,12 +53,24 @@ public class UpdateStatusCommentServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.setContentType("text/plain;charset=UTF-8");
+        try {
+            int rateID = Integer.parseInt(request.getParameter("rateID"));
+            int isDeleted = Integer.parseInt(request.getParameter("isDeleted"));
+            if (rateID <= 0 || (isDeleted != 0 && isDeleted != 1)) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid feedback status");
+                return;
+            }
 
-        int rateID = Integer.parseInt(request.getParameter("rateID"));
-        int isRead = Integer.parseInt(request.getParameter("isDeleted"));
-
-        ProductRatingDAO prDAO = new ProductRatingDAO();
-        boolean isOk = prDAO.updateStatusComment(rateID, isRead);
+            boolean updated = new ProductRatingDAO().updateStatusComment(rateID, isDeleted);
+            if (!updated) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Feedback not found");
+                return;
+            }
+            response.getWriter().write("Success");
+        } catch (NumberFormatException ex) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid feedback ID");
+        }
     }
 
     /**

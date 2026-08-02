@@ -3,16 +3,22 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/fonts/themify-icons/themify-icons.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css?v=20260702-dashboard">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ops.css?v=20260728-voucher-form">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ops.css?v=20260729-voucher-fix4">
 
 <c:set var="uri" value="${pageContext.request.requestURI}" />
 <c:set var="isDashboard" value="${fn:contains(uri, '/admin/dashboard')}" />
 <c:set var="isStatistic" value="${fn:contains(uri, 'Statistic') || fn:contains(uri, 'Revenue') || fn:contains(uri, 'Inventory')}" />
+<c:set var="isStockReport" value="${fn:contains(uri, 'ExportStock')}" />
 <c:set var="isStockImport" value="${(fn:contains(uri, 'Import') || fn:contains(uri, 'Warehouse')) && !isStatistic}" />
 <c:set var="isOrder" value="${(fn:contains(uri, 'Order') || fn:contains(uri, 'order')) && !isStockImport && !isStatistic}" />
 <c:set var="isProduct" value="${fn:contains(uri, 'Product') && !isStatistic}" />
 <c:set var="isCatalog" value="${fn:contains(uri, 'catalog')}" />
 <c:set var="isCustomer" value="${fn:contains(uri, 'Customer')}" />
+<c:set var="isEmployeeManagement"
+       value="${fn:contains(uri, 'Employee')
+                && !fn:contains(uri, 'Profile')
+                && !fn:contains(uri, 'Password')
+                && !fn:contains(uri, 'Login')}" />
 <c:set var="isVoucher" value="${fn:contains(uri, 'Voucher')}" />
 <c:set var="isFeedback" value="${fn:contains(uri, 'Feedback')}" />
 <c:set var="isSupplier" value="${fn:contains(uri, 'Supplier')}" />
@@ -41,6 +47,9 @@
         <a class="dash-nav-link ${isCustomer ? 'active' : ''}" href="${pageContext.request.contextPath}/CustomerListServlet">
             <i class="ti-user"></i><span>Customers</span>
         </a>
+        <a class="dash-nav-link ${isEmployeeManagement ? 'active' : ''}" href="${pageContext.request.contextPath}/ViewEmployeeServlet">
+            <i class="ti-id-badge"></i><span>Employees</span>
+        </a>
         <a class="dash-nav-link ${isOrder ? 'active' : ''}" href="${pageContext.request.contextPath}/ViewOrderListServlet">
             <i class="ti-receipt"></i><span>Orders</span>
         </a>
@@ -60,6 +69,9 @@
         <span class="dash-nav-group">Reports</span>
         <a class="dash-nav-link ${isStatistic ? 'active' : ''}" href="${pageContext.request.contextPath}/StatisticManagementServlet">
             <i class="ti-bar-chart"></i><span>Statistics</span>
+        </a>
+        <a class="dash-nav-link ${isStockReport ? 'active' : ''}" href="${pageContext.request.contextPath}/ExportStock">
+            <i class="ti-download"></i><span>Export Stock Report</span>
         </a>
         <a class="dash-nav-link dash-logout" href="${pageContext.request.contextPath}/Logout">
             <i class="ti-power-off"></i><span>Log Out</span>

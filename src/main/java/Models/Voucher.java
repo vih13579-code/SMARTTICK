@@ -1,48 +1,38 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Models;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class Voucher {
 
-    private int voucherID;
+    private int voucherId;
     private String voucherCode;
-    private int voucherValue;
-    private int voucherType;
-    private String startDate;
-    private String endDate;
-    private int usedCount;
-    private int maxUsedCount;
-    private int maxDiscountAmount;
-    private int minOrderValue;
-    private int status;
-    private String description;
+    private String type;
+    private BigDecimal value;
+    private BigDecimal maxDiscount;
+    private BigDecimal minOrderValue;
+    private LocalDateTime endDate;
 
     public Voucher() {
     }
 
-    public Voucher(int voucherID, String voucherCode, int voucherValue, int voucherType, String startDate, String endDate, int usedCount, int maxUsedCount, int maxDiscountAmount, int minOrderValue, int status, String description) {
-        this.voucherID = voucherID;
+    public Voucher(int voucherId, String voucherCode, String type, BigDecimal value,
+            BigDecimal maxDiscount, BigDecimal minOrderValue, LocalDateTime endDate) {
+        this.voucherId = voucherId;
         this.voucherCode = voucherCode;
-        this.voucherValue = voucherValue;
-        this.voucherType = voucherType;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.usedCount = usedCount;
-        this.maxUsedCount = maxUsedCount;
-        this.maxDiscountAmount = maxDiscountAmount;
+        this.type = type;
+        this.value = value;
+        this.maxDiscount = maxDiscount;
         this.minOrderValue = minOrderValue;
-        this.status = status;
-        this.description = description;
+        this.endDate = endDate;
     }
 
-    public int getVoucherID() {
-        return voucherID;
+    public int getVoucherId() {
+        return voucherId;
     }
 
-    public void setVoucherID(int voucherID) {
-        this.voucherID = voucherID;
+    public void setVoucherId(int voucherId) {
+        this.voucherId = voucherId;
     }
 
     public String getVoucherCode() {
@@ -53,84 +43,43 @@ public class Voucher {
         this.voucherCode = voucherCode;
     }
 
-    public int getVoucherValue() {
-        return voucherValue;
+    public String getType() {
+        return type;
     }
 
-    public void setVoucherValue(int voucherValue) {
-        this.voucherValue = voucherValue;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public int getVoucherType() {
-        return voucherType;
+    public BigDecimal getValue() {
+        return value;
     }
 
-    public void setVoucherType(int voucherType) {
-        this.voucherType = voucherType;
+    public void setValue(BigDecimal value) {
+        this.value = value;
     }
 
-    public String getStartDate() {
-        return startDate;
+    public BigDecimal getMaxDiscount() {
+        return maxDiscount;
     }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
+    public void setMaxDiscount(BigDecimal maxDiscount) {
+        this.maxDiscount = maxDiscount;
     }
 
-    public String getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
-    }
-
-    public int getUsedCount() {
-        return usedCount;
-    }
-
-    public void setUsedCount(int usedCount) {
-        this.usedCount = usedCount;
-    }
-
-    public int getMaxUsedCount() {
-        return maxUsedCount;
-    }
-
-    public void setMaxUsedCount(int maxUsedCount) {
-        this.maxUsedCount = maxUsedCount;
-    }
-
-    public int getMaxDiscountAmount() {
-        return maxDiscountAmount;
-    }
-
-    public void setMaxDiscountAmount(int maxDiscountAmount) {
-        this.maxDiscountAmount = maxDiscountAmount;
-    }
-
-    public int getMinOrderValue() {
+    public BigDecimal getMinOrderValue() {
         return minOrderValue;
     }
 
-    public void setMinOrderValue(int minOrderValue) {
+    public void setMinOrderValue(BigDecimal minOrderValue) {
         this.minOrderValue = minOrderValue;
     }
 
-    public int getStatus() {
-        return status;
+    public LocalDateTime getEndDate() {
+        return endDate;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
     }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
 }

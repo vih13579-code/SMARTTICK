@@ -1,158 +1,163 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Controllers;
 
 import DAOs.VoucherDAO;
+import DAOs.VoucherDAO.WriteResult;
+import Models.Employee;
 import Models.Voucher;
+import Services.VoucherService;
+import Services.VoucherService.ValidationResult;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import javax.servlet.http.HttpSession;
 
 public class UpdateVoucherServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
+    private static final Logger LOGGER =
+            Logger.getLogger(UpdateVoucherServlet.class.getName());
+    private static final DateTimeFormatter INPUT_DATE_TIME =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+    private final VoucherService voucherService = new VoucherService();
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String id = request.getParameter("voucherID");
-        int voucherId = Integer.parseInt(id);
-        VoucherDAO vDAO = new VoucherDAO();
-
-        Voucher voucher = vDAO.getVoucher(voucherId);
-        voucher.setStartDate(toDateTimeLocalValue(voucher.getStartDate()));
-        voucher.setEndDate(toDateTimeLocalValue(voucher.getEndDate()));
-        request.setAttribute("voucher", voucher);
-        request.getRequestDispatcher("UpdateVoucherView.jsp").forward(request, response);
-
+        Integer voucherId = parseVoucherId(request.getParameter("voucherID"));
+        if (voucherId == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        Voucher voucher = new VoucherDAO().getVoucher(voucherId);
+        if (voucher == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        request.setAttribute("voucherId", voucher.getVoucherId());
+        request.setAttribute("formVoucherCode", voucher.getVoucherCode());
+        request.setAttribute("formType", voucher.getType());
+        request.setAttribute("formValue", voucher.getValue().toPlainString());
+        request.setAttribute("formMaxDiscount", voucher.getMaxDiscount() == null
+                ? "" : voucher.getMaxDiscount().toPlainString());
+        request.setAttribute("formMinOrderValue",
+                voucher.getMinOrderValue().toPlainString());
+        request.setAttribute("formEndDate",
+                voucher.getEndDate().format(INPUT_DATE_TIME));
+        forwardForm(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        Integer voucherId = parseVoucherId(request.getParameter("voucherID"));
+        if (voucherId == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        ValidationResult validation = voucherService.validateForWrite(
+                request.getParameter("voucherCode"),
+                request.getParameter("type"),
+                request.getParameter("value"),
+                request.getParameter("maxDiscount"),
+                request.getParameter("minOrderValue"),
+                request.getParameter("endDate"),
+                LocalDateTime.now());
+        request.setAttribute("voucherId", voucherId);
+        setFormAttributes(request, validation);
+        if (!validation.isValid()) {
+            forwardForm(request, response);
+            return;
+        }
+
+        Voucher voucher = validation.getVoucher();
+        voucher.setVoucherId(voucherId);
+        VoucherDAO voucherDAO = new VoucherDAO();
         try {
-            // Lấy input
-            int voucherID = Integer.parseInt(request.getParameter("voucherID"));
-            String code = request.getParameter("voucherCode").trim();
-            int type = Integer.parseInt(request.getParameter("voucherType"));
-            int value = Integer.parseInt(request.getParameter("voucherValue"));
-            int maxDiscount = parseIntOrDefault(request.getParameter("maxDiscountAmount"), 0);
-            int minOrder = Integer.parseInt(request.getParameter("minOrderValue"));
-
-            String rawStart = request.getParameter("startDate");
-            String rawEnd = request.getParameter("endDate");
-
-            int used = parseIntOrDefault(request.getParameter("usedCount"), 0);
-            int maxUsed = parseIntOrDefault(request.getParameter("maxUsedCount"), 0);
-            int status = Integer.parseInt(request.getParameter("status"));
-            String desc = request.getParameter("description");
-
-            // Parse ngày
-            DateTimeFormatter inputFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-            DateTimeFormatter sqlFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime start = LocalDateTime.parse(rawStart, inputFormat);
-            LocalDateTime end = LocalDateTime.parse(rawEnd, inputFormat);
-            String startDate = start.format(sqlFormat);
-            String endDate = end.format(sqlFormat);
-
-            // ===== VALIDATE =====
-            if (code.length() > 10) {
-                request.setAttribute("error", "Voucher Code must not exceed 10 characters.");
-            } else if (start.isAfter(end)) {
-                request.setAttribute("error", "End date must be after start date.");
-            } else if (value <= 0 || maxDiscount < 0 || minOrder < 0 || used < 0 || maxUsed < 0) {
-                request.setAttribute("error", "Numeric values must be non-negative.");
-            } else if (type == 1 && value > 100) {
-                request.setAttribute("error", "If the voucher type is percent, you cannot set a value greater than 100.");
-            }
-
-            // Nếu có lỗi → quay lại form
-            if (request.getAttribute("error") != null) {
-                Voucher errorVoucher = new Voucher(voucherID, code, value, type,
-                        rawStart, rawEnd, used, maxUsed, maxDiscount, minOrder, status, desc);
-                request.setAttribute("voucher", errorVoucher);
-                request.getRequestDispatcher("UpdateVoucherView.jsp").forward(request, response);
+            if (voucherDAO.existsByCodeExcludingId(voucher.getVoucherCode(), voucherId)) {
+                addCodeDuplicateError(request, validation);
+                forwardForm(request, response);
                 return;
             }
 
-            // Nếu hợp lệ → tiếp tục update
-            Voucher updated = new Voucher(voucherID, code, value, type, startDate, endDate,
-                    used, maxUsed, maxDiscount, minOrder, status, desc);
-
-            VoucherDAO dao = new VoucherDAO();
-            int count = dao.updateVoucher(updated);
-            if (count > 0) {
-                response.sendRedirect("ViewVoucherListServlet?success=updatesuccess");
-            } else {
-                response.sendRedirect("ViewVoucherListServlet?success=updatefailed");
+            WriteResult result = voucherDAO.updateVoucher(voucher);
+            if (result == WriteResult.DUPLICATE_CODE) {
+                addCodeDuplicateError(request, validation);
+                forwardForm(request, response);
+                return;
+            }
+            if (result == WriteResult.NOT_FOUND) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            if (result != WriteResult.SUCCESS) {
+                request.setAttribute("formError",
+                        "The voucher could not be updated. Please try again.");
+                forwardForm(request, response);
+                return;
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("error", "Something went wrong! Please check your inputs.");
-            request.getRequestDispatcher("UpdateVoucherView.jsp").forward(request, response);
+            LOGGER.info("Voucher updated: voucher_code=" + voucher.getVoucherCode()
+                    + ", performed_by=" + auditActor(request));
+            response.sendRedirect(request.getContextPath()
+                    + "/ViewVoucherListServlet?success=updatesuccess");
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE,
+                    "Cannot update voucher " + voucher.getVoucherCode(), ex);
+            request.setAttribute("formError",
+                    "The voucher could not be saved because of a data error. Please try again.");
+            forwardForm(request, response);
         }
     }
 
-    /**
-     * Returns the servlet description.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "SMARTTICK servlet";
-    }// </editor-fold>
-
-    private int parseIntOrDefault(String value, int defaultValue) {
-        if (value == null || value.trim().isEmpty()) {
-            return defaultValue;
+    private Integer parseVoucherId(String rawId) {
+        if (rawId == null || !rawId.trim().matches("[1-9][0-9]*")) {
+            return null;
         }
-        return Integer.parseInt(value);
+        try {
+            return Integer.valueOf(rawId.trim());
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 
-    private String toDateTimeLocalValue(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return "";
-        }
-        String normalized = value.replace(" ", "T");
-        return normalized.length() >= 16 ? normalized.substring(0, 16) : normalized;
+    private void setFormAttributes(HttpServletRequest request, ValidationResult validation) {
+        request.setAttribute("fieldErrors", validation.getErrors());
+        request.setAttribute("formVoucherCode", validation.getVoucherCode());
+        request.setAttribute("formType", validation.getType());
+        request.setAttribute("formValue", validation.getValue());
+        request.setAttribute("formMaxDiscount", validation.getMaxDiscount());
+        request.setAttribute("formMinOrderValue", validation.getMinOrderValue());
+        request.setAttribute("formEndDate", validation.getEndDate());
     }
 
+    private void addCodeDuplicateError(HttpServletRequest request,
+            ValidationResult validation) {
+        Map<String, String> errors = new LinkedHashMap<>(validation.getErrors());
+        errors.put("voucherCode", "Voucher Code already exists.");
+        request.setAttribute("fieldErrors", errors);
+    }
+
+    private void forwardForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.getRequestDispatcher("/UpdateVoucherView.jsp").forward(request, response);
+    }
+
+    private String auditActor(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        Employee employee =
+                session == null ? null : (Employee) session.getAttribute("employee");
+        return employee == null
+                ? "unknown"
+                : employee.getEmployeeId() + ":" + employee.getEmail();
+    }
 }

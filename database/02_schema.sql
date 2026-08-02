@@ -56,6 +56,8 @@ BEGIN TRY
         FullName NVARCHAR(255) NOT NULL,
         Birthday DATE NULL,
         [Password] VARCHAR(64) NOT NULL,
+        HasLocalPassword BIT NOT NULL
+            CONSTRAINT DF_Customers_HasLocalPassword DEFAULT 1,
         PhoneNumber VARCHAR(15) NULL,
         Email VARCHAR(254) NOT NULL CONSTRAINT UQ_Customers_Email UNIQUE,
         Gender NVARCHAR(10) NULL,
@@ -142,19 +144,42 @@ BEGIN TRY
 
     CREATE TABLE dbo.Vouchers (
         VoucherID INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Vouchers PRIMARY KEY,
-        VoucherCode VARCHAR(20) NOT NULL CONSTRAINT UQ_Vouchers_Code UNIQUE,
-        VoucherValue INT NOT NULL,
-        VoucherType INT NOT NULL,
-        StartDate DATETIME NOT NULL,
-        EndDate DATETIME NOT NULL,
-        UsedCount INT NOT NULL CONSTRAINT DF_Vouchers_UsedCount DEFAULT 0,
-        MaxUsedCount INT NOT NULL,
-        MaxDiscountAmount INT NULL,
-        MinOrderValue INT NOT NULL,
-        [Status] INT NOT NULL CONSTRAINT DF_Vouchers_Status DEFAULT 1,
-        Description NVARCHAR(500) NULL,
-        CONSTRAINT CK_Vouchers_Value CHECK (VoucherValue > 0),
-        CONSTRAINT CK_Vouchers_Dates CHECK (EndDate > StartDate)
+        VoucherCode VARCHAR(30) COLLATE Latin1_General_100_CI_AS NOT NULL
+            CONSTRAINT UQ_Vouchers_Code UNIQUE,
+        VoucherType VARCHAR(10) NOT NULL,
+        VoucherValue DECIMAL(18,2) NOT NULL,
+        MaxDiscountAmount DECIMAL(18,2) NULL,
+        MinOrderValue DECIMAL(18,2) NOT NULL,
+        EndDate DATETIME2 NOT NULL,
+        CONSTRAINT CK_Vouchers_Code_Format CHECK (
+            LEN(VoucherCode) BETWEEN 3 AND 30
+            AND VoucherCode COLLATE Latin1_General_100_BIN2 NOT LIKE '%[^A-Z0-9_-]%'
+            AND VoucherCode COLLATE Latin1_General_100_BIN2
+                = UPPER(VoucherCode) COLLATE Latin1_General_100_BIN2
+        ),
+        CONSTRAINT CK_Vouchers_Type CHECK (VoucherType IN ('PERCENT', 'FIXED')),
+        CONSTRAINT CK_Vouchers_Value CHECK (
+            VoucherValue > 0
+            AND (
+                VoucherType <> 'PERCENT'
+                OR (VoucherValue >= 1 AND VoucherValue <= 100)
+            )
+        ),
+        CONSTRAINT CK_Vouchers_MinOrderValue CHECK (
+            MinOrderValue >= 1000
+            AND MinOrderValue % 1000 = 0
+        ),
+        CONSTRAINT CK_Vouchers_MaxDiscount CHECK (
+            (VoucherType = 'FIXED' AND MaxDiscountAmount IS NULL)
+            OR
+            (VoucherType = 'PERCENT'
+             AND MaxDiscountAmount IS NOT NULL
+             AND MaxDiscountAmount >= 1000
+             AND MaxDiscountAmount % 1000 = 0)
+        ),
+        CONSTRAINT CK_Vouchers_FixedMinOrder CHECK (
+            VoucherType <> 'FIXED' OR MinOrderValue >= VoucherValue
+        )
     );
 
     CREATE TABLE dbo.CustomerVoucher (

@@ -8,7 +8,6 @@ import DAOs.ProductRatingDAO;
 import DAOs.RatingRepliesDAO;
 import Models.RatingReplies;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +55,7 @@ public class DeleteReplyServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.setContentType("text/plain;charset=UTF-8");
         String replyID = request.getParameter("replyID");
 
         try {
@@ -64,18 +64,19 @@ public class DeleteReplyServlet extends HttpServlet {
             RatingRepliesDAO rrDAO = new RatingRepliesDAO();
             RatingReplies r = rrDAO.getReplyByRepyID(id);
             if (r == null) {
-                response.sendRedirect("ViewListNewFeedbackServlet?success=failed");
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Reply not found");
                 return;
             }
-            prDAO.markReplyAsUnRead(r.getRateID());
             boolean isdelete = rrDAO.DeleteRatingReply(id);
             if (isdelete) {
-                response.sendRedirect("ViewFeedbackForManagerServlet?rateID="+r.getRateID()+"&success=success");
+                prDAO.markReplyAsUnRead(r.getRateID());
+                response.getWriter().write("Success");
             } else {
-                  response.sendRedirect("ViewFeedbackForManagerServlet?rateID="+r.getRateID()+"&success=failed");
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not delete reply");
             }
 
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid reply ID");
         }
     }
 

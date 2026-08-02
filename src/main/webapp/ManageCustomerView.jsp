@@ -214,13 +214,18 @@
             <div class="content">
                 <div class="hi">
                 <jsp:include page="HeaderDashboard.jsp"></jsp:include>
+                    <div class="admin-page-title">
+                        <div>
+                            <h1>Customers</h1>
+                            <p>Search customer accounts and review account status.</p>
+                        </div>
+                    </div>
                     <form action="CustomerListServlet" method="get" class="search-container">
                         <input type="text" name="txt" value="${param.txt}" placeholder="Search by name..." class="search-input">
                     <button type="submit" class="search-button">
                         🔍
                     </button>
                 </form>
-                <h3 class="h3" font-weight="Bold">CUSTOMER</h3>
             </div>
 
             <div class="table-container">

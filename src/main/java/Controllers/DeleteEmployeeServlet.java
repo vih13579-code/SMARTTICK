@@ -17,12 +17,15 @@ public class DeleteEmployeeServlet extends HttpServlet {
             EmployeeDAO employeeDAO = new EmployeeDAO();
             int result = employeeDAO.blockEmployee(employeeId);
             if (result > 0) {
-                response.sendRedirect("ViewEmployeeServlet?success=deletesuccess");
+                response.sendRedirect(request.getContextPath()
+                        + "/ViewEmployeeServlet?success=deletesuccess");
             } else {
-                response.sendRedirect("ViewEmployeeServlet?success=deletefailed");
+                response.sendRedirect(request.getContextPath()
+                        + "/ViewEmployeeServlet?success=deletefailed");
             }
         } catch (NumberFormatException e) {
-            response.sendRedirect("ViewEmployeeServlet?success=deletefailed");
+            response.sendRedirect(request.getContextPath()
+                    + "/ViewEmployeeServlet?success=deletefailed");
         }
     }
 

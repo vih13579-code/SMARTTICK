@@ -96,6 +96,12 @@
 
             <div class="content">
             <jsp:include page="HeaderDashboard.jsp"></jsp:include>
+                <div class="admin-page-title">
+                    <div>
+                        <h1>Customer Details</h1>
+                        <p>Review account information and purchase history.</p>
+                    </div>
+                </div>
                 <div class="container my-4">
                     <!-- Customer Details Card -->
                     <div class="card">

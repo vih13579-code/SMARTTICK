@@ -6,6 +6,7 @@ package DAOs;
 
 import DB.DBContext;
 import Models.Customer;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -28,7 +29,7 @@ public class CustomerDAO {
             MessageDigest md = MessageDigest.getInstance("MD5");
 
             // Băm chuỗi đầu vào và trả về kết quả dạng byte[]
-            byte[] hashBytes = md.digest(input.getBytes());
+            byte[] hashBytes = md.digest(input.getBytes(StandardCharsets.UTF_8));
 
             // Chuyển đổi byte[] thành chuỗi hexadecimal
             StringBuilder hexString = new StringBuilder();
@@ -48,13 +49,13 @@ public class CustomerDAO {
     public int requestToDeleteAccount(int id) {
         try {
             PreparedStatement pr = connector.prepareStatement(
-                    "Update Customers SET IsDeleted = 1 Where CustomerID = ?");
+                    "UPDATE Customers SET IsDeleted = 1 WHERE CustomerID = ? AND IsDeleted = 0");
             pr.setInt(1, id);
 
             int rs = pr.executeUpdate();
             return rs;
         } catch (SQLException e) {
-            System.out.println("Lỗi khi xoa khach hang: " + e.getMessage());
+            System.out.println("Failed to delete customer: " + e.getMessage());
         }
         return 0;
     }
@@ -62,7 +63,9 @@ public class CustomerDAO {
     public int cofirmPassword(int id, String password) {
         String pass = null;
         try {
-            PreparedStatement pr = connector.prepareStatement("SELECT Password FROM Customers WHERE CustomerID = ?;");
+            PreparedStatement pr = connector.prepareStatement(
+                    "SELECT Password FROM Customers "
+                    + "WHERE CustomerID = ? AND HasLocalPassword = 1;");
             pr.setInt(1, id);
             ResultSet rs = pr.executeQuery();
             if (rs.next()) {
@@ -77,17 +80,37 @@ public class CustomerDAO {
         return 0;
     }
 
+    public boolean confirmPassword(int id, String password) {
+        return cofirmPassword(id, password) > 0;
+    }
+
+    public boolean hasLocalPassword(int id) {
+        String sql = "SELECT HasLocalPassword AS HasPassword "
+                + "FROM Customers WHERE CustomerID = ? AND IsDeleted = 0";
+        try (PreparedStatement statement = connector.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            try (ResultSet rs = statement.executeQuery()) {
+                return rs.next() && rs.getBoolean("HasPassword");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerDAO.class.getName()).log(
+                    Level.SEVERE, "Could not read password state for customer " + id, ex);
+            return false;
+        }
+    }
+
     public int changeCustomerPassword(int id, String newPass) {
         try {
             PreparedStatement pr = connector.prepareStatement(
-                    "Update Customers SET Password = ? Where CustomerID = ?");
+                    "UPDATE Customers SET Password = ?, HasLocalPassword = 1 "
+                    + "WHERE CustomerID = ? AND IsDeleted = 0");
             pr.setString(1, getMD5(newPass));
             pr.setInt(2, id);
 
             int rs = pr.executeUpdate();
             return rs;
         } catch (SQLException e) {
-            System.out.println("Lỗi khi thêm khách hàng: " + e.getMessage());
+            System.out.println("Failed to update customer password: " + e.getMessage());
         }
         return 0;
     }
@@ -123,7 +146,8 @@ public class CustomerDAO {
     }
 
     public Customer getCustomerLogin(String email, String password) {
-        String sql = "SELECT * FROM Customers WHERE Email = ? AND Password = ?";
+        String sql = "SELECT * FROM Customers "
+                + "WHERE Email = ? AND Password = ? AND HasLocalPassword = 1";
         try (PreparedStatement ps = connector.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, getMD5(password));
@@ -187,8 +211,9 @@ public class CustomerDAO {
     public int addNewCustomer(Customer ctm) {
         try {
             PreparedStatement pr = connector.prepareStatement(
-                    "INSERT INTO Customers (FullName, [Password], Email, CreatedDate, GoogleID, IsBlock, IsDeleted, Avatar) "
-                            + "VALUES (?, ?, ?, GETDATE(), '', 0, 0, '');");
+                    "INSERT INTO Customers (FullName, [Password], HasLocalPassword, Email, "
+                    + "CreatedDate, GoogleID, IsBlock, IsDeleted, Avatar) "
+                    + "VALUES (?, ?, 1, ?, GETDATE(), '', 0, 0, '');");
             pr.setString(1, ctm.getFullName());
             pr.setString(2, getMD5(ctm.getPassword()));
             pr.setString(3, ctm.getEmail());
@@ -196,7 +221,7 @@ public class CustomerDAO {
             int rs = pr.executeUpdate();
             return rs;
         } catch (SQLException e) {
-            System.out.println("Lỗi khi thêm khách hàng: " + e.getMessage());
+            System.out.println("Failed to add customer: " + e.getMessage());
         }
         return 0;
     }
@@ -204,8 +229,9 @@ public class CustomerDAO {
     public int addNewGoogleCustomer(Customer ctm) {
         try {
             PreparedStatement pr = connector.prepareStatement(
-                    "INSERT INTO Customers (FullName, Email, Password, CreatedDate, GoogleID, IsBlock, IsDeleted, Avatar)"
-                            + "VALUES (?, ?, '', GETDATE(), ?, 0, 0, ?);");
+                    "INSERT INTO Customers (FullName, Email, Password, HasLocalPassword, "
+                    + "CreatedDate, GoogleID, IsBlock, IsDeleted, Avatar)"
+                    + "VALUES (?, ?, '', 0, GETDATE(), ?, 0, 0, ?);");
             pr.setString(1, ctm.getFullName());
             pr.setString(2, ctm.getEmail());
             pr.setString(3, ctm.getGoogleId());
@@ -213,7 +239,7 @@ public class CustomerDAO {
             int rs = pr.executeUpdate();
             return rs;
         } catch (SQLException e) {
-            System.out.println("Lỗi khi thêm khách hàng: " + e.getMessage());
+            System.out.println("Failed to add Google customer: " + e.getMessage());
         }
         return 0;
     }
@@ -324,7 +350,7 @@ public class CustomerDAO {
             int rs = pr.executeUpdate();
             return rs;
         } catch (SQLException e) {
-            System.out.println("Lỗi khi thêm khách hàng: " + e.getMessage());
+            System.out.println("Failed to update customer profile: " + e.getMessage());
         }
         return 0;
     }
@@ -410,7 +436,8 @@ public class CustomerDAO {
 
     // update pass - reset pass
     public boolean updatePassword(String email, String newPassword) {
-        String sql = "UPDATE Customers SET Password = ? WHERE Email = ?";
+        String sql = "UPDATE Customers SET Password = ?, HasLocalPassword = 1 "
+                + "WHERE Email = ? AND IsDeleted = 0";
         try (
                 PreparedStatement ps = connector.prepareStatement(sql)) {
             ps.setString(1, getMD5(newPassword));
@@ -487,7 +514,8 @@ public class CustomerDAO {
     }
 
     public String getCurrentPassword(String email) {
-        String sql = "SELECT Password FROM Customers WHERE Email = ?";
+        String sql = "SELECT Password FROM Customers "
+                + "WHERE Email = ? AND HasLocalPassword = 1";
         try (PreparedStatement ps = connector.prepareStatement(sql)) {
 
             ps.setString(1, email);

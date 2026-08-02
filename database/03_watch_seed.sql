@@ -117,9 +117,9 @@ BEGIN TRY
     INSERT INTO dbo.OrderStatus(ID,[Status]) VALUES
     (1,N'Pending Confirmation'),(2,N'Confirmed'),(3,N'Shipping'),(4,N'Delivered'),(5,N'Canceled');
 
-    INSERT INTO dbo.Vouchers(VoucherCode,VoucherValue,VoucherType,StartDate,EndDate,UsedCount,MaxUsedCount,MaxDiscountAmount,MinOrderValue,[Status],Description) VALUES
-    ('FWELCOME',10,1,DATEADD(DAY,-1,GETDATE()),DATEADD(MONTH,6,GETDATE()),0,500,500000,2000000,1,N'10% off for FWatch customers'),
-    ('FREESHIP',50000,0,DATEADD(DAY,-1,GETDATE()),DATEADD(MONTH,3,GETDATE()),0,300,50000,1000000,1,N'Shipping fee support');
+    INSERT INTO dbo.Vouchers(VoucherCode,VoucherType,VoucherValue,MaxDiscountAmount,MinOrderValue,EndDate) VALUES
+    ('FWELCOME','PERCENT',10,500000,2000000,DATEADD(MONTH,6,SYSDATETIME())),
+    ('FREESHIP','FIXED',50000,NULL,1000000,DATEADD(MONTH,3,SYSDATETIME()));
     INSERT INTO dbo.CustomerVoucher(CustomerID,VoucherID,ExpirationDate,Quantity)
     SELECT c.CustomerID,v.VoucherID,v.EndDate,1
     FROM dbo.Customers c CROSS JOIN dbo.Vouchers v

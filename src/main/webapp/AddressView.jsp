@@ -336,6 +336,7 @@
                                         // Kiểm tra nếu không null và chuyển thành mảng String[]
                                         if (arrObj instanceof String[]) {
                                             String[] arr = (String[]) arrObj;
+                                            if (arr.length >= 3) {
 
                                             // Xử lý mảng theo thuật toán của bạn
                                             String province = arr[arr.length - 1];
@@ -349,13 +350,21 @@
                                                 address += arr[i] + ",";
 
                                             }
-                                            address = address.substring(0, address.length() - 1);
+                                            if (!address.isEmpty()) {
+                                                address = address.substring(0, address.length() - 1);
+                                            }
 
                                             // Trả kết quả lại JSTL
                                             request.setAttribute("province", province);
                                             request.setAttribute("district", district);
                                             request.setAttribute("commune", commune);
                                             request.setAttribute("address", address);
+                                            } else {
+                                                request.setAttribute("province", "");
+                                                request.setAttribute("district", "");
+                                                request.setAttribute("commune", "");
+                                                request.setAttribute("address", String.join(",", arr).trim());
+                                            }
                                         }
                                     %>
 
@@ -551,14 +560,14 @@
                         // Đợi API tải xong rồi mới render
                         axios(Parameter)
                                 .then(function (result) {
-                                    console.log("Dữ liệu API:", result.data); // Debug dữ liệu
+                                    console.log("Address API data:", result.data); // Debug data
                                     allData = result.data;
                                     if (allData.length > 0) {
                                         renderCity(allData);
                                     }
                                 })
                                 .catch(function (error) {
-                                    console.error("Lỗi tải dữ liệu: ", error);
+                                    console.error("Failed to load address data:", error);
                                 });
 
 
@@ -575,10 +584,10 @@
                         };
 
                         function renderCity(data) {
-                            console.log("Render City Data: ", data); // Kiểm tra dữ liệu có vào không
+                            console.log("Render city data:", data); // Verify loaded data
                             for (const x of data) {
                                 let translatedName = translateLocation(x.Name);
-                                console.log("Add tỉnh/thành phố:", translatedName); // Kiểm tra dữ liệu sau khi dịch
+                                console.log("Add city or province:", translatedName); // Verify translated data
                                 citis.options[citis.options.length] = new Option(translatedName, translatedName);
                             }
                         }

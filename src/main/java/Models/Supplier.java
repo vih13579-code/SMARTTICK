@@ -123,9 +123,11 @@ public class Supplier {
     }
 
     public String getShortedAddress() {
+        if (address == null || address.trim().isEmpty()) {
+            return "";
+        }
         String[] fullAddress = address.split(",");
-        String shortedAddress = fullAddress[fullAddress.length - 1];
-        return shortedAddress;
+        return fullAddress[fullAddress.length - 1].trim();
     }
 
 }

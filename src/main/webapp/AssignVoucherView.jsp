@@ -1,120 +1,70 @@
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Assign Voucher</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-
-    <style>
-        .fixed-header {
-            position: fixed;
-            top: 0;
-            left: 250px;
-            width: calc(100% - 250px);
-            background-color: white;
-            z-index: 1050;
-            padding: 10px 20px;
-            /*box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);*/
-        }
-
-        .sidebar-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100vh;
-            background-color: white;
-            z-index: 1100;
-            padding-top: 0px;
-        }
-
-        .content {
-            margin-left: 250px;
-            margin-top: 120px;
-            padding: 20px;
-        }
-
-        .form-wrapper {
-          
-            align-content: center;
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            /*box-shadow: 0 0 10px rgba(0,0,0,0.1);*/
-            margin-left: 350px;
-        }
-
-        .form-wrapper h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .btn i {
-            margin-right: 6px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Assign Voucher | SMARTTICK</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
-<body class="admin-ops-page">
+<body class="admin-ops-page voucher-admin-page">
+    <jsp:include page="SidebarDashboard.jsp"/>
 
-<div class="sidebar-container">
-    <jsp:include page="SidebarDashboard.jsp" />
-</div>
+    <main class="content">
+        <jsp:include page="HeaderDashboard.jsp"/>
 
-<div class="fixed-header">
-    <jsp:include page="HeaderDashboard.jsp" />
-</div>
-
-<div class="content">
-    <div class="form-wrapper">
-        <h2>Assign Voucher to ${customer.fullName}</h2>
+        <div class="admin-page-title">
+            <div>
+                <h1>Assign Voucher</h1>
+                <p>Assign a saved promotion to <c:out value="${customer.fullName}"/>.</p>
+            </div>
+            <a class="btn btn-secondary" href="${pageContext.request.contextPath}/CustomerListServlet">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </a>
+        </div>
 
         <c:if test="${not empty error}">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fa-solid fa-triangle-exclamation me-2"></i> ${error}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+            <div class="alert alert-danger"><c:out value="${error}"/></div>
         </c:if>
 
-        <form action="AssignVoucherServlet" method="post">
-            <input type="hidden" name="customerID" value="${customer.id}" />
-
-            <div class="mb-3">
-                <label class="form-label">Voucher</label>
-                <select name="voucherID" class="form-select" required>
-                    <c:forEach items="${vouchers}" var="v">
-                        <option value="${v.voucherID}">${v.voucherCode}</option>
-                    </c:forEach>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Quantity</label>
-                <input type="number" name="quantity" class="form-control" value="1" min="1" max="2" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Expiration Date</label>
-                <input type="datetime-local" name="expirationDate" class="form-control">
-            </div>
-
-            <div class="text-center">
-                <button class="btn btn-success" type="submit">
-                    <i class="fa-solid fa-ticket"></i> Assign Voucher
-                </button>
-<!--                <a href="CustomerListServlet" class="btn btn-secondary ms-2">
-                    <i class="fa-solid fa-arrow-left"></i> Back
-                </a>-->
-            </div>
-        </form>
-    </div>
-</div>
-
+        <section class="voucher-form-wrapper">
+            <form action="${pageContext.request.contextPath}/AssignVoucherServlet" method="post">
+                <input type="hidden" name="customerID" value="${customer.id}">
+                <div class="voucher-form-grid">
+                    <div class="voucher-field wide">
+                        <label class="form-label" for="voucherID">Voucher</label>
+                        <select class="form-select" id="voucherID" name="voucherID" required>
+                            <c:forEach items="${vouchers}" var="voucher">
+                                <option value="${voucher.voucherId}">
+                                    <c:out value="${voucher.voucherCode}"/> — <c:out value="${voucher.type}"/>
+                                </option>
+                            </c:forEach>
+                        </select>
+                        <c:if test="${empty vouchers}">
+                            <div class="field-error">No unexpired voucher is available.</div>
+                        </c:if>
+                    </div>
+                    <div class="voucher-field">
+                        <label class="form-label" for="quantity">Quantity</label>
+                        <input class="form-control" id="quantity" type="number" name="quantity"
+                               value="1" min="1" max="2" step="1" required>
+                    </div>
+                    <div class="voucher-field">
+                        <label class="form-label" for="expirationDate">Customer Expiration Date</label>
+                        <input class="form-control" id="expirationDate" type="datetime-local"
+                               name="expirationDate">
+                        <small class="field-hint">Optional; cannot exceed the voucher End Date.</small>
+                    </div>
+                </div>
+                <div class="voucher-form-actions">
+                    <button class="btn btn-primary" type="submit" ${empty vouchers ? 'disabled' : ''}>
+                        <i class="fa-solid fa-ticket"></i> Assign Voucher
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
 </body>
 </html>

@@ -95,7 +95,7 @@
                                             <c:when test="${c.createdDate != null}">
                                                 <fmt:formatDate value="${c.createdDate}" pattern="dd/MM/yyyy"/>
                                             </c:when>
-                                            <c:otherwise>â€”</c:otherwise>
+                                            <c:otherwise>&mdash;</c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td>
@@ -181,7 +181,7 @@
                                             <c:when test="${b.createdDate != null}">
                                                 <fmt:formatDate value="${b.createdDate}" pattern="dd/MM/yyyy"/>
                                             </c:when>
-                                            <c:otherwise>â€”</c:otherwise>
+                                            <c:otherwise>&mdash;</c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td>
@@ -344,14 +344,14 @@ function paginate(tbodyId, paginationId, page) {
     const from = total === 0 ? 0 : (page-1)*PAGE_SIZE + 1;
     const to = Math.min(page*PAGE_SIZE, total);
 
-    let html = '<span class="page-info">Showing ' + from + 'â€“' + to + ' / ' + total + '</span>';
+    let html = '<span class="page-info">Showing ' + from + '&ndash;' + to + ' / ' + total + '</span>';
     if (pages > 1) {
         html += '<div class="page-btns">';
-        html += '<button class="page-btn" onclick="paginate(\''+tbodyId+'\',\''+paginationId+'\','+(page-1)+')" '+(page===1?'disabled':'')+'>â€¹</button>';
+        html += '<button class="page-btn" onclick="paginate(\''+tbodyId+'\',\''+paginationId+'\','+(page-1)+')" '+(page===1?'disabled':'')+'>&lsaquo;</button>';
         for (let i = 1; i <= pages; i++) {
             html += '<button class="page-btn'+(i===page?' active':'')+'" onclick="paginate(\''+tbodyId+'\',\''+paginationId+'\','+i+')">'+i+'</button>';
         }
-        html += '<button class="page-btn" onclick="paginate(\''+tbodyId+'\',\''+paginationId+'\','+(page+1)+')" '+(page===pages?'disabled':'')+'>â€º</button>';
+        html += '<button class="page-btn" onclick="paginate(\''+tbodyId+'\',\''+paginationId+'\','+(page+1)+')" '+(page===pages?'disabled':'')+'>&rsaquo;</button>';
         html += '</div>';
     }
     pag.innerHTML = html;

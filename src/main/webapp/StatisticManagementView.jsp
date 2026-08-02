@@ -110,6 +110,12 @@
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>  
             <div class="content">
                 <jsp:include page="HeaderDashboard.jsp"></jsp:include>
+            <div class="admin-page-title">
+                <div>
+                    <h1>Statistics</h1>
+                    <p>Open detailed reports and review the current sales leaders.</p>
+                </div>
+            </div>
             <div class="container mt-4">
                 <div class="row mt-4 g-4 justify-content-center">
                     <div class="row justify-content-center text-center">

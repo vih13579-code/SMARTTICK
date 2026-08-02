@@ -124,21 +124,32 @@
             <div class="content">
             <jsp:include page="HeaderDashboard.jsp"></jsp:include>
                 <div class="table-container" style="margin-top: 20px">
-                    <div class="table-navigate">
-                        <h3>Import Stock History</h3>
+                    <div class="admin-page-title">
+                        <div>
+                            <h1>Import Stock History</h1>
+                            <p>Filter completed imports and open their product details.</p>
+                        </div>
                         <button class="btn btn-detail" data-bs-toggle="modal" data-bs-target="#importOrderModal" style="background-color: #BDF3BD; height: 100%;" onclick="window.location.href = 'ImportStock'">Create</button>
                         <!--<button id="openModalBtn" class="btn btn-detail" style="background-color: #BDF3BD; height: 100%">Create</button>-->
                     </div>
+                    <c:if test="${not empty sessionScope.importSuccess}">
+                        <div class="alert alert-success"><c:out value="${sessionScope.importSuccess}"/></div>
+                        <c:remove var="importSuccess" scope="session"/>
+                    </c:if>
+                    <c:if test="${not empty sessionScope.importError}">
+                        <div class="alert alert-danger"><c:out value="${sessionScope.importError}"/></div>
+                        <c:remove var="importError" scope="session"/>
+                    </c:if>
                     <!--
                     <input type="text" id="searchInput" class="form-control search-box" placeholder="Find by name ..." value="${searchValue}">-->
                 <div class="table-navigate" style="margin-top: 20px">
                     <div class="table-navigate">
-                        <form method="GET" action="ImportOrder" style="display: flex;">
+                        <form method="GET" action="ImportOrder" class="admin-filter-form">
                             <label for="startDate" class="me-2">From:</label>
-                            <input name="fromDate" type="date" id="startDate" class="form-control me-3">
+                            <input name="fromDate" type="date" id="startDate" class="form-control me-3" value="<c:out value='${param.fromDate}'/>">
 
                             <label for="endDate" class="me-2">To:</label>
-                            <input name="toDate" type="date" id="endDate" class="form-control me-3">
+                            <input name="toDate" type="date" id="endDate" class="form-control me-3" value="<c:out value='${param.toDate}'/>">
 
                             <!--<button type="submit" onclick="filterByDate()" class="btn btn-primary">Filter</button>-->
                             <button type="submit" class="btn btn-primary">Filter</button>
@@ -165,7 +176,12 @@
                                 <td>${i.getPriceFormatted()}</td>
                                 <td  style="word-wrap: break-word; white-space: normal; max-width: 200px;">${i.getSupplier().getName()}</td>
                                 <td>
-                                    <a href="ImportOrder?id=${i.getIoid()}" class="btn btn-detail" style="background-color: #BDF3BD">Detail</a>
+                                    <a href="${pageContext.request.contextPath}/ImportOrder?id=${i.ioid}" class="btn btn-detail" style="background-color: #BDF3BD">Detail</a>
+                                    <a href="${pageContext.request.contextPath}/UpdateImportOrder?id=${i.ioid}" class="btn btn-warning">Update</a>
+                                    <form method="post" action="${pageContext.request.contextPath}/DeleteImportOrder" style="display: inline" onsubmit="return confirm('Delete import order #${i.ioid}? Stock quantities will be adjusted.');">
+                                        <input type="hidden" name="importId" value="${i.ioid}">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                         </c:forEach>

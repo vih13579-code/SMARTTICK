@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DAOs;
 
 import DB.DBContext;
@@ -11,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,219 +15,183 @@ import java.util.logging.Logger;
 
 public class SupplierDAO {
 
-    DBContext db = new DBContext();
-    Connection connector = db.getConnection();
+    private static final Logger LOGGER = Logger.getLogger(SupplierDAO.class.getName());
+    private final DBContext db = new DBContext();
 
     public ArrayList<Supplier> getAllSuppliers() {
-        ArrayList<Supplier> list = new ArrayList<>();
-
-        String query = "SELECT * FROM Suppliers WHERE IsDeleted = 0 ORDER BY IsActivate DESC";
-
-        try {
-            PreparedStatement ps = connector.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                list.add(new Supplier(
-                        rs.getInt("SupplierID"),
-                        rs.getString("TaxID"),
-                        rs.getString("Name"),
-                        rs.getString("Email"),
-                        rs.getString("PhoneNumber"),
-                        rs.getString("Address"),
-                        rs.getTimestamp("CreatedDate").toLocalDateTime(),
-                        rs.getTimestamp("LastModify").toLocalDateTime(),
-                        rs.getInt("IsDeleted"),
-                        rs.getInt("IsActivate")
-                ));
+        ArrayList<Supplier> suppliers = new ArrayList<>();
+        String sql = "SELECT * FROM Suppliers "
+                + "WHERE IsDeleted = 0 "
+                + "ORDER BY IsActivate DESC, Name ASC";
+        try (Connection connection = db.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                suppliers.add(mapSupplier(result));
             }
-            return list;
-        } catch (SQLException e) {
-            System.out.println(e);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Cannot load suppliers.", ex);
         }
-
-        return list;
+        return suppliers;
     }
 
     public ArrayList<Supplier> getAllActivatedSuppliers() {
-        ArrayList<Supplier> list = new ArrayList<>();
-
-        String query = "SELECT * FROM Suppliers WHERE IsDeleted = 0 AND IsActivate = 1";
-
-        try {
-            PreparedStatement ps = connector.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                list.add(new Supplier(
-                        rs.getInt("SupplierID"),
-                        rs.getString("TaxID"),
-                        rs.getString("Name"),
-                        rs.getString("Email"),
-                        rs.getString("PhoneNumber"),
-                        rs.getString("Address"),
-                        rs.getTimestamp("CreatedDate").toLocalDateTime(),
-                        rs.getTimestamp("LastModify").toLocalDateTime(),
-                        rs.getInt("IsDeleted"),
-                        rs.getInt("IsActivate")
-                ));
+        ArrayList<Supplier> suppliers = new ArrayList<>();
+        String sql = "SELECT * FROM Suppliers "
+                + "WHERE IsDeleted = 0 AND IsActivate = 1 "
+                + "ORDER BY Name ASC";
+        try (Connection connection = db.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                suppliers.add(mapSupplier(result));
             }
-            return list;
-        } catch (SQLException e) {
-            System.out.println(e);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Cannot load active suppliers.", ex);
         }
-
-        return list;
+        return suppliers;
     }
 
     public Supplier getSupplierByID(int supplierId) {
-        Supplier s = null;
-
-        String query = "SELECT * FROM Suppliers WHERE SupplierId = ?";
-
-        try {
-            PreparedStatement ps = connector.prepareStatement(query);
-            ps.setInt(1, supplierId);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                s = new Supplier(
-                        rs.getInt("SupplierID"),
-                        rs.getString("TaxID"),
-                        rs.getString("Name"),
-                        rs.getString("Email"),
-                        rs.getString("PhoneNumber"),
-                        rs.getString("Address"),
-                        rs.getTimestamp("CreatedDate").toLocalDateTime(),
-                        rs.getTimestamp("LastModify").toLocalDateTime(),
-                        rs.getInt("IsDeleted"),
-                        rs.getInt("IsActivate")
-                );
+        String sql = "SELECT * FROM Suppliers "
+                + "WHERE SupplierID = ? AND IsDeleted = 0";
+        try (Connection connection = db.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, supplierId);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next() ? mapSupplier(result) : null;
             }
-            return s;
-        } catch (SQLException e) {
-            System.out.println(e);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Cannot load supplier " + supplierId + ".", ex);
+            return null;
         }
-
-        return s;
     }
 
     public Supplier getSupplierByTaxID(String supplierTaxId) {
-        Supplier s = null;
-
-        String query = "SELECT * FROM Suppliers WHERE TaxID = ?";
-
-        try {
-            PreparedStatement ps = connector.prepareStatement(query);
-            ps.setString(1, supplierTaxId);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                s = new Supplier(
-                        rs.getInt("SupplierID"),
-                        rs.getString("TaxID"),
-                        rs.getString("Name"),
-                        rs.getString("Email"),
-                        rs.getString("PhoneNumber"),
-                        rs.getString("Address"),
-                        rs.getTimestamp("CreatedDate").toLocalDateTime(),
-                        rs.getTimestamp("LastModify").toLocalDateTime(),
-                        rs.getInt("IsDeleted"),
-                        rs.getInt("IsActivate")
-                );
+        String sql = "SELECT * FROM Suppliers "
+                + "WHERE TaxID = ? AND IsDeleted = 0";
+        try (Connection connection = db.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, supplierTaxId);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next() ? mapSupplier(result) : null;
             }
-            return s;
-        } catch (SQLException e) {
-            System.out.println(e);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Cannot load supplier by tax ID.", ex);
+            return null;
         }
-
-        return s;
     }
 
-    public int createSupplier(Supplier s) {
-
-        String query = "INSERT INTO Suppliers (TaxID, [Name], Email, PhoneNumber, Address, CreatedDate, LastModify, IsDeleted, IsActivate) VALUES (?, ?, ?, ?, ?, GETDATE(), GETDATE(), 0, ?)";
-        try {
-            PreparedStatement ps = connector.prepareStatement(query);
-            ps.setString(1, s.getTaxId());
-            ps.setString(2, s.getName());
-            ps.setString(3, s.getEmail());
-            ps.setString(4, s.getPhoneNumber());
-            ps.setString(5, s.getAddress());
-            ps.setInt(6, s.getActivate());
-
-            return ps.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e);
+    public boolean taxIdExists(String taxId, int excludedSupplierId) {
+        String sql = "SELECT 1 FROM Suppliers "
+                + "WHERE TaxID = ? AND SupplierID <> ?";
+        try (Connection connection = db.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, taxId);
+            statement.setInt(2, excludedSupplierId);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next();
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Cannot validate supplier tax ID.", ex);
+            return true;
         }
-
-        return 0;
     }
 
-    public int updateSupplier(Supplier s) {
-
-        String query = "UPDATE Suppliers SET TaxID = ?, [Name] = ?, Email = ?, PhoneNumber = ?, Address = ?, LastModify = GETDATE(), IsDeleted = ?, IsActivate = ? WHERE SupplierID = ?";
-        try {
-            PreparedStatement ps = connector.prepareStatement(query);
-            ps.setString(1, s.getTaxId());
-            ps.setString(2, s.getName());
-            ps.setString(3, s.getEmail());
-            ps.setString(4, s.getPhoneNumber());
-            ps.setString(5, s.getAddress());
-            ps.setInt(6, 0);
-            ps.setInt(7, s.getActivate());
-            ps.setInt(8, s.getSupplierId());
-
-            return ps.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e);
+    public int createSupplier(Supplier supplier) {
+        String sql = "INSERT INTO Suppliers "
+                + "(TaxID, [Name], Email, PhoneNumber, Address, CreatedDate, "
+                + "LastModify, IsDeleted, IsActivate) "
+                + "VALUES (?, ?, ?, ?, ?, GETDATE(), GETDATE(), 0, ?)";
+        try (Connection connection = db.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, supplier.getTaxId());
+            statement.setString(2, supplier.getName());
+            statement.setString(3, supplier.getEmail());
+            statement.setString(4, supplier.getPhoneNumber());
+            statement.setString(5, supplier.getAddress());
+            statement.setInt(6, supplier.getActivate());
+            return statement.executeUpdate();
+        } catch (SQLException ex) {
+            LOGGER.log(Level.WARNING, "Cannot create supplier.", ex);
+            return 0;
         }
+    }
 
-        return 0;
+    public int updateSupplier(Supplier supplier) {
+        String sql = "UPDATE Suppliers SET TaxID = ?, [Name] = ?, Email = ?, "
+                + "PhoneNumber = ?, Address = ?, LastModify = GETDATE(), "
+                + "IsActivate = ? "
+                + "WHERE SupplierID = ? AND IsDeleted = 0";
+        try (Connection connection = db.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, supplier.getTaxId());
+            statement.setString(2, supplier.getName());
+            statement.setString(3, supplier.getEmail());
+            statement.setString(4, supplier.getPhoneNumber());
+            statement.setString(5, supplier.getAddress());
+            statement.setInt(6, supplier.getActivate());
+            statement.setInt(7, supplier.getSupplierId());
+            return statement.executeUpdate();
+        } catch (SQLException ex) {
+            LOGGER.log(Level.WARNING, "Cannot update supplier " + supplier.getSupplierId() + ".", ex);
+            return 0;
+        }
     }
 
     public int deleteSupplier(int supplierId) {
-
-        String query = "UPDATE Suppliers SET IsDeleted = 1 WHERE SupplierID = ?";
-        try {
-            PreparedStatement ps = connector.prepareStatement(query);
-            ps.setInt(1, supplierId);
-
-            return ps.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e);
+        String sql = "UPDATE Suppliers SET IsDeleted = 1, IsActivate = 0, "
+                + "LastModify = GETDATE() "
+                + "WHERE SupplierID = ? AND IsDeleted = 0";
+        try (Connection connection = db.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, supplierId);
+            return statement.executeUpdate();
+        } catch (SQLException ex) {
+            LOGGER.log(Level.WARNING, "Cannot delete supplier " + supplierId + ".", ex);
+            return 0;
         }
-
-        return 0;
     }
 
-    public List<Supplier> searchSupplierByName(String name) {
-        List<Supplier> list = new ArrayList<>();
-        String query = "SELECT * FROM Suppliers WHERE Name LIKE ?";
-
-        try ( PreparedStatement ps = connector.prepareStatement(query)) {
-            ps.setString(1, "%" + name + "%");
-
-            try ( ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(new Supplier(
-                            rs.getInt("SupplierID"),
-                            rs.getString("TaxID"),
-                            rs.getString("Name"),
-                            rs.getString("Email"),
-                            rs.getString("PhoneNumber"),
-                            rs.getString("Address"),
-                            rs.getTimestamp("CreatedDate").toLocalDateTime(),
-                            rs.getTimestamp("LastModify").toLocalDateTime(),
-                            rs.getInt("IsDeleted"),
-                            rs.getInt("IsActivate")
-                    ));
+    public List<Supplier> searchSupplierByName(String keyword) {
+        List<Supplier> suppliers = new ArrayList<>();
+        String sql = "SELECT * FROM Suppliers "
+                + "WHERE IsDeleted = 0 "
+                + "AND ([Name] LIKE ? OR TaxID LIKE ? OR Email LIKE ?) "
+                + "ORDER BY IsActivate DESC, Name ASC";
+        String searchTerm = "%" + keyword + "%";
+        try (Connection connection = db.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, searchTerm);
+            statement.setString(2, searchTerm);
+            statement.setString(3, searchTerm);
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    suppliers.add(mapSupplier(result));
                 }
-                return list;
             }
         } catch (SQLException ex) {
-            Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, "Cannot search suppliers.", ex);
         }
-        return list;
+        return suppliers;
+    }
+
+    private Supplier mapSupplier(ResultSet result) throws SQLException {
+        return new Supplier(
+                result.getInt("SupplierID"),
+                result.getString("TaxID"),
+                result.getString("Name"),
+                result.getString("Email"),
+                result.getString("PhoneNumber"),
+                result.getString("Address"),
+                toLocalDateTime(result.getTimestamp("CreatedDate")),
+                toLocalDateTime(result.getTimestamp("LastModify")),
+                result.getInt("IsDeleted"),
+                result.getInt("IsActivate")
+        );
+    }
+
+    private LocalDateTime toLocalDateTime(Timestamp timestamp) {
+        return timestamp == null ? null : timestamp.toLocalDateTime();
     }
 }

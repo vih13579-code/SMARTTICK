@@ -1,168 +1,150 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Employee Profile Page</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <title>Employee Profile | SMARTTICK</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ops.css?v=20260729-admin-fix">
         <style>
-            body {
-                background-color: #f8f9fa;
-            }
-            .profile-container {
-                max-width: 800px;
-                margin: 20px auto;
-                background: #303030;
-                padding: 40px;
-                border: 1px solid #484848;
-                border-radius: 16px;
-                box-shadow: none;
-                color: #ffffff;
-            }
-            body.admin-ops-page .profile-container h3,
-            body.admin-ops-page .profile-container p,
-            body.admin-ops-page .profile-container .info-label {
-                color: #ffffff !important;
-            }
-            body.admin-ops-page .profile-container .text-muted {
-                color: #c9c7bd !important;
-            }
-            .avatar-preview {
-                width: 180px;
-                height: 180px;
-                border-radius: 50%;
-                object-fit: cover;
-                border: 3px solid #d7bb77;
-                background: #424242;
-                display: block;
-                margin: 0 auto;
-            }
-            .info-label {
-                font-weight: bold;
-            }
-            /* Popup styles */
-            .popup {
-                display: block;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                justify-content: center;
+            .employee-profile-card {
+                display: grid;
+                grid-template-columns: 190px minmax(0, 1fr);
+                gap: 28px;
                 align-items: center;
             }
-            .popup-content {
-                background-color: #303030;
-                color: #ffffff;
-                border: 1px solid #484848;
-                padding: 30px;
-                border-radius: 8px;
-                text-align: center;
-                width: 300px;
-                margin: 150px auto;
+            .avatar-preview {
+                width: 170px;
+                height: 170px;
+                border: 3px solid #d8ad5a;
+                border-radius: 50%;
+                background: #424242;
+                object-fit: cover;
             }
-            .popup button {
-                background-color: #007bff;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
+            .employee-profile-card h2 {
+                margin: 0 0 5px;
             }
-            .popup button:hover {
-                background-color: #0056b3;
+            .profile-email {
+                margin-bottom: 20px;
+                color: var(--dash-muted);
+            }
+            .profile-details {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px 24px;
+                margin-bottom: 22px;
+            }
+            .profile-detail {
+                padding: 12px 14px;
+                border: 1px solid var(--dash-line);
+                border-radius: 10px;
+                background: var(--dash-surface-2);
+            }
+            .profile-detail small {
+                display: block;
+                margin-bottom: 4px;
+                color: var(--dash-muted);
+            }
+            .profile-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            @media (max-width: 700px) {
+                .employee-profile-card,
+                .profile-details {
+                    grid-template-columns: 1fr;
+                }
+                .avatar-preview {
+                    margin: 0 auto;
+                }
             }
         </style>
     </head>
     <body class="admin-ops-page">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-2">
-                    <jsp:include page="SidebarDashboard.jsp"></jsp:include>
+        <div class="dashboard-shell">
+            <jsp:include page="SidebarDashboard.jsp"/>
+            <main class="dash-main">
+                <jsp:include page="HeaderDashboard.jsp"/>
+
+                <div class="admin-page-title">
+                    <div>
+                        <h1>My Profile</h1>
+                        <p>View your employee account information.</p>
                     </div>
-                    <div class="col-md-10" style="padding-top: 10px;">
-                    <jsp:include page="HeaderDashboard.jsp"></jsp:include>
-                        <div class="container">
-                            <div class="profile-container text-center">
-                            <c:choose>
-                                <c:when test="${!sessionScope.employee.getAvatar().equals('')}">
-                                    <img class="avatar-preview" src="assets/imgs/EmployeeAvatar/${sessionScope.employee.getAvatar()}" alt="Avatar">
-                                </c:when>
-                                <c:otherwise>
-                                    <img class="avatar-preview" src="assets/imgs/EmployeeAvatar/defauft_avatar.jpg" alt="Avatar">
-                                </c:otherwise>
-                            </c:choose>
-                            <h3 class="mt-3">${sessionScope.employee.getFullname()}</h3>
-                            <p class="text-muted">${sessionScope.employee.getEmail()}</p>
-                            <p><span class="info-label">Role:</span>
+                </div>
+
+                <c:if test="${not empty sessionScope.empromess}">
+                    <div class="alert alert-success" role="alert">
+                        <c:out value="${sessionScope.empromess}"/>
+                    </div>
+                    <c:remove scope="session" var="empromess"/>
+                </c:if>
+
+                <c:set var="employee" value="${sessionScope.employee}"/>
+                <c:choose>
+                    <c:when test="${empty employee}">
+                        <div class="panel empty-state">Employee information is unavailable.</div>
+                    </c:when>
+                    <c:otherwise>
+                        <section class="profile-container employee-profile-card">
+                            <div>
                                 <c:choose>
-                                    <c:when test="${sessionScope.employee.getRoleId() == 1}">Admin</c:when>
-                                    <c:when test="${sessionScope.employee.getRoleId() == 2}">Shop Manager</c:when>
-                                    <c:when test="${sessionScope.employee.getRoleId() == 3}">Order Manager</c:when>
-                                    <c:when test="${sessionScope.employee.getRoleId() == 4}">Warehouse Manager</c:when>
+                                    <c:when test="${not empty employee.avatar}">
+                                        <img class="avatar-preview"
+                                             src="${pageContext.request.contextPath}/assets/imgs/EmployeeAvatar/${employee.avatar}"
+                                             onerror="this.onerror=null;this.src='${pageContext.request.contextPath}/assets/imgs/EmployeeAvatar/defauft_avatar.jpg';"
+                                             alt="Employee avatar">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img class="avatar-preview"
+                                             src="${pageContext.request.contextPath}/assets/imgs/EmployeeAvatar/defauft_avatar.jpg"
+                                             alt="Default employee avatar">
+                                    </c:otherwise>
                                 </c:choose>
-                            </p>
-                            <p><span class="info-label">Gender:</span> ${sessionScope.employee.getGender()}</p>
-                            <p><span class="info-label">Phone:</span> ${sessionScope.employee.getPhoneNumber()}</p>
-                            <p><span class="info-label">Date of Birth:</span> ${sessionScope.employee.getBirthday().toString()}</p>
-                            <div class="form-container">
-                            <div class="d-flex gap-3" style="justify-content: space-between;">
-                                <button type="submit" class="btn btn-primary px-4 py-2" onclick="updateProfile()">Update Profile</button>
-                                <button type="button" class="btn btn-warning px-4 py-2" onclick="changePassword()">Change Password</button>
                             </div>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+                            <div>
+                                <h2><c:out value="${employee.fullname}"/></h2>
+                                <div class="profile-email"><c:out value="${employee.email}"/></div>
+                                <div class="profile-details">
+                                    <div class="profile-detail">
+                                        <small>Role</small>
+                                        <strong>
+                                            <c:choose>
+                                                <c:when test="${employee.roleId == 1}">Admin</c:when>
+                                                <c:when test="${employee.roleId == 2}">Shop Manager</c:when>
+                                                <c:when test="${employee.roleId == 3}">Order Manager</c:when>
+                                                <c:when test="${employee.roleId == 4}">Warehouse Manager</c:when>
+                                                <c:otherwise>Employee</c:otherwise>
+                                            </c:choose>
+                                        </strong>
+                                    </div>
+                                    <div class="profile-detail">
+                                        <small>Gender</small>
+                                        <strong><c:out value="${employee.gender}" default="Not provided"/></strong>
+                                    </div>
+                                    <div class="profile-detail">
+                                        <small>Phone</small>
+                                        <strong><c:out value="${employee.phoneNumber}" default="Not provided"/></strong>
+                                    </div>
+                                    <div class="profile-detail">
+                                        <small>Date of Birth</small>
+                                        <strong><c:out value="${employee.birthday}" default="Not provided"/></strong>
+                                    </div>
+                                </div>
+                                <div class="profile-actions">
+                                    <a class="btn btn-primary" href="${pageContext.request.contextPath}/UpdateEmployeeProfile">Update Profile</a>
+                                    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/ChangeEmployeePassword">Change Password</a>
+                                </div>
+                            </div>
+                        </section>
+                    </c:otherwise>
+                </c:choose>
+            </main>
         </div>
-        <c:if test="${sessionScope.empromess != null}">
-            <!-- Popup -->
-            <div class="popup" id="Popup">
-                <div class="popup-content">
-                    <h3>${sessionScope.empromess}</h3>
-                    <button onclick="closePopup()">Close</button>
-                </div>
-            </div>
-            <c:remove scope="session" var="empromess"/>
-
-        </c:if>
-
-        <script>
-            function confirmLogout() {
-                if (confirm("Are you sure you want to log out?")) {
-                    // Chuyá»ƒn hÆ°á»›ng tá»›i trang logout hoáº·c gá»i API logout
-                    window.location.href = "${pageContext.request.contextPath}/Logout";
-                }
-            }
-            function closePopup() {
-                document.getElementById("Popup").style.display = "none";
-            }
-
-
-            function validateForm() {
-                var phone = document.getElementsByName('phone')[0].value;
-                var phonePattern = /^\d{10}$/;
-                if (!phonePattern.test(phone)) {
-                    alert('Phone number must be exactly 10 digits.');
-                    return false;
-                }
-                return true;
-            }
-            function updateProfile(){
-                window.location.href = '${pageContext.request.contextPath}/UpdateEmployeeProfile';
-            }
-
-            function changePassword() {
-                window.location.href = '${pageContext.request.contextPath}/ChangeEmployeePassword';
-            }
-
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
-

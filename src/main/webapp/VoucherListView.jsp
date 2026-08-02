@@ -1,269 +1,142 @@
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<fmt:setLocale value="en_US"/>
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Voucher List</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vouchers | SMARTTICK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body class="admin-ops-page voucher-admin-page">
+    <jsp:include page="SidebarDashboard.jsp"/>
 
-        <!-- Bootstrap & FontAwesome -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <main class="content">
+        <jsp:include page="HeaderDashboard.jsp"/>
 
-        <style>
-            .fixed-header {
-                position: fixed;
-                top: 0;
-                /*right: 0;*/
-                left: 250px;
-                width: calc(100% - 250px);
-                background-color: white;
-                z-index: 1000;
-                padding: 10px 20px;
-                /*box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);*/
-            }
-
-            .sidebar-container {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 250px;
-                height: 100%;
-                background-color: white;
-                z-index: 2000;
-                padding-top: 0px;
-            }
-
-            .main-layout {
-                display: flex;
-            }
-
-            .content {
-                flex-grow: 1;
-                margin-left: 250px;
-                margin-top: 120px;
-                padding: 20px;
-            }
-
-            .order-table th, .order-table td {
-                padding: 14px 18px;
-                font-size: 15px;
-                vertical-align: middle;
-            }
-
-            .order-table tr:hover {
-                background-color: #f9f9f9;
-            }
-
-            .btn {
-                font-size: 14px;
-                padding: 8px 14px;
-            }
-
-            .btn i {
-                margin-right: 5px;
-            }
-
-            .badge {
-                font-size: 0.85rem;
-            }
-
-            .action-buttons .btn {
-                margin-bottom: 5px;
-            }
-
-            .voucher-toolbar {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 12px;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 16px;
-            }
-
-            .voucher-search {
-                display: flex;
-                gap: 8px;
-                min-width: 320px;
-            }
-        </style>
-    </head>
-    <body class="admin-ops-page">
-
-        <div class="sidebar-container">
-            <jsp:include page="SidebarDashboard.jsp"/>
+        <div class="admin-page-title">
+            <div>
+                <h1>Vouchers</h1>
+                <p>Create, search, and manage promotion conditions.</p>
+            </div>
+            <a class="btn btn-primary" href="${pageContext.request.contextPath}/CreateVoucherServlet">
+                <i class="fa-solid fa-plus"></i> Create Voucher
+            </a>
         </div>
 
-        <div class="main-layout">
-            <div class="fixed-header">
-                <jsp:include page="HeaderDashboard.jsp"/>
-            </div>
+        <c:if test="${param.success eq 'createsuccess'}">
+            <div class="alert alert-success">Voucher created successfully.</div>
+        </c:if>
+        <c:if test="${param.success eq 'updatesuccess'}">
+            <div class="alert alert-success">Voucher updated successfully.</div>
+        </c:if>
+        <c:if test="${param.success eq 'deletesuccess'}">
+            <div class="alert alert-success">Voucher deleted successfully.</div>
+        </c:if>
+        <c:if test="${param.success eq 'createfailed' or param.success eq 'updatefailed' or param.success eq 'deletefailed'}">
+            <div class="alert alert-danger">The voucher operation could not be completed.</div>
+        </c:if>
 
-            <div class="content">
-                <h3  font-weight="Bold">Voucher</h3>
-                <!-- Success Alerts -->
-                <c:if test="${param.success == 'createsuccess'}">
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa-solid fa-circle-check me-2"></i> Voucher created successfully!
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+        <div class="voucher-toolbar">
+            <form class="voucher-search" action="${pageContext.request.contextPath}/SearchVoucherServlet" method="get">
+                <input class="form-control" type="search" name="query"
+                       value="<c:out value='${searchQuery}'/>" maxlength="30"
+                       placeholder="Search by voucher code" aria-label="Search voucher">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fa-solid fa-magnifying-glass"></i> Search
+                </button>
+                <c:if test="${not empty searchQuery}">
+                    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/ViewVoucherListServlet">Clear</a>
                 </c:if>
-                <c:if test="${param.success == 'createfailed'}">
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa-solid fa-circle-check me-2"></i> Voucher created Unsuccessfully!
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                </c:if>
-  <c:if test="${param.success == 'deletesuccess'}">
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa-solid fa-circle-check me-2"></i> Voucher deleted successfully!
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                </c:if>
-                <c:if test="${param.success == 'deletefailed'}">
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fa-solid fa-circle-exclamation me-2"></i> Voucher could not be deleted.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                </c:if>
-                    <c:if test="${param.success == 'updatesuccess'}">
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa-solid fa-circle-check me-2"></i> Voucher update successfully!
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                </c:if>
-                   <c:if test="${param.success == 'updatefailed'}">
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa-solid fa-circle-check me-2"></i> Voucher update Unsuccessfully!
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                </c:if>
+            </form>
+        </div>
 
-                <!-- Add New -->
-                <div class="voucher-toolbar">
-                    <form action="SearchVoucherServlet" method="GET" class="voucher-search">
-                        <input type="text" name="query" value="${searchQuery}" class="form-control" placeholder="Search by code or description">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa-solid fa-magnifying-glass"></i> Search
-                        </button>
-                        <c:if test="${not empty searchQuery}">
-                            <a href="ViewVoucherListServlet" class="btn btn-outline-secondary">Clear</a>
-                        </c:if>
-                    </form>
-                    <a href="CreateVoucherView.jsp" class="btn btn-success">
-                        <i class="fa-solid fa-plus"></i> Add New Voucher
-                    </a>
-                </div>
-
-                <!-- Voucher Table -->
-                <table class="table order-table table-bordered table-hover">
-                    <thead class="table-light">
+        <section class="table-container voucher-table-wrap">
+            <table class="table voucher-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Voucher Code</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Max Discount</th>
+                        <th>Min Order Value</th>
+                        <th>End Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach items="${Vouchers}" var="voucher">
                         <tr>
-                            <th>ID</th>
-                            <th>Code</th>
-                            <th>Value</th>
-                            <th>Max Discount</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Status</th>
-                            <th>Type</th>        
-                            <th>Actions</th>
+                            <td>#${voucher.voucherId}</td>
+                            <td><strong><c:out value="${voucher.voucherCode}"/></strong></td>
+                            <td><span class="voucher-type-badge ${voucher.type eq 'PERCENT' ? 'percent' : 'fixed'}">
+                                <c:out value="${voucher.type}"/>
+                            </span></td>
+                            <td><fmt:formatNumber value="${voucher.value}" minFractionDigits="0" maxFractionDigits="2"/></td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${voucher.type eq 'PERCENT'}">
+                                        <fmt:formatNumber value="${voucher.maxDiscount}" minFractionDigits="0" maxFractionDigits="2"/>
+                                    </c:when>
+                                    <c:otherwise>—</c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td><fmt:formatNumber value="${voucher.minOrderValue}" minFractionDigits="0" maxFractionDigits="2"/></td>
+                            <td><c:out value="${fn:replace(voucher.endDate, 'T', ' ')}"/></td>
+                            <td>
+                                <div class="table-actions">
+                                    <a href="${pageContext.request.contextPath}/ViewVoucherDetailServlet?voucherID=${voucher.voucherId}">
+                                        <i class="fa-solid fa-eye"></i> View
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/UpdateVoucherServlet?voucherID=${voucher.voucherId}">
+                                        <i class="fa-solid fa-pen-to-square"></i> Update
+                                    </a>
+                                    <button class="btn btn-danger" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#confirmDeleteModal" data-id="${voucher.voucherId}">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach items="${Vouchers}" var="voucher">
-                            <tr>
-                                <td>#${voucher.voucherID}</td>
-                                <td>${voucher.voucherCode}</td>
-                                <td>${voucher.voucherValue}</td>
-                                <td>${voucher.maxDiscountAmount}</td>
-                                <td>${voucher.startDate}</td><!-- comment -->
-                                <td>${voucher.endDate}</td>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${voucher.status == 1}">
-                                            <span class="badge bg-success">Active</span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="badge bg-secondary">Inactive</span>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${voucher.voucherType == 1}">
-                                            <span class="badge bg-primary">Percent</span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="badge bg-success">Fixed</span>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <a href="ViewVoucherDetailServlet?voucherID=${voucher.voucherID}" class="btn btn-outline-primary">
-                                            <i class="fa-solid fa-eye"></i> View
-                                        </a>
-                                        <a href="UpdateVoucherServlet?voucherID=${voucher.voucherID}" class="btn btn-outline-warning">
-                                            <i class="fa-solid fa-pen-to-square"></i> Update
-                                        </a>
-                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
-                                                data-bs-target="#confirmDeleteModal" data-id="${voucher.voucherID}">
-                                            <i class="fa-solid fa-trash"></i> Delete
-                                        </button>
-                                    </div>
-                                </td>
+                    </c:forEach>
+                    <c:if test="${empty Vouchers}">
+                        <tr><td class="empty-state" colspan="8">No vouchers found.</td></tr>
+                    </c:if>
+                </tbody>
+            </table>
+        </section>
+    </main>
 
-                            </tr>
-                        </c:forEach>
-                        <c:if test="${empty Vouchers}">
-                            <tr>
-                                <td colspan="9" class="text-center text-danger fw-bold">No vouchers found!</td>
-                            </tr>
-                        </c:if>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <form method="post" action="${pageContext.request.contextPath}/DeleteVoucherServlet">
-                    <input type="hidden" name="voucherID" id="deleteVoucherId">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            Are you sure you want to delete this voucher?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                        </div>
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form method="post" action="${pageContext.request.contextPath}/DeleteVoucherServlet">
+                <input type="hidden" name="voucherID" id="deleteVoucherId">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title fs-5">Delete Voucher</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </form>
-            </div>
+                    <div class="modal-body">Are you sure you want to delete this voucher?</div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <!-- JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-                crossorigin="anonymous"></script>
-        <script>
-            const deleteModal = document.getElementById('confirmDeleteModal');
-            if (deleteModal) {
-                deleteModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    const voucherID = button.getAttribute('data-id');
-                    const input = deleteModal.querySelector('#deleteVoucherId');
-                    input.value = voucherID;
-                });
-            }
-        </script>
-
-    </body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById("confirmDeleteModal").addEventListener("show.bs.modal", function (event) {
+            document.getElementById("deleteVoucherId").value =
+                    event.relatedTarget.getAttribute("data-id");
+        });
+    </script>
+</body>
 </html>

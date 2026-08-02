@@ -5,6 +5,7 @@
 package DAOs;
 
 import DB.DBContext;
+import Models.CustomerNotification;
 import Models.RatingReplies;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +20,8 @@ public class RatingRepliesDAO {
 
     public List<RatingReplies> getAllRatingRepliesByProduct(int productId) {
         List<RatingReplies> list = new ArrayList<>();
-        String query = "SELECT rr.* FROM RatingReplies rr JOIN ProductRatings pr ON rr.RateID = pr.RateID WHERE pr.ProductID = ?";
+        String query = "SELECT rr.* FROM RatingReplies rr JOIN ProductRatings pr ON rr.RateID = pr.RateID "
+                + "WHERE pr.ProductID = ? AND pr.IsDeleted = 0";
         try {
             PreparedStatement pre = connector.prepareStatement(query);
             pre.setInt(1, productId);
@@ -99,6 +101,37 @@ public class RatingRepliesDAO {
         }
         return list;
     }
+
+    public List<CustomerNotification> getCustomerNotifications(int customerId) {
+        List<CustomerNotification> notifications = new ArrayList<>();
+        String sql = "SELECT rr.ReplyID, rr.Answer, rr.IsRead, "
+                + "pr.ProductID, pr.Comment, pr.CreatedDate, p.FullName "
+                + "FROM RatingReplies rr "
+                + "INNER JOIN ProductRatings pr ON rr.RateID = pr.RateID "
+                + "LEFT JOIN Products p ON pr.ProductID = p.ProductID "
+                + "WHERE pr.CustomerID = ? "
+                + "ORDER BY rr.IsRead ASC, pr.CreatedDate DESC, rr.ReplyID DESC";
+
+        try (PreparedStatement statement = connector.prepareStatement(sql)) {
+            statement.setInt(1, customerId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    notifications.add(new CustomerNotification(
+                            rs.getInt("ReplyID"),
+                            rs.getInt("ProductID"),
+                            rs.getString("FullName"),
+                            rs.getString("Comment"),
+                            rs.getString("Answer"),
+                            rs.getTimestamp("CreatedDate"),
+                            rs.getBoolean("IsRead")
+                    ));
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return notifications;
+    }
   public RatingReplies getReplyByRepyID(int replyID) {
         List<RatingReplies> list = new ArrayList<>();
         RatingReplies r = null ;
@@ -121,7 +154,10 @@ public class RatingRepliesDAO {
         }
         return r ;
     }
-    public  int UpdateReply(RatingReplies reply, String Answer){
+    public int UpdateReply(RatingReplies reply, String Answer){
+        if (reply == null) {
+            return 0;
+        }
     String query = "UPDATE RatingReplies SET Answer = ? WHERE ReplyID = ?";
 
         try (
@@ -150,6 +186,22 @@ public class RatingRepliesDAO {
         }
         return false;
 
+    }
+
+    public boolean markReplyAsRead(int replyId, int customerId) {
+        String sql = "UPDATE rr SET rr.IsRead = 1 "
+                + "FROM RatingReplies rr "
+                + "INNER JOIN ProductRatings pr ON rr.RateID = pr.RateID "
+                + "WHERE rr.ReplyID = ? AND pr.CustomerID = ?";
+
+        try (PreparedStatement statement = connector.prepareStatement(sql)) {
+            statement.setInt(1, replyId);
+            statement.setInt(2, customerId);
+            return statement.executeUpdate() > 0;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
   
      public boolean DeleteRatingReply(int ReplyID) {

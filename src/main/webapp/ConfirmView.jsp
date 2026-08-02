@@ -10,7 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
           crossorigin="anonymous">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css?v=qr-payment-1">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css?v=voucher-20260729">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/popup.css?v=qr-payment-1">
     <title>Checkout Confirmation | SMARTTICK</title>
 </head>
@@ -83,6 +83,17 @@
                     </c:if>
                 </div>
             </div>
+            <form class="voucher-code-form" action="${pageContext.request.contextPath}/order" method="get">
+                <input type="hidden" name="action" value="useVoucher">
+                <label for="checkoutVoucherCode">Voucher Code</label>
+                <div>
+                    <input id="checkoutVoucherCode" type="text" name="voucherCode"
+                           minlength="3" maxlength="30" pattern="[A-Za-z0-9_-]{3,30}"
+                           placeholder="SUMMER20" autocomplete="off" required
+                           oninput="this.value=this.value.toUpperCase()">
+                    <button class="btn btn-outline" type="submit">Apply</button>
+                </div>
+            </form>
 
             <div class="totals">
                 <div><span>Subtotal</span><b><fmt:formatNumber value="${subtotal}" type="currency"/></b></div>
@@ -152,10 +163,20 @@
                     <div class="voucher-card">
                         <div>
                             <strong><c:out value="${vou.getVoucherCode()}"/></strong>
-                            <p><c:out value="${vou.getDescription()}"/></p>
+                            <p>
+                                <c:choose>
+                                    <c:when test="${vou.type eq 'PERCENT'}">
+                                        <fmt:formatNumber value="${vou.value}" pattern="0.##"/>% off, up to
+                                        <fmt:formatNumber value="${vou.maxDiscount}" type="currency"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <fmt:formatNumber value="${vou.value}" type="currency"/> off
+                                    </c:otherwise>
+                                </c:choose>
+                            </p>
                             <span>x${vou.getQuantity()}</span>
                         </div>
-                        <a class="btn btn-primary" href="${pageContext.request.contextPath}/order?action=useVoucher&id=${vou.getVoucherID()}">Select</a>
+                        <a class="btn btn-primary" href="${pageContext.request.contextPath}/order?action=useVoucher&id=${vou.voucherId}">Select</a>
                     </div>
                 </c:forEach>
             </div>

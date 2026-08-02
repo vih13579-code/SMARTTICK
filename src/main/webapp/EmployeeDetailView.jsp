@@ -1,186 +1,111 @@
-﻿<%@page import="Models.Employee"%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <title>View Employee Details</title>
-        <style>
-            body {
-                background-color: #f8f9fa;
-            }
-
-            .content {
-                flex-grow: 1;
-                padding: 12px;
-                margin-left: 250px;
-            }
-
-            .profile-container {
-                max-width: 700px;
-                height: auto;
-                margin: 20px auto;
-                background: white;
-                padding: 40px;
-                border-radius: 10px;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: space-around;
-                align-items: center;
-            }
-            .form-container {
-                width: 60%;
-            }
-            .avatar-container {
-                text-align: center;
-                width: 35%;
-            }
-            .avatar-preview {
-                width: 180px;
-                height: 180px;
-                border-radius: 50%;
-                object-fit: cover;
-                border: 3px solid #ddd;
-            }
-            .btn-save {
-                background-color: #007bff;
-                color: white;
-            }
-            .btn-change {
-                background-color: #dc3545;
-                color: white;
-            }
-
-            .value{
-                width: 150px;
-
-            }
-
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Employee Details | SMARTTICK</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     </head>
+    <body class="admin-ops-page employee-page">
+        <jsp:include page="SidebarDashboard.jsp"/>
 
-    <body class="admin-ops-page">
-        <jsp:include page="SidebarDashboard.jsp"></jsp:include>
-            <div class="content">
-            <jsp:include page="HeaderDashboard.jsp"></jsp:include>
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-10" style="padding: 10px;">
-                            <form action="" method="">
-                                <div class="profile-container">
-                                    <div class="form-container">
-                                        <div class="mb-1 d-flex">
-                                            <label class="value fw-bold">Employee ID:</label>
-                                            <p>${employee.employeeId}</p>
-                                    </div>
+        <div class="content">
+            <jsp:include page="HeaderDashboard.jsp"/>
 
-                                    <div class="mb-1 d-flex">
-                                        <label class="value fw-bold">Role Name:</label>
-                                        <c:forEach items="${listR1}" var="r">
-                                            <c:if test="${r.roleId eq employee.roleId}">
-                                                <p>${r.roleName}</p>
-                                            </c:if>
-                                        </c:forEach>
-                                    </div>
-
-                                    <div class="mb-1 d-flex">
-                                        <label class="value fw-bold">Full Name:</label>
-                                        <p>${employee.fullname}</p>
-                                    </div>
-
-                                    <div class="mb-1 d-flex">
-                                        <label class="value fw-bold">Birthday:</label>
-                                        <p><fmt:formatDate value="${employee.birthday}" pattern="dd/MM/yyyy" /></p>
-                                    </div>
-
-                                    <div class="mb-1 d-flex">
-                                        <label class="value fw-bold">Phone Number:</label>
-                                        <p>${employee.phoneNumber}</p>
-                                    </div>
-
-                                    <div class="mb-1 d-flex">
-                                        <label class="value fw-bold">Email:</label>
-                                        <p>${employee.email}</p>
-                                    </div>
-
-                                    <div class="mb-2 d-flex">
-                                        <label class="value fw-bold">Gender:</label>
-                                        <p>${employee.gender}</p>
-                                    </div>
-
-                                    <div class="mb-1 d-flex">
-                                        <label class="value fw-bold">Created Date:</label>
-                                        <p><fmt:formatDate value="${employee.createdDate}" pattern="dd/MM/yyyy" /></p>
-                                    </div>
-
-                                    <div class="mb-1 d-flex">
-                                        <label class="value fw-bold">Status:</label>
-                                        <c:choose>
-                                            <c:when test="${employee.status == 1}">
-                                                <p><span style="background-color: #28a745;
-                                                         color: white;
-                                                         padding: 5px 12px;
-                                                         border-radius: 15px;
-                                                         font-size: 12px;
-                                                         display: inline-flex;
-                                                         align-items: center;
-                                                         gap: 5px;
-                                                         text-align: center;">
-                                                        <i class='bx bx-check-circle' style="font-size: 14px;"></i> Available
-                                                    </span></p>
-                                                </c:when>
-                                                <c:otherwise>
-                                                <p><span style="background-color: #dc3545;
-                                                         color: white;
-                                                         padding: 5px 12px;
-                                                         border-radius: 15px;
-                                                         font-size: 12px;
-                                                         display: inline-flex;
-                                                         align-items: center;
-                                                         gap: 5px;
-                                                         text-align: center;
-                                                         margin-left: 10px;">
-                                                        <i class='bx bx-x-circle' style="font-size: 14px;"></i> Disable
-                                                    </span></p>
-                                                </c:otherwise>
-                                            </c:choose>
-                                    </div>
-                                    <div class="d-flex gap-1" style="justify-content: left;">
-                                         <a href="ViewEmployeeServlet" style="background-color: #007bff; color: white; padding: 8px 20px; border: none; border-radius: 10px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; text-decoration: none;">
-                                            <i class='bx bx-arrow-back'></i> Cancel
-                                        </a>
-                                        <a href="UpdateEmployeeServlet?id=${employee.employeeId}" style="background-color: orange; color: white; text-decoration: none; padding: 5px 15px; border-radius: 5px; display: inline-block; cursor: pointer;">
-                                            <i class='bx bx-edit'></i> Update
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="avatar-container">
-                                    <label class="form-label">Avatar</label>
-                                    <div class="mb-3">
-                                        <c:choose>
-                                            <c:when test="${not empty employee.avatar}">
-                                                <img id="avatarPreview" class="avatar-preview" src="assets/imgs/Employee/${employee.avatar}" alt="Avatar">
-                                            </c:when>
-                                            <c:otherwise>
-                                                <img id="avatarPreview" class="avatar-preview" src="assets/imgs/EmployeeAvatar/defauft_avatar.jpg" alt="Avatar">
-                                            </c:otherwise>
-                                        </c:choose>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+            <main class="admin-page-stack">
+                <div class="admin-page-title">
+                    <div>
+                        <h1>Employee Details</h1>
+                        <p>Review the selected employee account and access status.</p>
+                    </div>
+                    <div class="table-actions">
+                        <a class="btn btn-secondary"
+                           href="${pageContext.request.contextPath}/ViewEmployeeServlet">
+                            Back
+                        </a>
+                        <a class="btn btn-primary"
+                           href="${pageContext.request.contextPath}/UpdateEmployeeServlet?id=${employee.employeeId}">
+                            Update Employee
+                        </a>
                     </div>
                 </div>
-            </div>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+                <section class="profile-container employee-detail-card">
+                    <div class="employee-avatar-panel">
+                        <c:choose>
+                            <c:when test="${not empty employee.avatar}">
+                                <img class="employee-avatar-preview"
+                                     src="${pageContext.request.contextPath}/assets/imgs/Employee/${employee.avatar}"
+                                     alt="Employee avatar"
+                                     onerror="this.src='${pageContext.request.contextPath}/assets/imgs/Employee/defauft.png';">
+                            </c:when>
+                            <c:otherwise>
+                                <img class="employee-avatar-preview"
+                                     src="${pageContext.request.contextPath}/assets/imgs/Employee/defauft.png"
+                                     alt="Default employee avatar">
+                            </c:otherwise>
+                        </c:choose>
+                        <strong><c:out value="${employee.fullname}"/></strong>
+                        <span><c:out value="${employee.email}"/></span>
+                    </div>
+
+                    <dl class="employee-detail-grid">
+                        <div>
+                            <dt>Employee ID</dt>
+                            <dd><c:out value="${employee.employeeId}"/></dd>
+                        </div>
+                        <div>
+                            <dt>Role</dt>
+                            <dd>
+                                <c:forEach items="${listR1}" var="role">
+                                    <c:if test="${role.roleId == employee.roleId}">
+                                        <c:out value="${role.roleName}"/>
+                                    </c:if>
+                                </c:forEach>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Birthday</dt>
+                            <dd>
+                                <c:choose>
+                                    <c:when test="${not empty employee.birthday}">
+                                        <fmt:formatDate value="${employee.birthday}" pattern="dd/MM/yyyy"/>
+                                    </c:when>
+                                    <c:otherwise>Not provided</c:otherwise>
+                                </c:choose>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Phone</dt>
+                            <dd><c:out value="${employee.phoneNumber}" default="Not provided"/></dd>
+                        </div>
+                        <div>
+                            <dt>Gender</dt>
+                            <dd><c:out value="${employee.gender}" default="Not provided"/></dd>
+                        </div>
+                        <div>
+                            <dt>Created Date</dt>
+                            <dd><fmt:formatDate value="${employee.createdDate}" pattern="dd/MM/yyyy"/></dd>
+                        </div>
+                        <div>
+                            <dt>Status</dt>
+                            <dd>
+                                <c:choose>
+                                    <c:when test="${employee.status == 1}">
+                                        <span class="employee-status active">Active</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="employee-status inactive">Disabled</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </dd>
+                        </div>
+                    </dl>
+                </section>
+            </main>
         </div>
     </body>
 </html>

@@ -1,13 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Controllers;
 
 import DAOs.CustomerDAO;
 import Models.Customer;
+import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -17,156 +19,155 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
-@WebServlet(name = "UpdateProfileServlet", urlPatterns = { "/updateCustomerProfile" })
-@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 1, maxFileSize = 1024 * 1024 * 10, maxRequestSize = 1024 * 1024
-        * 100)
+@WebServlet(name = "UpdateProfileServlet", urlPatterns = {"/updateCustomerProfile"})
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 10 * 1024 * 1024,
+        maxRequestSize = 100 * 1024 * 1024)
 public class UpdateCustomerProfileServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^0[2-9][0-9]{8}$");
+    private static final Set<String> GENDERS
+            = new HashSet<>(Arrays.asList("Male", "Female", "Other"));
+    private static final Set<String> IMAGE_TYPES
+            = new HashSet<>(Arrays.asList("image/jpeg", "image/png", "image/webp"));
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
-    // + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Customer customer = getAuthenticatedCustomer(request, response);
+        if (customer == null) {
+            return;
+        }
         request.setAttribute("profilePage", "UpdateCustomerProfileView.jsp");
-        request.getRequestDispatcher("ProfileManagementView.jsp").forward(request, response);
+        request.getRequestDispatcher("/ProfileManagementView.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        CustomerDAO cusDAO = new CustomerDAO();
-        Customer cus = (Customer) session.getAttribute("customer");
-        Part img = request.getPart("avatar");
-        String fullname = request.getParameter("fullname");
-        String phoneNumber = request.getParameter("phoneNumber");
-        String gender = request.getParameter("gender");
-        String day = request.getParameter("day");
-        String month = request.getParameter("month");
-        String year = request.getParameter("year");
-
-        if (fullname != null && !fullname.trim().isEmpty()) {
-            cus.setFullName(fullname.trim());
-        }
-        if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
-            cus.setPhoneNumber(phoneNumber.trim());
-        }
-        if (gender != null && !gender.trim().isEmpty()) {
-            cus.setGender(gender.trim());
+        request.setCharacterEncoding("UTF-8");
+        Customer signedInCustomer = getAuthenticatedCustomer(request, response);
+        if (signedInCustomer == null) {
+            return;
         }
 
-        // Handle birthday only when all parts are present
-        if (day != null && month != null && year != null) {
-            if (!("Day".equalsIgnoreCase(day) && "Month".equalsIgnoreCase(month) && "Year".equalsIgnoreCase(year))) {
-                if ("Day".equalsIgnoreCase(day) || "Month".equalsIgnoreCase(month) || "Year".equalsIgnoreCase(year)) {
-                    session.setAttribute("messageFail", "Please select a complete and valid date!");
-                    response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
-                    return;
-                }
-
-                try {
-                    int dayInt = Integer.parseInt(day.trim());
-                    int monthInt = Integer.parseInt(month.trim());
-                    int yearInt = Integer.parseInt(year.trim());
-
-                    if (dayInt < 1 || dayInt > 31 || monthInt < 1 || monthInt > 12 || yearInt < 1900
-                            || yearInt > 2100) {
-                        session.setAttribute("messageFail", "Invalid date value!");
-                        response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
-                        return;
-                    }
-
-                    String dayStr = dayInt < 10 ? "0" + dayInt : String.valueOf(dayInt);
-                    String monthStr = monthInt < 10 ? "0" + monthInt : String.valueOf(monthInt);
-
-                    cus.setBirthday(yearInt + "-" + monthStr + "-" + dayStr);
-                } catch (NumberFormatException e) {
-                    session.setAttribute("messageFail", "Invalid date format!");
-                    response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
-                    return;
-                }
-            }
+        CustomerDAO customerDAO = new CustomerDAO();
+        Customer customer = customerDAO.getCustomerById(signedInCustomer.getId());
+        if (customer == null) {
+            request.getSession().invalidate();
+            response.sendRedirect(request.getContextPath() + "/customerLogin?expired=1");
+            return;
         }
 
-        // Safely compute upload path inside the deployed webapp
-        String uploadPath = getServletContext().getRealPath("/assets/imgs/CustomerAvatar/");
-        if (uploadPath == null) {
-            // Fallback to using context root then path
-            uploadPath = getServletContext().getRealPath("/");
-            if (uploadPath == null) {
-                uploadPath = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator");
-            }
-            uploadPath = uploadPath + "assets" + System.getProperty("file.separator") + "imgs"
-                    + System.getProperty("file.separator") + "CustomerAvatar" + System.getProperty("file.separator");
+        String fullName = clean(request.getParameter("fullname"));
+        String phoneNumber = clean(request.getParameter("phoneNumber"));
+        String gender = clean(request.getParameter("gender"));
+        String birthdayText = clean(request.getParameter("birthday"));
+
+        if (fullName.length() < 2 || fullName.length() > 100) {
+            showError(request, response, "Full name must contain 2-100 characters.");
+            return;
+        }
+        if (!phoneNumber.isEmpty() && !PHONE_PATTERN.matcher(phoneNumber).matches()) {
+            showError(request, response,
+                    "Phone number must contain 10 digits, start with 0, and use a valid prefix.");
+            return;
+        }
+        if (!gender.isEmpty() && !GENDERS.contains(gender)) {
+            showError(request, response, "Please select a valid gender.");
+            return;
         }
 
-        java.io.File uploadDir = new java.io.File(uploadPath);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-
-        if (img != null && img.getSize() > 0) {
-            cus.setAvatar(cus.getId() + ".jpg");
+        String birthday = null;
+        if (!birthdayText.isEmpty()) {
             try {
-                String outPath = uploadPath + java.io.File.separator + cus.getId() + ".jpg";
-                img.write(outPath);
-            } catch (Exception e) {
-                e.printStackTrace();
-                session.setAttribute("messageFail", "Failed to save uploaded avatar.");
-                response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
+                LocalDate parsedBirthday = LocalDate.parse(birthdayText);
+                if (parsedBirthday.getYear() < 1900 || parsedBirthday.isAfter(LocalDate.now())) {
+                    showError(request, response, "Please enter a valid date of birth.");
+                    return;
+                }
+                birthday = parsedBirthday.toString();
+            } catch (DateTimeException ex) {
+                showError(request, response, "Please enter a valid date of birth.");
                 return;
             }
         }
 
-        int rs = cusDAO.updateCustomerProfile(cus);
-        if (rs == 0) {
-            session.setAttribute("messageFail", "Update customer fail!");
-        } else {
-            session.setAttribute("customer", cus);
-            session.setAttribute("message", "Update customer successful!");
+        Part avatarPart;
+        try {
+            avatarPart = request.getPart("avatar");
+        } catch (IllegalStateException ex) {
+            showError(request, response, "The selected avatar is too large.");
+            return;
+        }
+        if (avatarPart != null && avatarPart.getSize() > 0) {
+            String contentType = clean(avatarPart.getContentType()).toLowerCase();
+            if (!IMAGE_TYPES.contains(contentType)) {
+                showError(request, response, "Avatar must be a JPG, PNG, or WEBP image.");
+                return;
+            }
+            String avatarName = customer.getId() + ".jpg";
+            if (!saveAvatar(avatarPart, avatarName)) {
+                showError(request, response, "The avatar could not be saved. Please try again.");
+                return;
+            }
+            customer.setAvatar(avatarName);
         }
 
+        customer.setFullName(fullName);
+        customer.setPhoneNumber(phoneNumber.isEmpty() ? null : phoneNumber);
+        customer.setGender(gender.isEmpty() ? null : gender);
+        customer.setBirthday(birthday);
+
+        if (customerDAO.updateCustomerProfile(customer) <= 0) {
+            showError(request, response, "Your profile could not be updated. Please try again.");
+            return;
+        }
+
+        HttpSession session = request.getSession();
+        session.setAttribute("customer", customer);
+        session.setAttribute("fullName", customer.getFullName());
+        session.setAttribute("avatar", customer.getAvatar());
+        session.setAttribute("message", "Profile updated successfully.");
         response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
     }
 
-    /**
-     * Returns the servlet description.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "SMARTTICK servlet";
-    }// </editor-fold>
+    private Customer getAuthenticatedCustomer(HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession(false);
+        Customer customer = session == null ? null : (Customer) session.getAttribute("customer");
+        if (customer == null) {
+            response.sendRedirect(request.getContextPath() + "/customerLogin?expired=1");
+        }
+        return customer;
+    }
 
+    private boolean saveAvatar(Part avatarPart, String avatarName) {
+        try {
+            String uploadPath = getServletContext().getRealPath("/assets/imgs/CustomerAvatar");
+            if (uploadPath == null) {
+                getServletContext().log("Customer avatar path is unavailable.");
+                return false;
+            }
+            File uploadDirectory = new File(uploadPath);
+            if (!uploadDirectory.exists() && !uploadDirectory.mkdirs()) {
+                return false;
+            }
+            avatarPart.write(new File(uploadDirectory, avatarName).getAbsolutePath());
+            return true;
+        } catch (IOException ex) {
+            getServletContext().log("Could not save customer avatar", ex);
+            return false;
+        }
+    }
+
+    private void showError(HttpServletRequest request, HttpServletResponse response,
+            String message) throws ServletException, IOException {
+        request.setAttribute("profileError", message);
+        request.setAttribute("profilePage", "UpdateCustomerProfileView.jsp");
+        request.getRequestDispatcher("/ProfileManagementView.jsp").forward(request, response);
+    }
+
+    private String clean(String value) {
+        return value == null ? "" : value.trim();
+    }
 }

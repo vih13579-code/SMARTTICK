@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Controllers;
 
 import DAOs.CartDAO;
@@ -10,181 +6,221 @@ import DAOs.OrderDAO;
 import Models.Customer;
 import Models.Email;
 import Models.EmailUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.security.SecureRandom;
+import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.security.SecureRandom;
 
-@WebServlet(name = "RequestToDeleteAccountServlet", urlPatterns = {"/requestToDeleteAccount"})
+@WebServlet(name = "RequestToDeleteAccountServlet",
+        urlPatterns = {"/requestToDeleteAccount"})
 public class RequestToDeleteAccountServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
+    private static final long OTP_VALIDITY_MILLIS = 5 * 60 * 1000L;
+    private static final long CHALLENGE_VALIDITY_MILLIS = 10 * 60 * 1000L;
+    private final SecureRandom secureRandom = new SecureRandom();
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Customer cus = (Customer) session.getAttribute("customer");
-
-        OrderDAO o = new OrderDAO();
-        int orderCount = o.checkHaveOrders(cus.getId());
-        System.out.println("Order count: " + orderCount);
-        if (orderCount != 0) {
-            session.setAttribute("messageFail", "You have pending orders. Account cannot be deleted.");
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            try ( PrintWriter out = response.getWriter()) {
-                out.write("{\"status\": \"fail\", \"message\": \"You have pending orders. Account cannot be deleted.\"}");
-                out.flush();
-            }
+            throws IOException {
+        HttpSession session = request.getSession(false);
+        Customer customer = session == null ? null : (Customer) session.getAttribute("customer");
+        if (customer == null) {
+            writeJson(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "fail", "Your session has expired.", null, null);
+            return;
+        }
+        if (hasPendingOrders(customer.getId())) {
+            writeJson(response, HttpServletResponse.SC_CONFLICT,
+                    "fail", "You have an active order. Finish or cancel it before deleting your account.",
+                    null, null);
             return;
         }
 
-        if (cus.getGoogleId() == null || cus.getGoogleId().trim().isEmpty()) {
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            try ( PrintWriter out = response.getWriter()) {
-                out.write("{\"status\": \"success\"}");
-                out.flush();
-            }
+        CustomerDAO customerDAO = new CustomerDAO();
+        boolean hasLocalPassword = customerDAO.hasLocalPassword(customer.getId());
+        String challenge = UUID.randomUUID().toString();
+        long now = System.currentTimeMillis();
+        session.setAttribute("deleteAccountChallenge", challenge);
+        session.setAttribute("deleteAccountChallengeExpiresAt",
+                now + CHALLENGE_VALIDITY_MILLIS);
+        session.setAttribute("deleteAccountCustomerId", customer.getId());
+
+        if (hasLocalPassword) {
+            clearOtp(session);
+            writeJson(response, HttpServletResponse.SC_OK,
+                    "success", null, "password", challenge);
             return;
         }
 
-        String otp = generateOTP();
-        session.setAttribute("otp", otp);
-
+        String otp = generateOtp();
         try {
-            sendOTPEmail(cus.getEmail(), otp, cus.getFullName());
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            try ( PrintWriter out = response.getWriter()) {
-                out.write("{\"status\": \"success\"}");
-                out.flush();
-            }
-        } catch (Exception e) {
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            try ( PrintWriter out = response.getWriter()) {
-                out.write("{\"status\": \"fail\", \"message\": \"Failed to send OTP email.\"}");
-                out.flush();
-            }
+            sendOtpEmail(customer.getEmail(), otp, customer.getFullName());
+            session.setAttribute("deleteAccountOtp", otp);
+            session.setAttribute("deleteAccountOtpExpiresAt", now + OTP_VALIDITY_MILLIS);
+            writeJson(response, HttpServletResponse.SC_OK,
+                    "success", null, "otp", challenge);
+        } catch (Exception ex) {
+            clearDeletionVerification(session);
+            getServletContext().log("Could not send account deletion OTP to customer "
+                    + customer.getId(), ex);
+            writeJson(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "fail", "The verification email could not be sent. Please try again later.",
+                    null, null);
         }
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String password = request.getParameter("confirmPassword");
-        String confirmOTP = request.getParameter("OTP");
-
-        HttpSession session = request.getSession();
-        CustomerDAO cusDAO = new CustomerDAO();
-        Customer cus = (Customer) session.getAttribute("customer");
-        CartDAO c = new CartDAO();
-        if (password != null) {
-            if (cusDAO.cofirmPassword(cus.getId(), password) > 0) {
-                if (cusDAO.requestToDeleteAccount(cus.getId()) > 0) {
-                    c.deleteCartOfCustomer(cus.getId());
-                    response.sendRedirect(request.getContextPath() + "/Logout");
-                } else {
-                    session.setAttribute("messageFail", "Delete is not suscess!");
-                    response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
-                }
-            } else {
-                session.setAttribute("messageFail", "Your cofirm password is not correct!");
-                response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
-            }
+        request.setCharacterEncoding("UTF-8");
+        HttpSession session = request.getSession(false);
+        Customer customer = session == null ? null : (Customer) session.getAttribute("customer");
+        if (customer == null) {
+            response.sendRedirect(request.getContextPath() + "/customerLogin?expired=1");
+            return;
         }
 
-        if (confirmOTP != null) {
-            String OTP = (String) session.getAttribute("otp");
-            if (confirmOTP.equals(OTP)) {
-                if (cusDAO.requestToDeleteAccount(cus.getId()) > 0) {
-                    c.deleteCartOfCustomer(cus.getId());
-                    response.sendRedirect(request.getContextPath() + "/Logout");
-                } else {
-                    session.setAttribute("message", "Delete was not successful!");
-                    response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
-                }
-            } else {
-                session.setAttribute("messageFail", "Your confirm OTP is incorrect!");
-                response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
-            }
-
+        if (!isValidChallenge(request, session, customer.getId())) {
+            failAndRedirect(request, response,
+                    "The deletion confirmation expired. Please start again.");
+            return;
         }
-        processRequest(request, response);
+        if (hasPendingOrders(customer.getId())) {
+            clearDeletionVerification(session);
+            failAndRedirect(request, response,
+                    "You have an active order. Finish or cancel it before deleting your account.");
+            return;
+        }
+
+        CustomerDAO customerDAO = new CustomerDAO();
+        boolean hasLocalPassword = customerDAO.hasLocalPassword(customer.getId());
+        if (hasLocalPassword) {
+            String password = request.getParameter("confirmPassword");
+            if (!customerDAO.confirmPassword(customer.getId(), password)) {
+                clearDeletionVerification(session);
+                failAndRedirect(request, response, "The confirmation password is incorrect.");
+                return;
+            }
+        } else if (!isValidOtp(request.getParameter("OTP"), session)) {
+            clearDeletionVerification(session);
+            failAndRedirect(request, response,
+                    "The verification code is incorrect or has expired.");
+            return;
+        }
+
+        if (customerDAO.requestToDeleteAccount(customer.getId()) <= 0) {
+            clearDeletionVerification(session);
+            failAndRedirect(request, response,
+                    "Your account could not be deleted. Please try again.");
+            return;
+        }
+
+        new CartDAO().deleteCartOfCustomer(customer.getId());
+        clearDeletionVerification(session);
+        getServletContext().log("Customer account deletion completed for customer ID "
+                + customer.getId());
+        response.sendRedirect(request.getContextPath() + "/Logout");
     }
 
-    private String generateOTP() {
-        SecureRandom random = new SecureRandom();
-        int otp = 100000 + random.nextInt(900000); // Generates a 6-digit number
-        return String.valueOf(otp);
+    private boolean hasPendingOrders(int customerId) {
+        return new OrderDAO().checkHaveOrders(customerId) != 0;
     }
 
-    private void sendOTPEmail(String recipientEmail, String otp, String fullName) throws Exception {
+    private boolean isValidChallenge(HttpServletRequest request, HttpSession session,
+            int customerId) {
+        String submitted = clean(request.getParameter("challenge"));
+        String expected = clean((String) session.getAttribute("deleteAccountChallenge"));
+        Object expiryValue = session.getAttribute("deleteAccountChallengeExpiresAt");
+        Object customerValue = session.getAttribute("deleteAccountCustomerId");
+        if (!(expiryValue instanceof Long) || !(customerValue instanceof Integer)) {
+            return false;
+        }
+        return !submitted.isEmpty()
+                && submitted.equals(expected)
+                && customerId == (Integer) customerValue
+                && System.currentTimeMillis() <= (Long) expiryValue;
+    }
+
+    private boolean isValidOtp(String submittedOtp, HttpSession session) {
+        String expectedOtp = clean((String) session.getAttribute("deleteAccountOtp"));
+        Object expiryValue = session.getAttribute("deleteAccountOtpExpiresAt");
+        return expiryValue instanceof Long
+                && !expectedOtp.isEmpty()
+                && expectedOtp.equals(clean(submittedOtp))
+                && System.currentTimeMillis() <= (Long) expiryValue;
+    }
+
+    private String generateOtp() {
+        return String.valueOf(100000 + secureRandom.nextInt(900000));
+    }
+
+    private void sendOtpEmail(String recipientEmail, String otp, String fullName)
+            throws Exception {
         Email email = new Email();
         email.setTo(recipientEmail);
-        email.setSubject("Email Verification OTP");
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Dear ").append(fullName).append(",<br><br>");
-        sb.append(". Please use the OTP below to verify your email:<br>");
-        sb.append("<h2>").append(otp).append("</h2>");
-        sb.append("This OTP is valid for 5 minutes.<br>");
-        sb.append("If you did not request this, please ignore this email.<br><br>");
-        sb.append("Best Regards,<br>");
-        sb.append("<b>SMARTTICK Team</b>");
-
-        email.setContent(sb.toString());
+        email.setSubject("Confirm your SMARTTICK account deletion");
+        email.setContent("<p>Dear " + escapeHtml(clean(fullName)) + ",</p>"
+                + "<p>Use this verification code to confirm your account deletion request:</p>"
+                + "<h2>" + otp + "</h2>"
+                + "<p>This code expires in 5 minutes. If you did not request account deletion, "
+                + "do not share this code and keep your account signed in.</p>"
+                + "<p>SMARTTICK Team</p>");
         EmailUtils.send(email);
     }
 
-    /**
-     * Returns the servlet description.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "SMARTTICK servlet";
-    }// </editor-fold>
-
-    private OrderDAO OrderDAO() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    private void clearOtp(HttpSession session) {
+        session.removeAttribute("deleteAccountOtp");
+        session.removeAttribute("deleteAccountOtpExpiresAt");
     }
 
+    private void clearDeletionVerification(HttpSession session) {
+        clearOtp(session);
+        session.removeAttribute("deleteAccountChallenge");
+        session.removeAttribute("deleteAccountChallengeExpiresAt");
+        session.removeAttribute("deleteAccountCustomerId");
+    }
+
+    private void failAndRedirect(HttpServletRequest request, HttpServletResponse response,
+            String message) throws IOException {
+        request.getSession().setAttribute("messageFail", message);
+        response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
+    }
+
+    private void writeJson(HttpServletResponse response, int statusCode, String status,
+            String message, String verification, String challenge) throws IOException {
+        JsonObject json = new JsonObject();
+        json.addProperty("status", status);
+        if (message != null) {
+            json.addProperty("message", message);
+        }
+        if (verification != null) {
+            json.addProperty("verification", verification);
+        }
+        if (challenge != null) {
+            json.addProperty("challenge", challenge);
+        }
+        response.setStatus(statusCode);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(new Gson().toJson(json));
+    }
+
+    private String clean(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private String escapeHtml(String value) {
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
 }

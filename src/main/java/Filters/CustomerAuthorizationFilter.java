@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
     "/ViewShippingAddress", "/AddAddress", "/UpdateAddress", "/DeleteAddress",
     "/viewCustomerProfile", "/updateCustomerProfile", "/changeCustomerPassword",
     "/ViewCustomerVoucher", "/SaveVoucherServlet", "/NotificationServlet",
-    "/RequestToDeleteAccount"
+    "/requestToDeleteAccount"
 })
 public class CustomerAuthorizationFilter implements Filter {
     @Override public void init(FilterConfig filterConfig) { }

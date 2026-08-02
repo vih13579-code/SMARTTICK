@@ -19,7 +19,7 @@ public class CustomerLoginServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("customer") != null) {
-            response.sendRedirect(request.getContextPath() + "/customer/dashboard");
+            response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
             return;
         }
 
@@ -78,7 +78,7 @@ public class CustomerLoginServlet extends HttpServlet {
         cookie.setMaxAge(20 * 60);
         cookie.setPath(request.getContextPath().isEmpty() ? "/" : request.getContextPath());
         response.addCookie(cookie);
-        response.sendRedirect(request.getContextPath() + "/customer/dashboard");
+        response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
     }
 
     private String getCookieValue(HttpServletRequest request, String name) {

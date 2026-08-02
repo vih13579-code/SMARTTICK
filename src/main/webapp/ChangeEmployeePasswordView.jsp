@@ -1,182 +1,132 @@
-﻿
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Change Employee Password Page</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-        <style>
-            body {
-                background-color: #f8f9fa;
-            }
-            .head {
-                margin-top: 10px;
-                display: flex;
-                justify-content: right;
-                align-items: center;
-                padding: 10px;
-                background: #FFFFFF;
-                box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-                border-radius: 10px;
-                height: 85px;
-            }
-
-            .icon_head {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                object-fit: cover;
-            }
-            .content{
-                max-width: 1600px;
-                height: auto;
-                margin: 20px auto;
-                background: white;
-                padding: 40px;
-                border-radius: 10px;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: space-around;
-                align-items: center;
-            }
-            .change_password_container{
-                width: 60%;
-                min-width: 600px;
-            }
-            .error-message {
-                color: red;
-                font-size: 0.9em;
-                margin-top: 5px;
-                margin-bottom: 10px;
-            }
-            /* Popup styles */
-            .popup {
-                display: block;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                justify-content: center;
-                align-items: center;
-            }
-            .popup-content {
-                background-color: white;
-                padding: 30px;
-                border-radius: 8px;
-                text-align: center;
-                width: 300px;
-                margin: 150px auto;
-            }
-            .popup button {
-                background-color: #007bff;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            }
-            .popup button:hover {
-                background-color: #0056b3;
-            }
-        </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Change Password | SMARTTICK</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     </head>
     <body class="admin-ops-page">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-2">
-                    <jsp:include page="SidebarDashboard.jsp"></jsp:include>
+        <jsp:include page="SidebarDashboard.jsp"/>
+
+        <div class="content">
+            <jsp:include page="HeaderDashboard.jsp"/>
+
+            <main class="admin-page-stack">
+                <div class="admin-page-title">
+                    <div>
+                        <h1>Change Password</h1>
+                        <p>Use a strong password that is not shared with another account.</p>
                     </div>
-                    <div class="col-md-10" style="padding: 10px;">
-                    <jsp:include page="HeaderDashboard.jsp"></jsp:include>
-                        <div class="content">
-                            <h2 style="width: 100%;">Change Password</h2>
+                </div>
 
-                            <div class="change_password_container">
-                                <form action="ChangeEmployeePassword" method="POST" onsubmit="return validatePassword()">
+                <c:if test="${not empty sessionScope.passwordError}">
+                    <div class="alert alert-danger" role="alert">
+                        <c:out value="${sessionScope.passwordError}"/>
+                    </div>
+                    <c:remove var="passwordError" scope="session"/>
+                </c:if>
 
-                                    <div class="mb-4">
-                                        <label for="currentPassword" class="form-label">Current Password</label>
-                                        <input type="password" class="form-control" id="currentPassword" name="current" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="newPassword" class="form-label">New Password</label>
-                                        <input type="password" class="form-control" id="newPassword" name="new" required>
-                                        <div id="passwordError" class="error-message mb-8"></div>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                                        <input type="password" class="form-control" id="confirmPassword" name="confirm" required>
-                                        <div id="confirmError" class="error-message mb-8"></div>
-                                    </div>
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary">Change Password</button>
-                                    </div>
-                                </form>
+                <section class="change_password_container" aria-labelledby="changePasswordFormTitle">
+                    <h2 id="changePasswordFormTitle" class="h4 mb-2">Update your password</h2>
+                    <p class="text-secondary mb-4">
+                        The new password must contain 8–50 characters, including uppercase,
+                        lowercase, number, and special character.
+                    </p>
 
-                            </div>
+                    <form action="${pageContext.request.contextPath}/ChangeEmployeePassword"
+                          method="post" id="changePasswordForm" novalidate>
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword"
+                                   name="current" maxlength="50"
+                                   autocomplete="current-password" required>
+                            <div class="invalid-feedback">Please enter your current password.</div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        <c:if test="${sessionScope.empromess != null}">
-            <!-- Popup -->
-            <div class="popup" id="Popup">
-                <div class="popup-content">
-                    <h3>${sessionScope.empromess}</h3>
-                    <button onclick="closePopup()">Close</button>
-                </div>
-            </div>
-            <%
-                session.removeAttribute("empromess");
-            %>
-        </c:if>
-        <script>
-            function confirmLogout() {
-                if (confirm("Are you sure you want to log out?")) {
-                    // Chuyá»ƒn hÆ°á»›ng tá»›i trang logout hoáº·c gá»i API logout
-                    window.location.href = "${pageContext.request.contextPath}/Logout";
-                }
-            }
-            function closePopup() {
-                document.getElementById("Popup").style.display = "none";
-            }
 
-            function validatePassword() {
-                const newPassword = document.getElementById("newPassword").value;
-                const confirmPassword = document.getElementById("confirmPassword").value;
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword"
+                                   name="new" minlength="8" maxlength="50"
+                                   autocomplete="new-password" required>
+                            <div id="passwordError" class="error-message"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirmPassword"
+                                   name="confirm" minlength="8" maxlength="50"
+                                   autocomplete="new-password" required>
+                            <div id="confirmError" class="error-message"></div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </div>
+                    </form>
+                </section>
+            </main>
+        </div>
+
+        <script>
+            (function () {
+                "use strict";
+
+                const form = document.getElementById("changePasswordForm");
+                const currentPassword = document.getElementById("currentPassword");
+                const newPassword = document.getElementById("newPassword");
+                const confirmPassword = document.getElementById("confirmPassword");
                 const passwordError = document.getElementById("passwordError");
                 const confirmError = document.getElementById("confirmError");
+                const passwordPattern =
+                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,50}$/;
 
-                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-                passwordError.textContent = "";
-                confirmError.textContent = "";
-
-                if (!passwordRegex.test(newPassword)) {
-                    passwordError.textContent = "Password must be at least 8 characters, include one uppercase letter, one number, and one special character.";
-                    return false;
-                }
-                
-                if (newPassword.length > 50) {
-                    passwordError.textContent = "Password is too long, password must be shorter than 50 characters.";
-                    return false;
+                function clearErrors() {
+                    passwordError.textContent = "";
+                    confirmError.textContent = "";
+                    currentPassword.classList.remove("is-invalid");
+                    newPassword.classList.remove("is-invalid");
+                    confirmPassword.classList.remove("is-invalid");
                 }
 
-                if (newPassword !== confirmPassword) {
-                    confirmError.textContent = "Passwords do not match.";
-                    return false;
-                }
+                form.addEventListener("submit", function (event) {
+                    clearErrors();
+                    let valid = true;
 
-                return true;
-            }
+                    if (!currentPassword.value) {
+                        currentPassword.classList.add("is-invalid");
+                        valid = false;
+                    }
+
+                    if (!passwordPattern.test(newPassword.value)) {
+                        newPassword.classList.add("is-invalid");
+                        passwordError.textContent =
+                                "Use 8–50 characters with uppercase, lowercase, number, and special character.";
+                        valid = false;
+                    } else if (newPassword.value === currentPassword.value) {
+                        newPassword.classList.add("is-invalid");
+                        passwordError.textContent =
+                                "The new password must be different from the current password.";
+                        valid = false;
+                    }
+
+                    if (!confirmPassword.value || newPassword.value !== confirmPassword.value) {
+                        confirmPassword.classList.add("is-invalid");
+                        confirmError.textContent = "The confirmation password does not match.";
+                        valid = false;
+                    }
+
+                    if (!valid) {
+                        event.preventDefault();
+                    }
+                });
+
+                [currentPassword, newPassword, confirmPassword].forEach(function (input) {
+                    input.addEventListener("input", clearErrors);
+                });
+            }());
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
-

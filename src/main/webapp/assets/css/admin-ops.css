@@ -53,7 +53,8 @@ body.admin-ops-page .dashboard-shell {
 
 body.admin-ops-page > .content,
 body.admin-ops-page .main-layout,
-body.admin-ops-page .dashboard-shell > .dash-main {
+body.admin-ops-page .dashboard-shell > .dash-main,
+body.admin-ops-page > .main-content {
     display: block !important;
     margin: 0 0 0 var(--admin-sidebar-width) !important;
     width: auto !important;
@@ -225,8 +226,9 @@ body.admin-ops-page .purchase-history-table th {
 
 body.admin-ops-page tbody tr:hover,
 body.admin-ops-page tbody tr:hover td {
-    background: rgba(255, 255, 255, .05) !important;
-    color: #fff !important;
+    background: transparent !important;
+    color: var(--dash-text) !important;
+    transition: none !important;
 }
 
 body.admin-ops-page .table-navigate,
@@ -495,7 +497,342 @@ body.admin-ops-page .voucher-form-wrapper textarea.form-control {
 
 body.admin-ops-page .voucher-form-wrapper .form-control:hover,
 body.admin-ops-page .voucher-form-wrapper .form-select:hover {
-    border-color: #737373 !important;
+    border-color: #565656 !important;
+}
+
+/*
+ * Shared layout for the remaining legacy administration screens.
+ * Keep these rules in one place so local light-theme styles cannot produce
+ * white panels or large fixed-header gaps.
+ */
+body.admin-ops-page .admin-page-title,
+body.admin-ops-page .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    margin: 0 0 18px !important;
+}
+
+body.admin-ops-page .admin-page-title h1,
+body.admin-ops-page .admin-page-title h2,
+body.admin-ops-page .admin-page-title h3,
+body.admin-ops-page .section-head h1,
+body.admin-ops-page .section-head h2,
+body.admin-ops-page .section-head h3 {
+    margin: 0 !important;
+    color: #fff !important;
+    font-size: clamp(26px, 2.2vw, 34px);
+    line-height: 1.15;
+}
+
+body.admin-ops-page .admin-page-title p,
+body.admin-ops-page .section-sub {
+    margin: 6px 0 0 !important;
+    color: var(--dash-muted) !important;
+}
+
+body.admin-ops-page .admin-page-stack {
+    display: grid;
+    gap: 18px;
+    width: 100%;
+}
+
+body.admin-ops-page .admin-filter-form {
+    display: grid !important;
+    grid-template-columns: auto minmax(170px, 240px) auto minmax(170px, 240px) auto auto;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+body.admin-ops-page .admin-filter-form label {
+    margin: 0 !important;
+    color: var(--dash-text) !important;
+    font-weight: 700;
+}
+
+body.admin-ops-page .admin-filter-form .form-control {
+    margin: 0 !important;
+}
+
+body.admin-ops-page .form-two .field-wide {
+    grid-column: 1 / -1;
+}
+
+body.admin-ops-page .order-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+    align-items: start;
+    gap: 18px !important;
+}
+
+body.admin-ops-page .left-section,
+body.admin-ops-page .right-section {
+    min-width: 0;
+}
+
+body.admin-ops-page .order-info,
+body.admin-ops-page .customer-info,
+body.admin-ops-page .manage-order,
+body.admin-ops-page .order-details,
+body.admin-ops-page .profile-container,
+body.admin-ops-page .chart-container,
+body.admin-ops-page .chart-box,
+body.admin-ops-page .change_password_container,
+body.admin-ops-page .form-wrapper,
+body.admin-ops-page .stat-card,
+body.admin-ops-page .review-card,
+body.admin-ops-page .information-box {
+    border: 1px solid var(--dash-line) !important;
+    border-radius: 16px !important;
+    background: var(--dash-surface) !important;
+    color: var(--dash-text) !important;
+    box-shadow: none !important;
+}
+
+body.admin-ops-page .order-info,
+body.admin-ops-page .customer-info,
+body.admin-ops-page .manage-order {
+    margin: 0 0 18px !important;
+    padding: 20px !important;
+}
+
+body.admin-ops-page .order-info h3,
+body.admin-ops-page .customer-info h3,
+body.admin-ops-page .manage-order h3,
+body.admin-ops-page .order-info p,
+body.admin-ops-page .customer-info p,
+body.admin-ops-page .manage-order p,
+body.admin-ops-page .order-info strong,
+body.admin-ops-page .customer-info strong,
+body.admin-ops-page .manage-order strong,
+body.admin-ops-page .order-info span,
+body.admin-ops-page .customer-info span,
+body.admin-ops-page .manage-order span {
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .order-info h3,
+body.admin-ops-page .customer-info h3,
+body.admin-ops-page .manage-order h3 {
+    margin-bottom: 16px !important;
+}
+
+body.admin-ops-page .order-info p,
+body.admin-ops-page .customer-info p {
+    display: grid;
+    grid-template-columns: minmax(130px, auto) 1fr;
+    gap: 10px;
+    margin: 10px 0 !important;
+}
+
+body.admin-ops-page .order-details {
+    display: grid;
+    gap: 10px;
+    margin-top: 0 !important;
+    padding: 14px !important;
+}
+
+body.admin-ops-page .order-details > div {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 80px 140px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px !important;
+    border: 1px solid var(--dash-line) !important;
+    border-radius: 10px;
+    background: var(--dash-surface-2) !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .order-details span {
+    margin: 0 !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .order-details i,
+body.admin-ops-page .order-info i,
+body.admin-ops-page .customer-info i,
+body.admin-ops-page .manage-order i {
+    color: var(--dash-gold) !important;
+}
+
+body.admin-ops-page .profile-container {
+    width: min(980px, 100%) !important;
+    max-width: 980px !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    padding: 28px !important;
+}
+
+body.admin-ops-page .profile-container label,
+body.admin-ops-page .profile-container p,
+body.admin-ops-page .profile-container strong,
+body.admin-ops-page .profile-container .form-label {
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .profile-container .text-muted {
+    color: var(--dash-muted) !important;
+}
+
+body.admin-ops-page .change_password_container,
+body.admin-ops-page .form-wrapper {
+    width: min(720px, 100%) !important;
+    max-width: 720px !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    padding: 28px !important;
+}
+
+body.admin-ops-page > .form-container {
+    width: min(680px, calc(100% - var(--admin-sidebar-width) - 64px)) !important;
+    max-width: 680px !important;
+    min-height: 0 !important;
+    margin: 0 32px 32px calc(var(--admin-sidebar-width) + 32px) !important;
+    padding: 28px !important;
+    border: 1px solid var(--dash-line) !important;
+    border-radius: 16px !important;
+    background: var(--dash-surface) !important;
+    color: var(--dash-text) !important;
+    box-shadow: none !important;
+}
+
+body.admin-ops-page .change_password_container label,
+body.admin-ops-page .form-wrapper label {
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .change_password_container .text-secondary {
+    color: var(--dash-muted) !important;
+}
+
+body.admin-ops-page .change_password_container .error-message,
+body.admin-ops-page .change_password_container .invalid-feedback {
+    min-height: 20px;
+    margin-top: 6px;
+    color: #ffaaa5 !important;
+    font-size: 13px;
+}
+
+body.admin-ops-page .change_password_container .form-control.is-invalid {
+    border-color: #ff6862 !important;
+}
+
+body.admin-ops-page .chart-container {
+    height: 300px;
+    padding: 16px !important;
+}
+
+body.admin-ops-page .chart-box {
+    padding: 18px !important;
+}
+
+body.admin-ops-page > .dash-side + .content .purchase-history-table,
+body.admin-ops-page > .dash-side + .content .purchase-history-table thead,
+body.admin-ops-page > .dash-side + .content .purchase-history-table thead th,
+body.admin-ops-page > .dash-side + .content .purchase-history-table tbody td {
+    border-color: var(--dash-line) !important;
+    background: transparent !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .popup-content {
+    border: 1px solid var(--dash-line) !important;
+    background: var(--dash-surface) !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .table-hover > tbody > tr:hover > *,
+body.admin-ops-page .table-striped > tbody > tr:nth-of-type(odd) > *,
+body.admin-ops-page table tbody tr:hover,
+body.admin-ops-page table tbody tr:hover td,
+body.admin-ops-page table tbody tr:hover th {
+    --bs-table-accent-bg: transparent !important;
+    --bs-table-hover-bg: transparent !important;
+    --bs-table-striped-bg: transparent !important;
+    background: transparent !important;
+    color: var(--dash-text) !important;
+    box-shadow: none !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+body.admin-ops-page .card:hover,
+body.admin-ops-page .panel:hover,
+body.admin-ops-page .table-container:hover,
+body.admin-ops-page .order-container:hover,
+body.admin-ops-page .review-card:hover,
+body.admin-ops-page .stat-card:hover {
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+body.admin-ops-page .modal-body,
+body.admin-ops-page .modal-title,
+body.admin-ops-page .modal-body label,
+body.admin-ops-page .modal-body p {
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page .alert {
+    border: 1px solid transparent;
+    box-shadow: none !important;
+}
+
+body.admin-ops-page .alert-success,
+body.admin-ops-page .alert-info {
+    border-color: rgba(57, 208, 111, .24) !important;
+    background: rgba(57, 208, 111, .14) !important;
+    color: #9aefb6 !important;
+}
+
+body.admin-ops-page .alert-danger {
+    border-color: rgba(255, 77, 71, .24) !important;
+    background: rgba(255, 77, 71, .14) !important;
+    color: #ffaaa5 !important;
+}
+
+body.admin-ops-page .empty-state {
+    padding: 30px 18px;
+    text-align: center;
+    color: var(--dash-muted);
+}
+
+body.admin-ops-page > .fixed-header {
+    margin: 0 0 0 var(--admin-sidebar-width) !important;
+    width: calc(100% - var(--admin-sidebar-width)) !important;
+    max-width: calc(100% - var(--admin-sidebar-width)) !important;
+    padding: var(--admin-content-y) var(--admin-content-x) 0 !important;
+}
+
+body.admin-ops-page.order-detail-admin-page .order-info,
+body.admin-ops-page.order-detail-admin-page .customer-info,
+body.admin-ops-page.order-detail-admin-page .order-details,
+body.admin-ops-page.order-detail-admin-page .order-details > div {
+    border-color: var(--dash-line) !important;
+    background: var(--dash-surface) !important;
+    color: var(--dash-text) !important;
+}
+
+body.admin-ops-page.order-detail-admin-page .order-details > div {
+    background: var(--dash-surface-2) !important;
+}
+
+body.admin-ops-page.order-detail-admin-page .order-info h3,
+body.admin-ops-page.order-detail-admin-page .customer-info h3,
+body.admin-ops-page.order-detail-admin-page .order-info p,
+body.admin-ops-page.order-detail-admin-page .customer-info p,
+body.admin-ops-page.order-detail-admin-page .order-info strong,
+body.admin-ops-page.order-detail-admin-page .customer-info strong,
+body.admin-ops-page.order-detail-admin-page .order-info p > span:not([class^="status-"]),
+body.admin-ops-page.order-detail-admin-page .customer-info p > span,
+body.admin-ops-page.order-detail-admin-page .order-details span {
+    color: var(--dash-text) !important;
 }
 
 body.admin-ops-page .voucher-form-wrapper .form-control:focus,
@@ -531,6 +868,411 @@ body.admin-ops-page .voucher-form-wrapper .btn {
     min-width: 148px;
 }
 
+/* Employee management */
+body.employee-page .employee-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0 !important;
+}
+
+body.employee-page .employee-search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(640px, 100%);
+}
+
+body.employee-page .employee-search-form .form-control {
+    flex: 1 1 auto;
+    min-width: 220px;
+}
+
+body.employee-page .employee-table-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    color: var(--dash-muted);
+}
+
+body.employee-page .employee-table-summary strong {
+    color: var(--dash-text);
+    font-size: 18px;
+}
+
+body.employee-page .employee-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 78px;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+body.employee-page .employee-status.active {
+    border-color: rgba(57, 208, 111, .28);
+    background: rgba(57, 208, 111, .14);
+    color: #9aefb6;
+}
+
+body.employee-page .employee-status.inactive {
+    border-color: rgba(255, 77, 71, .28);
+    background: rgba(255, 77, 71, .14);
+    color: #ffaaa5;
+}
+
+body.employee-page .table-actions form {
+    display: inline-flex;
+    margin: 0;
+}
+
+body.employee-page .employee-form-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 32px;
+    width: min(1040px, 100%);
+    margin: 0 auto;
+    padding: 28px;
+    border: 1px solid var(--dash-line);
+    border-radius: 16px;
+    background: var(--dash-surface);
+    color: var(--dash-text);
+    box-shadow: none;
+}
+
+body.employee-page .employee-form-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 18px;
+}
+
+body.employee-page .employee-form-fields label,
+body.employee-page .employee-avatar-editor label {
+    color: var(--dash-text) !important;
+    font-weight: 700;
+}
+
+body.employee-page .employee-form-fields small,
+body.employee-page .employee-avatar-editor small {
+    display: block;
+    margin-top: 6px;
+    color: var(--dash-muted);
+}
+
+body.employee-page .employee-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    grid-column: 1 / -1;
+    margin-top: 4px;
+}
+
+body.employee-page .employee-avatar-editor,
+body.employee-page .employee-avatar-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: start;
+    gap: 14px;
+    padding: 20px;
+    border: 1px solid var(--dash-line);
+    border-radius: 14px;
+    background: var(--dash-surface-2);
+    text-align: center;
+}
+
+body.employee-page .employee-avatar-editor .form-control {
+    width: 100%;
+}
+
+body.employee-page .employee-avatar-preview {
+    width: 150px;
+    height: 150px;
+    border: 2px solid rgba(255, 255, 255, .18);
+    border-radius: 50%;
+    background: #252525;
+    object-fit: cover;
+}
+
+body.employee-page .employee-avatar-panel strong {
+    color: var(--dash-text);
+    font-size: 18px;
+}
+
+body.employee-page .employee-avatar-panel span {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    color: var(--dash-muted);
+}
+
+body.employee-page .employee-detail-card {
+    display: grid !important;
+    grid-template-columns: 260px minmax(0, 1fr);
+    align-items: start !important;
+    gap: 28px;
+}
+
+body.employee-page .employee-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    margin: 0;
+}
+
+body.employee-page .employee-detail-grid > div {
+    min-width: 0;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--dash-line);
+}
+
+body.employee-page .employee-detail-grid dt {
+    margin-bottom: 5px;
+    color: var(--dash-muted);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+body.employee-page .employee-detail-grid dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--dash-text);
+}
+
+body.employee-page table tbody tr,
+body.employee-page table tbody tr:hover,
+body.employee-page table tbody tr:hover td,
+body.employee-page .employee-form-card,
+body.employee-page .employee-form-card:hover,
+body.employee-page .employee-detail-card,
+body.employee-page .employee-detail-card:hover {
+    transform: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+}
+
+body.employee-page > .dash-side + .content table tbody tr:hover,
+body.employee-page > .dash-side + .content table tbody tr:hover td,
+body.employee-page > .dash-side + .content .table tbody tr:hover,
+body.employee-page > .dash-side + .content .table tbody tr:hover td {
+    --bs-table-accent-bg: transparent !important;
+    --bs-table-hover-bg: transparent !important;
+    background: transparent !important;
+    color: var(--dash-text) !important;
+}
+
+body.employee-page .btn-primary:hover {
+    background: var(--dash-blue) !important;
+    border-color: var(--dash-blue) !important;
+}
+
+body.employee-page .btn-secondary:hover {
+    background: #4a4a4a !important;
+    border-color: #4a4a4a !important;
+}
+
+body.employee-page .table-actions a:hover {
+    background: rgba(61, 156, 255, .16) !important;
+    border-color: rgba(61, 156, 255, .22) !important;
+    color: #9ccfff !important;
+}
+
+/* Voucher management */
+body.voucher-admin-page .voucher-form-wrapper {
+    width: min(920px, 100%) !important;
+    max-width: 920px !important;
+    margin: 0 !important;
+    padding: 26px !important;
+    border: 1px solid var(--dash-line) !important;
+    border-radius: 16px !important;
+    background: var(--dash-surface) !important;
+    color: var(--dash-text) !important;
+    box-shadow: none !important;
+}
+
+body.voucher-admin-page .voucher-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 22px;
+}
+
+body.voucher-admin-page .voucher-field {
+    min-width: 0;
+}
+
+body.voucher-admin-page .voucher-field.wide {
+    grid-column: 1 / -1;
+}
+
+body.voucher-admin-page .voucher-field[hidden] {
+    display: none !important;
+}
+
+body.voucher-admin-page .field-hint {
+    display: block;
+    margin-top: 6px;
+    color: var(--dash-muted);
+    font-size: 12px;
+}
+
+body.voucher-admin-page .field-error {
+    min-height: 20px;
+    margin-top: 6px;
+    color: #ffaaa5;
+    font-size: 13px;
+}
+
+body.voucher-admin-page .form-control.is-invalid,
+body.voucher-admin-page .form-select.is-invalid {
+    border-color: #ff6862 !important;
+    background-image: none !important;
+}
+
+body.voucher-admin-page .voucher-form-actions,
+body.voucher-admin-page .voucher-heading-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+body.voucher-admin-page .voucher-form-actions {
+    margin-top: 22px;
+}
+
+body.voucher-admin-page .voucher-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+body.voucher-admin-page .voucher-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: min(680px, 100%);
+}
+
+body.voucher-admin-page .voucher-search .form-control {
+    flex: 1 1 auto;
+    min-width: 220px;
+}
+
+body.voucher-admin-page .voucher-table-wrap {
+    padding: 0 !important;
+}
+
+body.voucher-admin-page .voucher-table th,
+body.voucher-admin-page .voucher-table td {
+    white-space: nowrap;
+}
+
+body.voucher-admin-page .voucher-type-badge {
+    display: inline-flex;
+    min-width: 82px;
+    justify-content: center;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+body.voucher-admin-page .voucher-type-badge.percent {
+    border-color: rgba(61, 156, 255, .26);
+    background: rgba(61, 156, 255, .14);
+    color: #9ccfff;
+}
+
+body.voucher-admin-page .voucher-type-badge.fixed {
+    border-color: rgba(57, 208, 111, .26);
+    background: rgba(57, 208, 111, .14);
+    color: #9aefb6;
+}
+
+body.voucher-admin-page .voucher-detail-card {
+    width: min(920px, 100%) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
+body.voucher-admin-page .voucher-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+}
+
+body.voucher-admin-page .voucher-detail-grid > div {
+    padding: 18px 20px;
+    border-right: 1px solid var(--dash-line);
+    border-bottom: 1px solid var(--dash-line);
+}
+
+body.voucher-admin-page .voucher-detail-grid > div.wide {
+    grid-column: 1 / -1;
+}
+
+body.voucher-admin-page .voucher-detail-grid dt {
+    margin-bottom: 6px;
+    color: var(--dash-muted);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+body.voucher-admin-page .voucher-detail-grid dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--dash-text);
+    font-size: 17px;
+}
+
+body.voucher-admin-page .btn,
+body.voucher-admin-page .btn:hover,
+body.voucher-admin-page .table-actions a,
+body.voucher-admin-page .table-actions a:hover,
+body.voucher-admin-page .voucher-form-wrapper,
+body.voucher-admin-page .voucher-form-wrapper:hover,
+body.voucher-admin-page table tbody tr,
+body.voucher-admin-page table tbody tr:hover {
+    transform: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+}
+
+body.voucher-admin-page .btn-primary:hover {
+    background: var(--dash-blue) !important;
+    border-color: var(--dash-blue) !important;
+    color: #fff !important;
+}
+
+body.voucher-admin-page .table-actions a:hover {
+    background: rgba(61, 156, 255, .16) !important;
+    border-color: rgba(61, 156, 255, .22) !important;
+    color: #9ccfff !important;
+}
+
+body.voucher-admin-page .btn-secondary:hover {
+    background: #4a4a4a !important;
+    border-color: #4a4a4a !important;
+    color: #fff !important;
+}
+
+body.voucher-admin-page .btn-danger:hover {
+    background: var(--dash-red) !important;
+    border-color: var(--dash-red) !important;
+    color: #fff !important;
+}
+
 @media (max-width: 900px) {
     body.admin-ops-page > .dash-side,
     body.admin-ops-page .sidebar-container,
@@ -542,7 +1284,8 @@ body.admin-ops-page .voucher-form-wrapper .btn {
 
     body.admin-ops-page > .content,
     body.admin-ops-page .main-layout,
-    body.admin-ops-page .dashboard-shell > .dash-main {
+    body.admin-ops-page .dashboard-shell > .dash-main,
+    body.admin-ops-page > .main-content {
         margin-left: 0 !important;
         max-width: 100% !important;
         padding: 18px !important;
@@ -565,5 +1308,66 @@ body.admin-ops-page .voucher-form-wrapper .btn {
 
     body.admin-ops-page .voucher-page-title {
         font-size: 28px;
+    }
+
+    body.admin-ops-page .order-layout {
+        grid-template-columns: 1fr;
+    }
+
+    body.admin-ops-page .order-details > div {
+        grid-template-columns: 1fr;
+    }
+
+    body.admin-ops-page .admin-filter-form {
+        grid-template-columns: 1fr;
+    }
+
+    body.admin-ops-page .form-two .field-wide {
+        grid-column: auto;
+    }
+
+    body.admin-ops-page > .fixed-header {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 18px 18px 0 !important;
+    }
+
+    body.admin-ops-page > .form-container {
+        width: calc(100% - 36px) !important;
+        margin: 0 18px 18px !important;
+    }
+
+    body.employee-page .employee-form-card,
+    body.employee-page .employee-detail-card {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.employee-page .employee-avatar-editor,
+    body.employee-page .employee-avatar-panel {
+        width: 100%;
+    }
+
+    body.employee-page .employee-form-fields,
+    body.employee-page .employee-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    body.employee-page .employee-form-actions {
+        grid-column: auto;
+    }
+
+    body.voucher-admin-page .voucher-form-grid,
+    body.voucher-admin-page .voucher-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    body.voucher-admin-page .voucher-field.wide,
+    body.voucher-admin-page .voucher-detail-grid > div.wide {
+        grid-column: auto;
+    }
+
+    body.voucher-admin-page .voucher-search {
+        flex-wrap: wrap;
     }
 }

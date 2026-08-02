@@ -1,46 +1,41 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Models;
 
-public class CustomerVoucher extends Voucher{
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-    private int customerID;
-    private String expirationDate;
+public class CustomerVoucher extends Voucher {
+
+    private int customerId;
+    private LocalDateTime expirationDate;
     private int quantity;
 
-    public CustomerVoucher(int customerID, String expirationDate, int quantity) {
-        this.customerID = customerID;
+    public CustomerVoucher() {
+    }
+
+    public CustomerVoucher(int customerId, LocalDateTime expirationDate, int quantity,
+            int voucherId, String voucherCode, String type, BigDecimal value,
+            BigDecimal maxDiscount, BigDecimal minOrderValue, LocalDateTime endDate) {
+        super(voucherId, voucherCode, type, value, maxDiscount, minOrderValue, endDate);
+        this.customerId = customerId;
         this.expirationDate = expirationDate;
         this.quantity = quantity;
     }
 
-    public CustomerVoucher(int customerID, String expirationDate, int quantity, int voucherID, String voucherCode, int voucherValue, int voucherType, String startDate, String endDate, int usedCount, int maxUsedCount, int maxDiscountAmount, int minOrderValue, int status, String description) {
-        super(voucherID, voucherCode, voucherValue, voucherType, startDate, endDate, usedCount, maxUsedCount, maxDiscountAmount, minOrderValue, status, description);
-        this.customerID = customerID;
-        this.expirationDate = expirationDate;
-        this.quantity = quantity;
+    public int getCustomerId() {
+        return customerId;
     }
 
-    public String getExpirationDate() {
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
+    }
+
+    public LocalDateTime getExpirationDate() {
         return expirationDate;
     }
 
-    public void setExpirationDate(String expirationDate) {
+    public void setExpirationDate(LocalDateTime expirationDate) {
         this.expirationDate = expirationDate;
     }
-
-
-    public int getCustomerID() {
-        return customerID;
-    }
-
-    public void setCustomerID(int customerID) {
-        this.customerID = customerID;
-    }
-
-
 
     public int getQuantity() {
         return quantity;
@@ -49,6 +44,4 @@ public class CustomerVoucher extends Voucher{
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-
-   
 }

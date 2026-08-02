@@ -23,7 +23,7 @@ axios(Parameter).then(function (result) {
         renderCity(allData);
     }
 }).catch(function (error) {
-    console.error("Lỗi tải dữ liệu: ", error);
+    console.error("Failed to load address data:", error);
 });
 
 citis.onchange = function () {

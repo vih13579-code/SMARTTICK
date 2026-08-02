@@ -1,143 +1,169 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<html>
-    <head>
-        <title>My Profile</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        <style>
-            .profile-content {
-                flex: 1;
-                padding: 30px;
-                background: white;
-                margin: 20px;
-                border-radius: 5px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            }
-            .avatar-preview {
-                width: 150px;
-                height: 150px;
-                border-radius: 50%;
-                object-fit: cover;
-            }
-
-            .profile {
-                background: white;
-                display: flex;
-                flex-wrap: wrap;
-                align-items: center;
-                justify-content: space-between;
-                padding: 20px;
-            }
-
-            .info {
-                width: 50%;
-                min-width: 400px;
-            }
-
-            .avatar {
-                width: 50%;
-                min-width: 400px;
-                text-align: center;
-                padding: 20px;
-            }
-            .readonly-select {
-                pointer-events: none;
-                background-color: #e9ecef;
-            }
-
-        </style>
-    </head>
-    <body >
-        <div class="profile customer-profile-card" style="box-shadow: 2px 2px 2px 2px lightgray; border-radius: 10px ; ">
-            <div class="info">
-                <h3>My Profile</h3>
-                <p class="text-muted">Manage your profile information to secure your account</p>
-
-                <div class="mb-3">
-                    <label class="form-label">Email:</label>
-                    <p>${sessionScope.customer.getEmail()}</p>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Name:</label>
-                    <input type="text" class="form-control" name="fullname" value="${sessionScope.customer.getFullName()}" readonly>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Phone Number:</label>
-                    <p>
-                        ********<span id="phoneDisplay">${sessionScope.customer.getPhoneNumber() != null && sessionScope.customer.getPhoneNumber() != '' ? sessionScope.customer.getPhoneNumber().substring(sessionScope.customer.getPhoneNumber().length()-2) : '**'}</span> 
-                    </p>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Gender:</label>
-                    <div>
-                        <input disabled type="radio" name="gender" value="Male" ${sessionScope.customer.getGender().trim().equalsIgnoreCase("Male") ? 'checked' : ''}> Male
-                        <input disabled type="radio" name="gender" value="Female" ${sessionScope.customer.getGender().trim().equalsIgnoreCase("Female") ? 'checked' : ''}> Female
-                        <input disabled type="radio" name="gender" value="Other" ${sessionScope.customer.getGender().trim().equalsIgnoreCase("Other") ? 'checked' : ''}> Other
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Date of Birth:</label>
-
-                    <div class="row">
-                        <div class="col">
-                            <select class="form-select readonly-select" name="day" readonly>
-                                <option>Day</option>
-                                <c:forEach var="i" begin="1" end="31">
-                                    <option ${!sessionScope.customer.getBirthday().equals('') && sessionScope.customer.getBirthday().split("-")[2].equals(String.format("%02d", i)) ? 'selected' : ''}>${i}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <select class="form-select readonly-select" name="month" readonly>
-                                <option>Month</option>
-                                <c:forEach var="i" begin="1" end="12">
-                                    <c:set var="formattedMonth" value="${String.format('%02d', i)}" />
-                                    <option value="${formattedMonth}" ${!sessionScope.customer.getBirthday().equals('') && sessionScope.customer.getBirthday().split('-')[1] == formattedMonth ? 'selected' : ''}>${i}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <select class="form-select readonly-select" name="year" readonly>
-                                <option>Year</option>
-                                <c:forEach var="i" begin="1900" end="2024">
-                                    <option ${!sessionScope.customer.getBirthday().equals('') && sessionScope.customer.getBirthday().split("-")[0].equals(String.valueOf(i)) ? 'selected' : ''}>${i}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-3 avatar">
-                <label class="form-label">Avatar:</label>
-                <div class="d-block align-items-center">
-                    <c:set var="customerAvatar" value="${sessionScope.customer.avatar}" />
-                    <c:choose>
-                        <c:when test="${not empty customerAvatar && fn:startsWith(customerAvatar, 'http')}">
-                            <img id="avatarPreview" class="avatar-preview mb-3" src="${customerAvatar}" alt="Customer avatar" onerror="this.src='${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg'">
-                        </c:when>
-                        <c:when test="${not empty customerAvatar}">
-                            <img id="avatarPreview" class="avatar-preview mb-3" src="${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/${customerAvatar}" alt="Customer avatar" onerror="this.src='${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg'">
-                        </c:when>
-                        <c:otherwise>
-                            <img id="avatarPreview" class="avatar-preview mb-3" src="${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg" alt="Customer avatar">
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-            </div>
-            <a href="updateCustomerProfile" class="btn btn-danger">Update</a>
+<div class="account-fragment profile-overview">
+    <div class="account-fragment-head">
+        <div>
+            <span class="eyebrow">Profile overview</span>
+            <h2>Account overview</h2>
+            <p class="section-sub">Manage your personal information, orders, addresses and vouchers.</p>
         </div>
+        <a href="${pageContext.request.contextPath}/updateCustomerProfile"
+           class="btn btn-primary">
+            <i class="bi bi-pencil-square"></i> Edit profile
+        </a>
+    </div>
 
-        <script src="./assets/js/profile.js"></script>
+    <div class="account-stats">
+        <a href="${pageContext.request.contextPath}/ViewOrderHistory" class="account-stat">
+            <span class="account-stat-icon"><i class="bi bi-bag-check"></i></span>
+            <span>Total orders</span>
+            <strong>${orderCount}</strong>
+        </a>
+        <a href="${pageContext.request.contextPath}/ViewCustomerVoucher" class="account-stat">
+            <span class="account-stat-icon"><i class="bi bi-ticket-perforated"></i></span>
+            <span>Saved vouchers</span>
+            <strong>${voucherCount}</strong>
+        </a>
+        <a href="${pageContext.request.contextPath}/ViewShippingAddress" class="account-stat">
+            <span class="account-stat-icon"><i class="bi bi-geo-alt"></i></span>
+            <span>Addresses</span>
+            <strong>${addressCount}</strong>
+        </a>
+        <a href="${pageContext.request.contextPath}/changeCustomerPassword" class="account-stat">
+            <span class="account-stat-icon"><i class="bi bi-shield-check"></i></span>
+            <span>Sign-in password</span>
+            <strong class="account-status-text">
+                <c:choose>
+                    <c:when test="${hasLocalPassword}">Ready</c:when>
+                    <c:otherwise>Not set</c:otherwise>
+                </c:choose>
+            </strong>
+        </a>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="profile-summary-grid">
+        <section class="profile-details-card">
+            <div class="profile-card-title">
+                <h3>Personal information</h3>
+                <span class="badge badge-ok">Active</span>
+            </div>
+            <dl class="profile-details-list">
+                <div>
+                    <dt>Full name</dt>
+                    <dd><c:out value="${sessionScope.customer.fullName}" default="Not provided"/></dd>
+                </div>
+                <div>
+                    <dt>Email</dt>
+                    <dd><c:out value="${sessionScope.customer.email}"/></dd>
+                </div>
+                <div>
+                    <dt>Phone number</dt>
+                    <dd>
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.customer.phoneNumber}">
+                                <c:out value="${sessionScope.customer.phoneNumber}"/>
+                            </c:when>
+                            <c:otherwise>Not provided</c:otherwise>
+                        </c:choose>
+                    </dd>
+                </div>
+                <div>
+                    <dt>Gender</dt>
+                    <dd><c:out value="${sessionScope.customer.gender}" default="Not provided"/></dd>
+                </div>
+                <div>
+                    <dt>Date of birth</dt>
+                    <dd>
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.customer.birthday}">
+                                <c:out value="${sessionScope.customer.birthday}"/>
+                            </c:when>
+                            <c:otherwise>Not provided</c:otherwise>
+                        </c:choose>
+                    </dd>
+                </div>
+            </dl>
+        </section>
 
-    </body>
+        <section class="profile-avatar-card">
+            <c:set var="customerAvatar" value="${sessionScope.customer.avatar}"/>
+            <c:choose>
+                <c:when test="${not empty customerAvatar && fn:startsWith(customerAvatar, 'http')}">
+                    <img class="profile-overview-avatar" src="${customerAvatar}" alt="Customer avatar"
+                         onerror="this.src='${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg'">
+                </c:when>
+                <c:when test="${not empty customerAvatar}">
+                    <img class="profile-overview-avatar"
+                         src="${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/${customerAvatar}"
+                         alt="Customer avatar"
+                         onerror="this.src='${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg'">
+                </c:when>
+                <c:otherwise>
+                    <img class="profile-overview-avatar"
+                         src="${pageContext.request.contextPath}/assets/imgs/CustomerAvatar/defaut.jpg"
+                         alt="Customer avatar">
+                </c:otherwise>
+            </c:choose>
+            <strong><c:out value="${sessionScope.customer.fullName}"/></strong>
+            <span>Member since
+                <c:choose>
+                    <c:when test="${not empty sessionScope.customer.createDate}">
+                        <c:out value="${fn:substring(sessionScope.customer.createDate, 0, 10)}"/>
+                    </c:when>
+                    <c:otherwise>SMARTTICK</c:otherwise>
+                </c:choose>
+            </span>
+        </section>
+    </div>
 
-</html>
+    <section class="recent-orders-card">
+        <div class="profile-card-title">
+            <div>
+                <span class="eyebrow">Recent activity</span>
+                <h3>Latest orders</h3>
+            </div>
+            <a href="${pageContext.request.contextPath}/ViewOrderHistory">View all</a>
+        </div>
+        <div class="table-scroll">
+            <table class="table account-order-table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach items="${recentOrders}" var="order">
+                        <tr>
+                            <td>#${order.orderID}</td>
+                            <td><c:out value="${order.orderDate}"/></td>
+                            <td><fmt:formatNumber value="${order.totalAmount}" pattern="#,##0"/> VND</td>
+                            <td>
+                                <span class="order-status">
+                                    <c:choose>
+                                        <c:when test="${order.status == 1}">Waiting for acceptance</c:when>
+                                        <c:when test="${order.status == 2}">Packaging</c:when>
+                                        <c:when test="${order.status == 3}">Waiting for delivery</c:when>
+                                        <c:when test="${order.status == 4}">Delivered</c:when>
+                                        <c:when test="${order.status == 5}">Cancelled</c:when>
+                                        <c:otherwise>Unknown</c:otherwise>
+                                    </c:choose>
+                                </span>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    <c:if test="${empty recentOrders}">
+                        <tr>
+                            <td colspan="4" class="account-table-empty">No orders yet.</td>
+                        </tr>
+                    </c:if>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

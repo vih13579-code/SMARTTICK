@@ -76,7 +76,7 @@ public class GoogleLoginServlet extends HttpServlet {
             session = request.getSession(true);
             setAuthenticatedCustomer(session, customer);
             addRememberCookie(request, response, customer.getEmail());
-            response.sendRedirect(request.getContextPath() + "/customer/dashboard");
+            response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
         } catch (IllegalArgumentException ex) {
             getServletContext().log("Google OAuth validation failed", ex);
             redirectFailure(request, response, session, source, ex.getMessage());

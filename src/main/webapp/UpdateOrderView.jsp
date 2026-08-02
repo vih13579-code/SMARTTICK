@@ -251,8 +251,6 @@
     </head>
     <body class="admin-ops-page">
         <div class="fixed-header"><jsp:include page="HeaderDashboard.jsp"></jsp:include>
-                <p></p>
-
             </div>
 
             <div class="main-layout">
@@ -261,7 +259,12 @@
                 </div>
 
                 <div class="main-content">
-                    <h2><i class="fa-solid fa-receipt"></i> Update Order</h2>
+                    <div class="admin-page-title">
+                        <div>
+                            <h1><i class="fa-solid fa-receipt"></i> Update Order</h1>
+                            <p>Review the order and move it to the next valid status.</p>
+                        </div>
+                    </div>
                     <div class="container">
                     <c:if test="${param.success == 'created'}">
                         <div class="alert alert-success alert-dismissible fade show" role="alert">

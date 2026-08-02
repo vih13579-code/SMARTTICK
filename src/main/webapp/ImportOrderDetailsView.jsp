@@ -120,15 +120,27 @@
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>
             <div class="content">
             <jsp:include page="HeaderDashboard.jsp"></jsp:include>
+                <div class="admin-page-title">
+                    <div>
+                        <h1>Import Details</h1>
+                        <p>Supplier, employee, cost, and imported product information.</p>
+                    </div>
+                    <div>
+                        <a class="btn btn-warning" href="${pageContext.request.contextPath}/UpdateImportOrder?id=${importOrder.ioid}">Update</a>
+                        <form method="post" action="${pageContext.request.contextPath}/DeleteImportOrder" style="display: inline" onsubmit="return confirm('Delete import order #${importOrder.ioid}? Stock quantities will be adjusted.');">
+                            <input type="hidden" name="importId" value="${importOrder.ioid}">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/ImportOrder">Back</a>
+                    </div>
+                </div>
                 <!--
                 <div class="table-navigate">
                     <div class="table-navigate"></div>
                 </div>-->
 
                 <div class="table-container" style="margin-top: 20px">
-                    <div>
-                        <h3></h3>
-                    </div>
+                    <h3>Import Summary</h3>
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -157,7 +169,7 @@
 
             <div class="table-container" style="margin-top: 20px">
                 <div>
-                    <h3>Details</h3>
+                    <h3>Imported Products</h3>
                 </div>
                 <table class="table table-hover">
                     <thead>

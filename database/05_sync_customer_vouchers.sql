@@ -17,9 +17,7 @@ FROM dbo.Customers AS customer
 CROSS JOIN dbo.Vouchers AS voucher
 WHERE customer.IsBlock = 0
   AND customer.IsDeleted = 0
-  AND voucher.[Status] = 1
-  AND voucher.EndDate >= GETDATE()
-  AND (voucher.MaxUsedCount = 0 OR voucher.UsedCount < voucher.MaxUsedCount)
+  AND voucher.EndDate >= SYSDATETIME()
   AND NOT EXISTS (
       SELECT 1
       FROM dbo.CustomerVoucher AS customerVoucher

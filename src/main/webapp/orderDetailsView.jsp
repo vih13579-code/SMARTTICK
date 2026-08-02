@@ -192,8 +192,12 @@
     </head>
     <body class="admin-ops-page order-detail-admin-page">
         <div class="fixed-header"><jsp:include page="HeaderDashboard.jsp"></jsp:include>
-                <p></p>
-                <h2><i class="fa-solid fa-receipt"></i> Order Details</h2>
+                <div class="admin-page-title">
+                    <div>
+                        <h1><i class="fa-solid fa-receipt"></i> Order Details</h1>
+                        <p>Review order, payment, product, and customer information.</p>
+                    </div>
+                </div>
             </div>
 
             <div class="main-layout">

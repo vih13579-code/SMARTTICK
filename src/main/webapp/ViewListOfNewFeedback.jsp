@@ -55,8 +55,9 @@
             }
             body.admin-ops-page .container-feedback .table tbody tr:hover,
             body.admin-ops-page .container-feedback .table tbody tr:hover td {
-                background: #3b4652 !important;
+                background: transparent !important;
                 color: #ffffff !important;
+                transition: none !important;
             }
             body.admin-ops-page .container-feedback .badge.bg-success {
                 background: #18794e !important;
@@ -105,11 +106,16 @@
             
             
 
-            <div class="container-feedback">
-                <h2 class="text-center mb-4"><jsp:include page="HeaderDashboard.jsp"></jsp:include></h2>
-             <h3  font-weight="Bold">FEEDBACK</h3>
+            <div class="content container-feedback">
+                <jsp:include page="HeaderDashboard.jsp"></jsp:include>
+                <div class="admin-page-title">
+                    <div>
+                        <h1>Feedback</h1>
+                        <p>Review customer ratings and manage replies.</p>
+                    </div>
+                </div>
             <c:if test="${empty ProductRating}">
-             <h3  font-weight="Bold">Have No Feedback.</h3>
+                <div class="empty-state">No feedback found.</div>
             </c:if>
              <c:if test="${param.success == 'created'}">
                         <div class="alert alert-success alert-dismissible fade show" role="alert">

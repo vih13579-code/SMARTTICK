@@ -1,234 +1,204 @@
-﻿
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Update Employee Profile Page</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <title>Update Employee Profile | SMARTTICK</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ops.css?v=20260729-admin-fix">
         <style>
-            body {
-                background-color: #f8f9fa;
+            .profile-edit-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 260px;
+                gap: 28px;
+                align-items: start;
             }
-
-            .profile-container {
-                max-width: 1600px;
-                height: auto;
-                margin: 20px auto;
-                background: white;
-                padding: 40px;
+            .profile-fields {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 18px;
+            }
+            .profile-fields .field-wide {
+                grid-column: 1 / -1;
+            }
+            .profile-fields label,
+            .avatar-container > label {
+                display: block;
+                margin-bottom: 7px;
+                font-weight: 700;
+            }
+            .profile-readonly {
+                min-height: 48px;
+                padding: 12px 14px;
+                border: 1px solid rgba(255, 255, 255, .1);
                 border-radius: 10px;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .form-container {
-                width: 60%;
+                background: #292929;
+                color: #c9c7bd;
             }
             .avatar-container {
                 text-align: center;
-                width: 35%;
             }
             .avatar-preview {
-                width: 180px;
-                height: 180px;
-                border-radius: 50%;
-                border: 3px solid #ddd;
-            }
-            .value{
-                width: 150px;
-
-            }
-            /* Popup styles */
-            .popup {
                 display: block;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                justify-content: center;
-                align-items: center;
+                width: 164px;
+                height: 164px;
+                margin: 0 auto 18px;
+                border: 3px solid #d8ad5a;
+                border-radius: 50%;
+                background: #424242;
+                object-fit: cover;
             }
-            .popup-content {
-                background-color: white;
-                padding: 30px;
-                border-radius: 8px;
-                text-align: center;
-                width: 300px;
-                margin: 150px auto;
+            .profile-actions {
+                display: flex;
+                gap: 10px;
+                margin-top: 22px;
             }
-            .popup button {
-                background-color: #007bff;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            }
-            .popup button:hover {
-                background-color: #0056b3;
+            @media (max-width: 760px) {
+                .profile-edit-grid,
+                .profile-fields {
+                    grid-template-columns: 1fr;
+                }
+                .profile-fields .field-wide {
+                    grid-column: auto;
+                }
+                .avatar-container {
+                    grid-row: 1;
+                }
             }
         </style>
     </head>
     <body class="admin-ops-page">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-2">
-                    <jsp:include page="SidebarDashboard.jsp"></jsp:include>
+        <div class="dashboard-shell">
+            <jsp:include page="SidebarDashboard.jsp"/>
+            <main class="dash-main">
+                <jsp:include page="HeaderDashboard.jsp"/>
+
+                <div class="admin-page-title">
+                    <div>
+                        <h1>Update Profile</h1>
+                        <p>Keep your employee information and profile image up to date.</p>
                     </div>
-                    <div class="col-md-10" style="padding-top: 10px;">
-                    <jsp:include page="HeaderDashboard.jsp"></jsp:include>
-                        <form action="UpdateEmployeeProfile" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+                </div>
 
-                            <div class="profile-container">
+                <c:if test="${not empty errorMessage}">
+                    <div class="alert alert-danger" role="alert">
+                        <c:out value="${errorMessage}"/>
+                    </div>
+                </c:if>
 
-                                <div class="form-container">
-
-                                    <div class="mb-3 d-flex">
-                                        <label class="value">Email:</label>
-                                        <p>${sessionScope.employee.getEmail()}</p>
+                <c:set var="employee" value="${sessionScope.employee}"/>
+                <c:choose>
+                    <c:when test="${empty employee}">
+                        <div class="panel empty-state">Employee information is unavailable.</div>
+                    </c:when>
+                    <c:otherwise>
+                        <form class="profile-container" action="${pageContext.request.contextPath}/UpdateEmployeeProfile"
+                              method="post" enctype="multipart/form-data" id="employeeProfileForm">
+                            <div class="profile-edit-grid">
+                                <div class="profile-fields">
+                                    <div>
+                                        <label>Email</label>
+                                        <div class="profile-readonly"><c:out value="${employee.email}"/></div>
+                                    </div>
+                                    <div>
+                                        <label>Role</label>
+                                        <div class="profile-readonly">
+                                            <c:choose>
+                                                <c:when test="${employee.roleId == 1}">Admin</c:when>
+                                                <c:when test="${employee.roleId == 2}">Shop Manager</c:when>
+                                                <c:when test="${employee.roleId == 3}">Order Manager</c:when>
+                                                <c:when test="${employee.roleId == 4}">Warehouse Manager</c:when>
+                                                <c:otherwise>Employee</c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
+                                    <div class="field-wide">
+                                        <label for="fullName">Full Name</label>
+                                        <input id="fullName" type="text" class="form-control" name="fullName"
+                                               value="<c:out value='${employee.fullname}'/>" minlength="2" maxlength="100" required>
+                                    </div>
+                                    <div>
+                                        <label for="gender">Gender</label>
+                                        <select id="gender" class="form-select" name="gender" required>
+                                            <option value="Male" ${employee.gender == 'Male' ? 'selected' : ''}>Male</option>
+                                            <option value="Female" ${employee.gender == 'Female' ? 'selected' : ''}>Female</option>
+                                            <option value="Other" ${employee.gender == 'Other' ? 'selected' : ''}>Other</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="phone">Phone</label>
+                                        <input id="phone" type="tel" class="form-control" name="phone"
+                                               value="<c:out value='${employee.phoneNumber}'/>"
+                                               pattern="0[1-9][0-9]{8}" maxlength="10"
+                                               title="Use a 10-digit phone number starting with 0." required>
+                                    </div>
+                                    <div class="field-wide">
+                                        <label for="dob">Date of Birth</label>
+                                        <input id="dob" type="date" class="form-control" name="dob"
+                                               value="${employee.birthday}" required>
+                                    </div>
                                 </div>
 
-                                <div class="mb-3 d-flex">
-                                    <label class="value">Role:</label>
-                                    <c:if test="${sessionScope.employee.getRoleId() == 1}">
-                                        <p class="fw-bold">Admin</p>
-                                    </c:if>
-                                    <c:if test="${sessionScope.employee.getRoleId() == 2}">
-                                        <p class="fw-bold">Shop Manager</p>
-                                    </c:if>
-                                    <c:if test="${sessionScope.employee.getRoleId() == 3}">
-                                        <p class="fw-bold">Order Manager</p>
-                                    </c:if>
-                                    <c:if test="${sessionScope.employee.getRoleId() == 4}">
-                                        <p class="fw-bold">Warehouse Manager</p>
-                                    </c:if>
-                                </div>
-
-                                <div class="mb-3 d-flex">
-                                    <label class="form-label value">Full Name</label>
-                                    <input type="text" class="form-control" name="fullName" value="${sessionScope.employee.getFullname()}" required>
-                                </div>
-
-                                <div class="mb-3 d-flex">
-                                    <label class="form-label value" value>Gender</label>
-                                    <select class="form-select" name="gender" required>
-                                        <option value="Male" ${sessionScope.employee.getGender() == 'Male' ? 'selected' : ''}>Male</option>
-                                        <option value="Female" ${sessionScope.employee.getGender() == 'Female' ? 'selected' : ''}>Female</option>
-                                        <option value="Other" ${sessionScope.employee.getGender() == 'Other' ? 'selected' : ''}>Other</option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-3 d-flex">
-                                    <label class="form-label value">Phone</label>
-                                    <input type="text" class="form-control" name="phone" value="${sessionScope.employee.getPhoneNumber()}" required>
-                                </div>
-
-                                <div class="mb-3 d-flex">
-                                    <label class="form-label value">Date Of Birth</label>
-                                    <input type="date" class="form-control" name="dob" id="dob" value="${sessionScope.employee.getBirthday().toString()}" required>
-
-                                </div>
-                                <small id="dob-error" class="text-danger" style="display:none;">Invalid date of birth</small>
-                            </div>
-
-                            <div class="avatar-container">
-                                <label class="form-label">Avatar</label>
-                                <div class="mb-5">
+                                <div class="avatar-container">
+                                    <label for="avatar">Avatar</label>
                                     <c:choose>
-                                        <c:when test="${!sessionScope.employee.getAvatar().equals('')}">
-                                            <img id="avatarPreview" class="avatar-preview" src="assets/imgs/EmployeeAvatar/${sessionScope.employee.getAvatar()}" alt="Avatar">
+                                        <c:when test="${not empty employee.avatar}">
+                                            <img id="avatarPreview" class="avatar-preview"
+                                                 src="${pageContext.request.contextPath}/assets/imgs/EmployeeAvatar/${employee.avatar}"
+                                                 onerror="this.onerror=null;this.src='${pageContext.request.contextPath}/assets/imgs/EmployeeAvatar/defauft_avatar.jpg';"
+                                                 alt="Employee avatar">
                                         </c:when>
                                         <c:otherwise>
-                                            <img id="avatarPreview" class="avatar-preview" src="assets/imgs/EmployeeAvatar/defauft_avatar.jpg" alt="Avatar">
+                                            <img id="avatarPreview" class="avatar-preview"
+                                                 src="${pageContext.request.contextPath}/assets/imgs/EmployeeAvatar/defauft_avatar.jpg"
+                                                 alt="Default employee avatar">
                                         </c:otherwise>
                                     </c:choose>
-                                </div>
-                                <input type="file" class="form-control smart-file-input" name="avatar" accept="image/*" onchange="previewImage(event)">
-                            </div>
-                            <div class="form-container">
-                                <div class="d-flex gap-3" style="justify-content: start;">
-                                    <button type="submit" class="btn btn-primary px-4 py-2">Save</button>
+                                    <input id="avatar" type="file" class="form-control smart-file-input" name="avatar"
+                                           accept="image/jpeg,image/png,image/webp">
+                                    <small class="text-muted d-block mt-2">JPG, PNG, or WEBP; maximum 5 MB.</small>
                                 </div>
                             </div>
 
-                        </div>
-                    </form>
-                </div>
-            </div>
+                            <div class="profile-actions">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <a class="btn btn-secondary" href="${pageContext.request.contextPath}/ViewEmployeeProfile">Cancel</a>
+                            </div>
+                        </form>
+                    </c:otherwise>
+                </c:choose>
+            </main>
         </div>
-        <c:if test="${sessionScope.empromess != null}">
-            <!-- Popup -->
-            <div class="popup" id="Popup">
-                <div class="popup-content">
-                    <h3>${sessionScope.empromess}</h3>
-                    <button onclick="closePopup()">Close</button>
-                </div>
-            </div>
-            <c:remove scope="session" var="empromess"/>
-
-        </c:if>
 
         <script>
-            document.getElementById("dob").addEventListener("change", function () {
-                let dobInput = document.getElementById("dob");
-                let dobError = document.getElementById("dob-error");
-                let selectedDate = new Date(dobInput.value);
-                let today = new Date();
-                today.setHours(0, 0, 0, 0);
+            (function () {
+                const dob = document.getElementById('dob');
+                const avatar = document.getElementById('avatar');
+                const preview = document.getElementById('avatarPreview');
 
-                if (selectedDate > today) {
-                    dobError.style.display = "block";
-                    dobInput.value = "";
-                    event.preventDefault();
-                } else {
-                    dobError.style.display = "none";
+                if (dob) {
+                    dob.max = new Date().toISOString().split('T')[0];
                 }
-            });
-            function confirmLogout() {
-                if (confirm("Are you sure you want to log out?")) {
-                    window.location.href = "${pageContext.request.contextPath}/Logout";
+
+                if (avatar && preview) {
+                    avatar.addEventListener('change', function () {
+                        const file = this.files && this.files[0];
+                        if (!file) {
+                            return;
+                        }
+                        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+                            alert('Please choose a JPG, PNG, or WEBP image no larger than 5 MB.');
+                            this.value = '';
+                            return;
+                        }
+                        preview.src = URL.createObjectURL(file);
+                    });
                 }
-            }
-            function closePopup() {
-                document.getElementById("Popup").style.display = "none";
-            }
-
-
-            function validateForm() {
-                var phone = document.getElementsByName('phone')[0].value;
-                var phonePattern = /^0[1-9][0-9]{8}$/;
-                if (!phonePattern.test(phone)) {
-                    alert('Phone number must be exactly 10 digits and start with 0. Ex: 0946771397');
-                    return false;
-                }
-                return true;
-            }
-
-            function previewImage(event) {
-                var reader = new FileReader();
-                reader.onload = function () {
-                    var output = document.getElementById('avatarPreview');
-                    output.src = reader.result;
-                };
-                reader.readAsDataURL(event.target.files[0]);
-            }
-
-
-
-
+            }());
         </script>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script src="${pageContext.request.contextPath}/assets/js/file-input.js"></script>
     </body>
 </html>
-
-

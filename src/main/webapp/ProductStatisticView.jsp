@@ -248,6 +248,12 @@
                 <div class="hi">
                 <jsp:include page="HeaderDashboard.jsp"></jsp:include>
                 </div>
+                <div class="admin-page-title">
+                    <div>
+                        <h1>Product Statistics</h1>
+                        <p>Review sales, low-stock products, and category performance.</p>
+                    </div>
+                </div>
                 <div class ="container">
                     <div class="chart-box">
                         <h3>Weekly Sales</h3>

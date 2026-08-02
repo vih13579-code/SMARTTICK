@@ -1,13 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Controllers;
 
 import DAOs.CustomerDAO;
 import Models.Customer;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,115 +11,106 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-@WebServlet(name = "ChangePasswordServlet", urlPatterns = { "/changeCustomerPassword" })
+@WebServlet(name = "ChangePasswordServlet", urlPatterns = {"/changeCustomerPassword"})
 public class ChangeCustomerPasswordServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile(
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])"
+            + "[A-Za-z\\d@$!%*?&]{8,50}$");
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
-    // + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        Customer cus = session == null ? null : (Customer) session.getAttribute("customer");
-        if (cus == null) {
-            response.sendRedirect(request.getContextPath() + "/customerLogin");
+        Customer customer = getAuthenticatedCustomer(request, response);
+        if (customer == null) {
             return;
         }
-        if (cus.getGoogleId() != null && !cus.getGoogleId().trim().isEmpty()) {
-            session.setAttribute("messageFail", "Google accounts do not use a SMARTTICK password.");
-            response.sendRedirect(request.getContextPath() + "/viewCustomerProfile");
-            return;
-        }
-        request.setAttribute("profilePage", "ChangeCustomerPasswordView.jsp");
-        request.getRequestDispatcher("ProfileManagementView.jsp").forward(request, response);
+        renderForm(request, response, new CustomerDAO().hasLocalPassword(customer.getId()));
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        Customer customer = getAuthenticatedCustomer(request, response);
+        if (customer == null) {
+            return;
+        }
+
+        CustomerDAO customerDAO = new CustomerDAO();
+        boolean hasLocalPassword = customerDAO.hasLocalPassword(customer.getId());
         String currentPassword = request.getParameter("currentPassword");
         String newPassword = request.getParameter("newPassword");
         String confirmPassword = request.getParameter("confirmPassword");
-        HttpSession session = request.getSession();
-        Customer cus = (Customer) session.getAttribute("customer");
-        if (cus == null) {
-            response.sendRedirect(request.getContextPath() + "/customerLogin");
+
+        if (newPassword == null || newPassword.isEmpty()) {
+            showError(request, response, hasLocalPassword, "Please enter a new password.");
             return;
         }
-        // try (PrintWriter out = response.getWriter()) {
-
-        // out.println(currentPassword);
-        // out.println(newPassword);
-        // out.println(confirmPassword);
-        // }
-
-        CustomerDAO cusDAO = new CustomerDAO();
-        if (cusDAO.cofirmPassword(cus.getId(), currentPassword) > 0) {
-            if (currentPassword.equals(newPassword)) {
-                session.setAttribute("messageFail", "New password must be different from current password.");
-                request.setAttribute("profilePage", "ChangeCustomerPasswordView.jsp");
-                request.getRequestDispatcher("ProfileManagementView.jsp").forward(request, response);
-                return;
-            }
-
-            if (confirmPassword == null || !newPassword.equals(confirmPassword)) {
-                session.setAttribute("messageFail", "New password and confirmation do not match.");
-                request.setAttribute("profilePage", "ChangeCustomerPasswordView.jsp");
-                request.getRequestDispatcher("ProfileManagementView.jsp").forward(request, response);
-                return;
-            }
-
-            if (cusDAO.changeCustomerPassword(cus.getId(), newPassword) > 0) {
-                session.setAttribute("message", "Change Password Success!");
-            } else {
-                session.setAttribute("messageFail", "Change Password Fail!");
-            }
-        } else {
-            session.setAttribute("messageFail", "Your Current Password Is Not Correct!");
+        if (!PASSWORD_PATTERN.matcher(newPassword).matches()) {
+            showError(request, response, hasLocalPassword,
+                    "Password must be 8-50 characters and include uppercase, lowercase, "
+                    + "a number, and one of @$!%*?&.");
+            return;
+        }
+        if (confirmPassword == null || !newPassword.equals(confirmPassword)) {
+            showError(request, response, hasLocalPassword,
+                    "New password and confirmation do not match.");
+            return;
         }
 
-        request.setAttribute("profilePage", "ChangeCustomerPasswordView.jsp");
-        request.getRequestDispatcher("ProfileManagementView.jsp").forward(request, response);
+        if (hasLocalPassword) {
+            if (currentPassword == null || currentPassword.isEmpty()) {
+                showError(request, response, true, "Please enter your current password.");
+                return;
+            }
+            if (!customerDAO.confirmPassword(customer.getId(), currentPassword)) {
+                showError(request, response, true, "Your current password is incorrect.");
+                return;
+            }
+            if (currentPassword.equals(newPassword)) {
+                showError(request, response, true,
+                        "New password must be different from your current password.");
+                return;
+            }
+        }
+
+        if (customerDAO.changeCustomerPassword(customer.getId(), newPassword) <= 0) {
+            showError(request, response, hasLocalPassword,
+                    "The password could not be saved. Please try again.");
+            return;
+        }
+
+        HttpSession session = request.getSession();
+        session.setAttribute("hasLocalPassword", Boolean.TRUE);
+        session.setAttribute("message", hasLocalPassword
+                ? "Password changed successfully."
+                : "SMARTTICK password created. You can now sign in with email and password.");
+        getServletContext().log("Customer password updated for customer ID " + customer.getId());
+        response.sendRedirect(request.getContextPath() + "/changeCustomerPassword");
     }
 
-    /**
-     * Returns the servlet description.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "SMARTTICK servlet";
-    }// </editor-fold>
+    private Customer getAuthenticatedCustomer(HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession(false);
+        Customer customer = session == null ? null : (Customer) session.getAttribute("customer");
+        if (customer == null) {
+            response.sendRedirect(request.getContextPath() + "/customerLogin?expired=1");
+        }
+        return customer;
+    }
 
+    private void showError(HttpServletRequest request, HttpServletResponse response,
+            boolean hasLocalPassword, String message) throws ServletException, IOException {
+        request.setAttribute("passwordError", message);
+        renderForm(request, response, hasLocalPassword);
+    }
+
+    private void renderForm(HttpServletRequest request, HttpServletResponse response,
+            boolean hasLocalPassword) throws ServletException, IOException {
+        request.getSession().setAttribute("hasLocalPassword", hasLocalPassword);
+        request.setAttribute("hasLocalPassword", hasLocalPassword);
+        request.setAttribute("profilePage", "ChangeCustomerPasswordView.jsp");
+        request.getRequestDispatcher("/ProfileManagementView.jsp").forward(request, response);
+    }
 }

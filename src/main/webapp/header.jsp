@@ -22,7 +22,7 @@
         <div class="fw-actions">
             <c:choose>
                 <c:when test="${not empty sessionScope.customer}">
-                    <a class="btn btn-outline" href="${pageContext.request.contextPath}/customer/dashboard">Account</a>
+                    <a class="btn btn-outline" href="${pageContext.request.contextPath}/viewCustomerProfile">Account</a>
                     <a class="btn btn-outline" href="${pageContext.request.contextPath}/NotificationServlet">Notifications</a>
                     <a class="btn btn-primary" href="${pageContext.request.contextPath}/cart">Cart</a>
                     <a class="btn btn-danger" href="${pageContext.request.contextPath}/Logout">Log Out</a>

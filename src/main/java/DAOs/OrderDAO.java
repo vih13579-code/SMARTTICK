@@ -8,12 +8,17 @@ import DB.DBContext;
 import Models.Cart;
 import Models.Customer;
 import Models.Order;
+import Models.Voucher;
+import Services.VoucherService;
+import Services.VoucherService.VoucherApplicationException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -287,7 +292,7 @@ public class OrderDAO {
                 }
             }
 
-            int discount = calculateValidDiscount(connector, customerId, voucherId, subtotal);
+            int discount = calculateValidDiscount(connector, voucherId, subtotal);
             long finalTotal = Math.max(0, subtotal - discount);
             int totalQuantity = 0;
             for (Cart item : selectedItems) {
@@ -371,10 +376,6 @@ public class OrderDAO {
                 if (!"buyNow".equalsIgnoreCase(source)) {
                     cartPs.executeBatch();
                 }
-            }
-
-            if (voucherId != null) {
-                consumeVoucher(connector, customerId, voucherId);
             }
 
             connector.commit();
@@ -545,68 +546,46 @@ public class OrderDAO {
         }
     }
 
-    private int calculateValidDiscount(Connection connection, int customerId, Integer voucherId, long subtotal)
+    private int calculateValidDiscount(Connection connection, Integer voucherId, long subtotal)
             throws SQLException {
         if (voucherId == null) {
             return 0;
         }
-        String sql = "SELECT cv.Quantity, cv.ExpirationDate, v.VoucherValue, v.VoucherType, v.StartDate, v.EndDate, "
-                + "v.UsedCount, v.MaxUsedCount, v.MaxDiscountAmount, v.MinOrderValue, v.Status "
-                + "FROM CustomerVoucher cv WITH (UPDLOCK, ROWLOCK) "
-                + "JOIN Vouchers v WITH (UPDLOCK, ROWLOCK) ON cv.VoucherID = v.VoucherID "
-                + "WHERE cv.CustomerID = ? AND cv.VoucherID = ?";
+        String sql = "SELECT VoucherID, VoucherCode, VoucherType, VoucherValue, "
+                + "MaxDiscountAmount, MinOrderValue, EndDate "
+                + "FROM dbo.Vouchers WITH (UPDLOCK, ROWLOCK) WHERE VoucherID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, customerId);
-            ps.setInt(2, voucherId);
+            ps.setInt(1, voucherId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
-                    throw new SQLException("Voucher is not available.");
+                    throw new SQLException("Voucher does not exist.");
                 }
-                Timestamp now = new Timestamp(System.currentTimeMillis());
-                Timestamp expirationDate = rs.getTimestamp("ExpirationDate");
-                Timestamp startDate = rs.getTimestamp("StartDate");
-                Timestamp endDate = rs.getTimestamp("EndDate");
-                int quantity = rs.getInt("Quantity");
-                int maxUsed = rs.getInt("MaxUsedCount");
-                int used = rs.getInt("UsedCount");
-                int minOrder = rs.getInt("MinOrderValue");
-                if (rs.getInt("Status") != 1 || quantity <= 0
-                        || (startDate != null && startDate.after(now))
-                        || (endDate != null && endDate.before(now))
-                        || (expirationDate != null && expirationDate.before(now))
-                        || (maxUsed > 0 && used >= maxUsed)) {
-                    throw new SQLException("Voucher is expired or inactive.");
+                BigDecimal maxDiscount = rs.getBigDecimal("MaxDiscountAmount");
+                if (rs.wasNull()) {
+                    maxDiscount = null;
                 }
-                if (subtotal < minOrder) {
-                    throw new SQLException("Order does not meet voucher minimum value.");
+                Timestamp endTimestamp = rs.getTimestamp("EndDate");
+                Voucher voucher = new Voucher(
+                        rs.getInt("VoucherID"),
+                        rs.getString("VoucherCode"),
+                        rs.getString("VoucherType"),
+                        rs.getBigDecimal("VoucherValue"),
+                        maxDiscount,
+                        rs.getBigDecimal("MinOrderValue"),
+                        endTimestamp == null ? null : endTimestamp.toLocalDateTime());
+                try {
+                    VoucherService service = new VoucherService();
+                    BigDecimal discount = service.calculateDiscount(
+                            voucher, BigDecimal.valueOf(subtotal), LocalDateTime.now());
+                    long wholeVndDiscount = service.toWholeVnd(discount);
+                    if (wholeVndDiscount > Integer.MAX_VALUE) {
+                        throw new SQLException("Voucher data is invalid.");
+                    }
+                    return (int) wholeVndDiscount;
+                } catch (VoucherApplicationException ex) {
+                    throw new SQLException(ex.getMessage(), ex);
                 }
-                int value = rs.getInt("VoucherValue");
-                int type = rs.getInt("VoucherType");
-                int maxDiscount = rs.getInt("MaxDiscountAmount");
-                long discount = type == 1 ? Math.round(subtotal * (value / 100.0)) : value;
-                if (type == 1 && maxDiscount > 0 && discount > maxDiscount) {
-                    discount = maxDiscount;
-                }
-                return (int) Math.min(discount, subtotal);
             }
-        }
-    }
-
-    private void consumeVoucher(Connection connection, int customerId, int voucherId) throws SQLException {
-        try (PreparedStatement ps = connection.prepareStatement(
-                "UPDATE CustomerVoucher SET Quantity = Quantity - 1 "
-                + "WHERE CustomerID = ? AND VoucherID = ? AND Quantity > 0")) {
-            ps.setInt(1, customerId);
-            ps.setInt(2, voucherId);
-            int updated = ps.executeUpdate();
-            if (updated == 0) {
-                throw new SQLException("Voucher is no longer available.");
-            }
-        }
-        try (PreparedStatement ps = connection
-                .prepareStatement("UPDATE Vouchers SET UsedCount = UsedCount + 1 WHERE VoucherID = ?")) {
-            ps.setInt(1, voucherId);
-            ps.executeUpdate();
         }
     }
 

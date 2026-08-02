@@ -121,12 +121,14 @@
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>
             <div class="content">
             <jsp:include page="HeaderDashboard.jsp"></jsp:include>
+            <div class="admin-page-title">
+                <div>
+                    <h1>Warehouse</h1>
+                    <p>Review products imported into stock today.</p>
+                </div>
+            </div>
 
             <div class="table-container" style="margin-top: 20px">
-                    <div>
-                        <h3>Imported Products Today</h3>
-                    </div>
-
                     <table class="table table-hover">
                         <thead>
                             <tr>

@@ -178,6 +178,12 @@
             <div class="main-layout">
                 <div class="fixed-header">
                 <jsp:include page="HeaderDashboard.jsp"></jsp:include>
+                    <div class="admin-page-title">
+                        <div>
+                            <h1>Orders</h1>
+                            <p>Review customer orders and update their fulfilment status.</p>
+                        </div>
+                    </div>
                     <form action="ViewOrderListServlet" method="GET" class="search-container">
                         <input type="text" name="search" id="searchInput" value="${searchQuery}" 
                            placeholder="Search by Name, Phone..." class="search-input">
@@ -185,7 +191,6 @@
                         🔍
                     </button>
                 </form>
-                <h3  font-weight="Bold">ORDER</h3>
             </div>
 
             <div class="content">
@@ -198,7 +203,7 @@
 
                
                 <c:if test="${empty data}">
-                    <h3  font-weight="Bold">Have No Order</h3>
+                    <div class="empty-state">No orders found.</div>
                 </c:if>
 
                 <div class="order-container">
