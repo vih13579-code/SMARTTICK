@@ -364,7 +364,6 @@
                                     </thead>
                                     <tbody>
                                         <%--<c:forEach items="${products}" var="p">--%>
-                                        <c:if test="${sessionScope.products == null}">a</c:if>
                                         <c:forEach items="${availableImportProducts}" var="p">
                                             <tr>
                                                 <td>${p.getProductId()}</td>

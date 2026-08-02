@@ -83,7 +83,7 @@ public class RatingRepliesDAO {
 //        String query = "SELECT r.* FROM RatingReplies r JOIN ProductRatings pr ON r.rateID = pr.rateID WHERE pr.customerID = ? AND r.isRead = 0";
         String query = "SELECT rr.* FROM RatingReplies rr \n"
                 + "JOIN ProductRatings pr ON rr.RateID = pr.RateID\n"
-                + "WHERE pr.CustomerID =? ORDER BY pr.CreatedDate DESC";
+                + "WHERE pr.CustomerID =? AND pr.IsDeleted = 0 ORDER BY pr.CreatedDate DESC";
         try (
                  PreparedStatement stmt = connector.prepareStatement(query)) {
             stmt.setInt(1, customerID);
@@ -109,7 +109,7 @@ public class RatingRepliesDAO {
                 + "FROM RatingReplies rr "
                 + "INNER JOIN ProductRatings pr ON rr.RateID = pr.RateID "
                 + "LEFT JOIN Products p ON pr.ProductID = p.ProductID "
-                + "WHERE pr.CustomerID = ? "
+                + "WHERE pr.CustomerID = ? AND pr.IsDeleted = 0 "
                 + "ORDER BY rr.IsRead ASC, pr.CreatedDate DESC, rr.ReplyID DESC";
 
         try (PreparedStatement statement = connector.prepareStatement(sql)) {
