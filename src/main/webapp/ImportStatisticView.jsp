@@ -1,4 +1,4 @@
-
+﻿
 <%@page import="java.util.Map"%>
 <%@page import="Models.Product"%>
 <%@page import="java.util.ArrayList"%>
@@ -124,13 +124,18 @@
 
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>
             <div class="content">
                 <jsp:include page="HeaderDashboard.jsp"></jsp:include>
                 <!--<div class="container mt-5">-->
                 <div class="container" style="margin-top: 20px">
-                    <h1 class="text-center" style="text-align: center;">Import Statistic</h1>
+                    <div class="admin-page-title">
+                        <div>
+                            <h1>Import Statistics</h1>
+                            <p>Compare stock imports by date, supplier, and product.</p>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <h2 style="text-align: center;">Daily Stock Import</h2>
@@ -161,13 +166,13 @@
             </div>
 
             <script>
-                // Lấy dữ liệu JSON từ server và parse thành object JavaScript
+                // Láº¥y dá»¯ liá»‡u JSON tá»« server vÃ  parse thÃ nh object JavaScript
                 const orderCountByDay = JSON.parse('${orderCountByDayJson}');
                 const orderCountByMonth = JSON.parse('${orderCountByMonthJson}');
                 const ordersBySupplier = JSON.parse('${ordersBySupplierJson}');
                 const topImportedProducts = JSON.parse('${topImportedProductsJson}');
 
-                // Hàm vẽ biểu đồ
+                // HÃ m váº½ biá»ƒu Ä‘á»“
                 function renderChart(chartId, labels, data, label, type = 'bar') {
                     const ctx = document.getElementById(chartId);
                     if (!ctx)
@@ -191,7 +196,7 @@
                     });
                 }
 
-                // Chạy khi DOM đã tải xong
+                // Cháº¡y khi DOM Ä‘Ã£ táº£i xong
                 document.addEventListener("DOMContentLoaded", function () {
                     renderChart("orderByDayChart", Object.keys(orderCountByDay), Object.values(orderCountByDay), "Import Orders by Day");
                     renderChart("orderByMonthChart", Object.keys(orderCountByMonth), Object.values(orderCountByMonth), "Import Orders by Month");
@@ -201,3 +206,4 @@
         </script>
     </body>
 </html>
+

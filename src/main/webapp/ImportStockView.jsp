@@ -136,20 +136,34 @@
 
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>
             <div class="content">
             <jsp:include page="HeaderDashboard.jsp"></jsp:include>
+                <c:set var="updateMode" value="${not empty importOrder}"/>
+                <c:set var="sup" value="${updateMode ? importOrder.supplier : sessionScope.supplier}"/>
+                <c:set var="selectedImportProducts" value="${updateMode ? importOrder.importOrderDetails : sessionScope.selectedProducts}"/>
+                <c:set var="availableImportProducts" value="${updateMode ? products : sessionScope.products}"/>
+                <div class="admin-page-title">
+                    <div>
+                        <h1>${updateMode ? 'Update Stock Import' : 'Create Stock Import'}</h1>
+                        <p>${updateMode ? 'Update the supplier, products, quantities, and import prices.' : 'Select one supplier and the products to add to inventory.'}</p>
+                    </div>
+                </div>
+                <c:if test="${not empty sessionScope.importUpdateSuccess}">
+                    <div class="alert alert-success"><c:out value="${sessionScope.importUpdateSuccess}"/></div>
+                    <c:remove var="importUpdateSuccess" scope="session"/>
+                </c:if>
                 <div class="container mt-4">
                 <%--<c:set value="${supplier}" var="sup"></c:set>--%>
-                <c:set value="${sessionScope.supplier}" var="sup"></c:set>
-                <c:set value="${importOrder}" var="importOrder"></c:set>
                 <c:set value="0" var="sum"></c:set>
                     <!-- Start List Selected Suppliers -->
-                    <div class="table-container style"margin-top: 20px"">
+                    <div class="table-container">
                         <div class="table-navigate">
                             <h3>Selected Supplier</h3>
-                            <button id="openModalBtn" class="btn btn-detail" style="background-color: #BDF3BD; height: 100%">Select Supplier</button>
+                            <button type="button" id="openModalBtn" class="btn btn-detail"
+                                    data-bs-toggle="modal" data-bs-target="#createImportOrder"
+                                    style="background-color: #BDF3BD; height: 100%">Select Supplier</button>
                         </div>
                         <table class="table table-hover">
                             <thead>
@@ -178,7 +192,9 @@
                 <div class="table-container" style="margin-top: 20px">
                     <div class="table-navigate">
                         <h3>Selected Products</h3>
-                        <button id="openProductModalBtn" class="btn btn-detail" style="background-color: #BDF3BD; height: 100%">Select Product</button>
+                        <button type="button" id="openProductModalBtn" class="btn btn-detail"
+                                data-bs-toggle="modal" data-bs-target="#selectProductModal"
+                                style="background-color: #BDF3BD; height: 100%">Select Product</button>
                     </div>
 
                     <table class="table table-hover">
@@ -194,7 +210,7 @@
                         </thead>
                         <tbody id="productTable">
                             <%--<c:forEach items="${selectedProducts}" var="d">--%>
-                            <c:forEach items="${sessionScope.selectedProducts}" var="d">
+                            <c:forEach items="${selectedImportProducts}" var="d">
                                 <tr>
                                     <td>${d.getProduct().getProductId()}</td>
                                     <td>${d.getProduct().getModel()}</td>
@@ -221,8 +237,16 @@
                             </tr>
                         </tbody>
                     </table>
-                    <button type="button" class="btn btn-success" onclick="cancelImportOrder()">Cancel</button>
-                    <button type="button" class="btn btn-success" onclick="redirectToImport()">Import</button>
+                    <c:choose>
+                        <c:when test="${updateMode}">
+                            <a class="btn btn-secondary" href="${pageContext.request.contextPath}/ImportOrder?id=${importOrder.ioid}">Back</a>
+                            <a class="btn btn-success" href="${pageContext.request.contextPath}/ImportOrder">Done</a>
+                        </c:when>
+                        <c:otherwise>
+                            <button type="button" class="btn btn-secondary" onclick="cancelImportOrder()">Cancel</button>
+                            <button type="button" class="btn btn-success" onclick="redirectToImport()">Import</button>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
             <!-- End List Selected Suppliers -->
@@ -270,7 +294,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <form id="importOrderForm" method="POST" action="ImportStock">
+                            <form id="importOrderForm" method="POST" action="${pageContext.request.contextPath}/${updateMode ? 'UpdateImportOrder' : 'ImportStock'}">
+                                <c:if test="${updateMode}"><input type="hidden" name="importId" value="${importOrder.ioid}"></c:if>
                                 <input type="hidden" name="supplierId" id="selectedSupplierId">
                                 <button type="submit" class="btn btn-success" id="confirmSelection" disabled>Confirm</button>
                             </form>
@@ -290,7 +315,7 @@
                         </div>
                         <div class="modal-body">
                             <form id="productInputForm">
-                                <input type="hidden" id="selectedSupplierId">
+                                <input type="hidden" id="productInputSupplierId">
 
                                 <div class="mb-3">
                                     <label for="inputQuantity" class="form-label">Quantity</label>
@@ -339,8 +364,7 @@
                                     </thead>
                                     <tbody>
                                         <%--<c:forEach items="${products}" var="p">--%>
-                                        <c:if test="${sessionScope.products == null}">a</c:if>
-                                        <c:forEach items="${sessionScope.products}" var="p">
+                                        <c:forEach items="${availableImportProducts}" var="p">
                                             <tr>
                                                 <td>${p.getProductId()}</td>
                                                 <td>${p.getFullName()}</td>
@@ -361,7 +385,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <form id="productOrderForm" method="POST" action="ImportStock">
+                            <form id="productOrderForm" method="POST" action="${pageContext.request.contextPath}/${updateMode ? 'UpdateImportOrder' : 'ImportStock'}">
+                                <c:if test="${updateMode}"><input type="hidden" name="importId" value="${importOrder.ioid}"></c:if>
                                 <input type="hidden" name="productId" id="selectedProductId" value="${p.getProductId()}">
                                 <input type="hidden" name="importQuantity" id="selectedProductQuantity">
                                 <input type="hidden" name="importPrice" id="selectedProductPrice">
@@ -382,7 +407,8 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="editProductForm" method="POST" action="ImportStock">
+                            <form id="editProductForm" method="POST" action="${pageContext.request.contextPath}/${updateMode ? 'UpdateImportOrder' : 'ImportStock'}">
+                                <c:if test="${updateMode}"><input type="hidden" name="importId" value="${importOrder.ioid}"></c:if>
                                 <input type="hidden" id="editProductId" name="productEditedId">
 
                                 <div class="mb-3">
@@ -426,6 +452,7 @@
             </div>
         </div>
 
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 let totalAmountElement = document.getElementById("totalAmount");
@@ -470,26 +497,6 @@
             }
         </script>
         <!-- Search -->
-        <script>
-            document.getElementById("openModalBtn").addEventListener("click", function () {
-                var myModal = new bootstrap.Modal(document.getElementById("createImportOrder"));
-                myModal.show();
-            });
-        </script>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                // Lấy tham chiếu đến nút "Select Product"
-                let openProductModalBtn = document.getElementById("openProductModalBtn");
-
-                // Khi nút được nhấn, hiển thị modal product
-                openProductModalBtn.addEventListener("click", function () {
-                    let productModal = new bootstrap.Modal(document.getElementById("selectProductModal"));
-                    productModal.show();
-                });
-            });
-
-        </script>
         <!-- Modal -->
         <script>
             document.addEventListener("DOMContentLoaded", function () {
@@ -675,7 +682,7 @@
             function redirectToImport() {
                 const form = document.createElement("form");
                 form.method = "POST";
-                form.action = "ImportStock";
+                form.action = "${pageContext.request.contextPath}/ImportStock";
 
                 document.body.appendChild(form);
                 form.submit();
@@ -684,7 +691,7 @@
         </script>
         <script>
             function cancelImportOrder() {
-                window.location.href = 'ImportStock?status=cancel';
+                window.location.href = '${pageContext.request.contextPath}/ImportStock?status=cancel';
             }
         </script>
         <!-- submit final -->
