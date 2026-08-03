@@ -23,7 +23,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author Thuongnvce181966
  */
-
 public class ExportStockToFileServlet extends HttpServlet {
 
     /**
@@ -52,14 +51,7 @@ public class ExportStockToFileServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-//        StockDAO stockDAO = new StockDAO();
-//        List <Stock> list = stockDAO.GetAll();
-//        if(list != null){
-//            request.setAttribute("dataStock", list);
-//            request.getRequestDispatcher("excelStock.jsp").forward(request, response);
-//        }else {
-//          response.sendRedirect(request.getContextPath() + "/ExportStockToFileServlet");
-//                }
+        doPost(request, response);
     }
 
     /**
