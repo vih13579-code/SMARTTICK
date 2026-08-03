@@ -329,56 +329,13 @@
                                     </c:if>
                                 </div>
                                 <div class="address-actions actions">        
-                                    <c:set var="arr" value="${fn: split(ad.getAddressDetails(), ',')}" ></c:set>
-                                    <%
-                                        Object arrObj = pageContext.getAttribute("arr");
-
-                                        // Kiểm tra nếu không null và chuyển thành mảng String[]
-                                        if (arrObj instanceof String[]) {
-                                            String[] arr = (String[]) arrObj;
-                                            if (arr.length >= 3) {
-
-                                            // Xử lý mảng theo thuật toán của bạn
-                                            String province = arr[arr.length - 1];
-                                            String district = arr[arr.length - 2];
-                                            String commune = arr[arr.length - 3];
-
-                                            // Ghép các phần còn lại thành address
-                                            String address = "";
-                                            for (int i = 0; i < arr.length - 3; i++) {
-
-                                                address += arr[i] + ",";
-
-                                            }
-                                            if (!address.isEmpty()) {
-                                                address = address.substring(0, address.length() - 1);
-                                            }
-
-                                            // Trả kết quả lại JSTL
-                                            request.setAttribute("province", province);
-                                            request.setAttribute("district", district);
-                                            request.setAttribute("commune", commune);
-                                            request.setAttribute("address", address);
-                                            } else {
-                                                request.setAttribute("province", "");
-                                                request.setAttribute("district", "");
-                                                request.setAttribute("commune", "");
-                                                request.setAttribute("address", String.join(",", arr).trim());
-                                            }
-                                        }
-                                    %>
-
-
                                     <div class="address-actions-row btn1">
                                         <button class="address-action-link btn-update"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#updateModal"
                                                 data-isDefault = "${isDefault}"
                                                 data-id = "${ad.getAddressID()}"
-                                                data-province="${province}"
-                                                data-district="${district}"
-                                                data-commune="${commune}"
-                                                data-address="${address}"
+                                                data-full-address="${fn:escapeXml(ad.getAddressDetails())}"
                                                 onclick="openPopupFromButton(this)">Update</button>
                                         <c:if test="${ad.getIsDefault() == 0}">
                                             <%
@@ -461,7 +418,7 @@
                 <h4 class="title" id="popupLabel">Add Address</h4>
             </div>
             <form method="POST" action="AddAddress" id="formAddress"
-                  data-location-url="${pageContext.request.contextPath}/assets/data/vietnam-addresses.json">
+                  data-location-url="${pageContext.request.contextPath}/assets/data/vietnam-addresses.json?v=20260803-two-tier">
                 <%
                     if (!action.equalsIgnoreCase("") && action.equalsIgnoreCase("forOrder")) {
                 %>
@@ -473,21 +430,15 @@
                 <%                                                }
                 %>
                 <div class="mb-3">
-                    <label for="city" class="form-label">Province</label>
+                    <label for="city" class="form-label">Province / City</label>
                     <select class="form-select form-select-sm mb-3" name="province" id="city" aria-label=".form-select-sm" required>
                         <option value="" selected>Loading provinces...</option>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label for="district" class="form-label">District</label>
-                    <select class="form-select form-select-sm mb-3"  name="district" id="district" aria-label=".form-select-sm" required>
-                        <option value="" selected>Select District</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="ward" class="form-label">Ward</label>
-                    <select class="form-select form-select-sm" name="ward" id="ward" aria-label=".form-select-sm" required>
-                        <option value="" selected>Select Ward</option>
+                    <label for="commune" class="form-label">Ward / Commune / Special Zone</label>
+                    <select class="form-select form-select-sm" name="commune" id="commune" required>
+                        <option value="" selected>Select Ward / Commune / Special Zone</option>
                     </select>
                     <small id="location-error" class="form-text text-danger"></small>
                 </div>
@@ -522,234 +473,8 @@
             </form>
         </div>
     </div>
-    <script type="text/plain" id="legacy-address-script">
-                        document.getElementById('formAddress').addEventListener('submit', function (event) {
-                            const addressInput = document.getElementById('addressInput');
-                            const errorMessage = document.getElementById('error-message');
-
-                            errorMessage.textContent = '';
-
-                            if (addressInput.value.trim().length < 5) {
-                                errorMessage.textContent = 'Detailed Address must be at least 5 characters.';
-                                errorMessage.style.color = 'red';
-                                event.preventDefault();
-
-                                // Hidden thông báo sau 5 giây
-                                setTimeout(() => {
-                                    errorMessage.textContent = '';
-                                }, 5000);
-                            }
-                        });
-
-
-                        function closePopup() {
-                            document.getElementById("cookiesPopup").style.display = "none";
-                            document.getElementById("overlay").style.display = "none";
-                        }
-                        var allData = [];
-                        var citis = document.getElementById("city");
-                        var districts = document.getElementById("district");
-                        var wards = document.getElementById("ward");
-
-                        var Parameter = {
-                            url: "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json",
-                            method: "GET",
-                            responseType: "json"
-                        };
-
-                        // Đợi API tải xong rồi mới render
-                        axios(Parameter)
-                                .then(function (result) {
-                                    console.log("Address API data:", result.data); // Debug data
-                                    allData = result.data;
-                                    if (allData.length > 0) {
-                                        renderCity(allData);
-                                    }
-                                })
-                                .catch(function (error) {
-                                    console.error("Failed to load address data:", error);
-                                });
-
-
-                        citis.onchange = function () {
-                            if (allData.length > 0) {
-                                loadDistricts(this.value);
-                            }
-                        };
-
-                        districts.onchange = function () {
-                            if (allData.length > 0) {
-                                loadWards(this.value);
-                            }
-                        };
-
-                        function renderCity(data) {
-                            console.log("Render city data:", data); // Verify loaded data
-                            for (const x of data) {
-                                let translatedName = translateLocation(x.Name);
-                                console.log("Add city or province:", translatedName); // Verify translated data
-                                citis.options[citis.options.length] = new Option(translatedName, translatedName);
-                            }
-                        }
-
-
-                        function loadDistricts(cityName) {
-                            districts.length = 1;
-                            wards.length = 1;
-                            if (cityName !== "") {
-                                let result = allData.find(n => translateLocation(n.Name) === cityName);
-                                for (const k of result.Districts) {
-                                    let translatedName = translateLocation(k.Name);
-                                    districts.options[districts.options.length] = new Option(translatedName, translatedName);
-                                }
-                            }
-                        }
-
-                        function loadWards(districtName) {
-                            wards.length = 1;
-                            let cityData = allData.find(n => translateLocation(n.Name) === citis.value);
-                            if (cityData && districtName !== "") {
-                                let districtData = cityData.Districts.find(n => translateLocation(n.Name) === districtName);
-                                for (const w of districtData.Wards) {
-                                    let translatedName = translateLocation(w.Name);
-                                    wards.options[wards.options.length] = new Option(translatedName, translatedName);
-                                }
-                            }
-                        }
-
-                        function translateLocation(name) {
-                            let temp = name;
-
-                            if (temp.includes("Thành phố "))
-                                temp = temp.replace("Thành phố ", "") + " City";
-                            if (temp.includes("Tỉnh "))
-                                temp = temp.replace("Tỉnh ", "") + " Province";
-                            if (temp.includes("Huyện "))
-                                temp = temp.replace("Huyện ", "") + " District";
-                            if (temp.includes("Quận "))
-                                temp = temp.replace("Quận ", "") + " District";
-                            if (temp.includes("Thị xã "))
-                                temp = temp.replace("Thị xã ", "") + " Town";
-                            if (temp.includes("Thị trấn "))
-                                temp = temp.replace("Thị trấn ", "") + " Town";
-                            if (temp.includes("Phường "))
-                                temp = temp.replace("Phường ", "") + " Ward";
-                            if (temp.includes("Xã "))
-                                temp = temp.replace("Xã ", "") + " Commune";
-
-                            return removeDiacritics(temp); // Delete dấu tiếng Việt
-                        }
-
-                        function removeDiacritics(str) {
-                            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Loại bỏ dấu tiếng Việt
-                        }
-                        function openPopupFromButton(button) {
-                            const isDefault = button.getAttribute("data-isDefault").trim();
-                            const id = button.getAttribute("data-id").trim();
-                            const province = button.getAttribute("data-province").trim();
-                            const district = button.getAttribute("data-district").trim();
-                            const commune = button.getAttribute("data-commune").trim();
-                            const address = button.getAttribute("data-address").trim();
-
-                            openPopup(true, {isDefault, id, province, district, commune, address});
-                        }
-
-                        function openPopup(isUpdate, data = null) {
-                            document.getElementById("add").style.display = "block";
-                            document.getElementById("addoverlay").style.display = "block";
-
-                            if (isUpdate && data) {
-                                document.getElementById("popupLabel").innerHTML = "Update Address";
-                                document.getElementById("addressInput").value = data.address || "";
-                                const form = document.getElementById("formAddress");
-                                if (data.isDefault === "1") {
-                                    document.getElementById("flexSwitchCheckDefault").checked = true;
-                                    document.getElementById("flexSwitchCheckDefault").disabled = true;
-                                } else {
-                                    document.getElementById("flexSwitchCheckDefault").checked = false;
-                                    document.getElementById("flexSwitchCheckDefault").disabled = false;
-
-                                }
-
-                                if (form && data.id) {
-                                    form.action = "UpdateAddress?id=" + data.id.trim();
-                                } else {
-                                    console.error("Error: formAddress not found or data.id is invalid");
-                                }
-
-
-                                // Chọn tỉnh/thành phố trước, rồi kích hoạt sự kiện change
-                                setSelectValue("city", data.province, function () {
-                                    document.getElementById("city").dispatchEvent(new Event("change"));
-
-                                    // Chờ quận/huyện load xong rồi chọn
-                                    setTimeout(() => {
-                                        setSelectValue("district", data.district, function () {
-                                            document.getElementById("district").dispatchEvent(new Event("change"));
-
-                                            // Chờ xã/phường load xong rồi chọn
-                                            setTimeout(() => {
-                                                setSelectValue("ward", data.commune);
-                                            }, 200);
-                                        });
-                                    }, 200);
-                                });
-                            } else {
-                                document.getElementById("popupLabel").innerHTML = "Add Address";
-                                document.getElementById("addressInput").value = "";
-                                document.getElementById("city").selectedIndex = 0;
-                                document.getElementById("district").length = 1;
-                                document.getElementById("ward").length = 1;
-                        }
-                        }
-
-                        function setSelectValue(selectId, value, callback = null) {
-                            let select = document.getElementById(selectId);
-                            let found = false;
-
-                            for (let i = 0; i < select.options.length; i++) {
-                                if (select.options[i].text === value) {
-                                    select.selectedIndex = i;
-                                    found = true;
-                                    break;
-                                }
-                            }
-
-                            if (!found) {
-                                select.selectedIndex = 0;
-                            }
-
-                            if (callback) {
-                                callback();
-                        }
-                        }
-
-
-                        function closeAddPopup() {
-                            document.getElementById("add").style.display = "none";
-                            document.getElementById("addoverlay").style.display = "none";
-                            let selects = document.querySelectorAll("#add select");
-                            selects.forEach(select => {
-                                select.selectedIndex = 0;
-                            });
-        <% if (!first) {
-        %>
-                            document.getElementById("flexSwitchCheckDefault").disabled = false;
-                            document.getElementById("flexSwitchCheckDefault").checked = false;
-        <%
-            }%>
-
-
-
-                        }
-
-                        console.log(document.getElementById("city"));
-                        console.log(document.getElementById("district"));
-                        console.log(document.getElementById("ward"));
-
-    </script>
     <script charset="UTF-8"
-            src="${pageContext.request.contextPath}/assets/js/address.js?v=20260728-all-english"></script>
+            src="${pageContext.request.contextPath}/assets/js/address.js?v=20260803-two-tier"></script>
 
 </body>
 

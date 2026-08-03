@@ -240,7 +240,7 @@ BEGIN TRY
         ImportDate DATETIME NULL,
         TotalCost BIGINT NOT NULL CONSTRAINT DF_ImportStocks_TotalCost DEFAULT 0,
         Completed BIT NOT NULL CONSTRAINT DF_ImportStocks_Completed DEFAULT 0,
-        CONSTRAINT FK_ImportStocks_Employees FOREIGN KEY (EmployeeID) REFERENCES dbo.Employees(EmployeeID),
+        CONSTRAINT FK_ImportStocks_Employees FOREIGN KEY (EmployeeID) REFERENCES dbo.Employees(EmployeeID) ON DELETE SET NULL,
         CONSTRAINT FK_ImportStocks_Suppliers FOREIGN KEY (SupplierID) REFERENCES dbo.Suppliers(SupplierID)
     );
 
@@ -278,7 +278,7 @@ BEGIN TRY
         RateID INT NULL,
         Answer NVARCHAR(300) NULL,
         IsRead BIT NOT NULL CONSTRAINT DF_RatingReplies_IsRead DEFAULT 0,
-        CONSTRAINT FK_RatingReplies_Employees FOREIGN KEY (EmployeeID) REFERENCES dbo.Employees(EmployeeID),
+        CONSTRAINT FK_RatingReplies_Employees FOREIGN KEY (EmployeeID) REFERENCES dbo.Employees(EmployeeID) ON DELETE SET NULL,
         CONSTRAINT FK_RatingReplies_ProductRatings FOREIGN KEY (RateID) REFERENCES dbo.ProductRatings(RateID) ON DELETE CASCADE
     );
 

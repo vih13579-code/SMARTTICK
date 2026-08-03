@@ -59,10 +59,10 @@ BEGIN TRY
     (N'Quoc Bao Tran','1999-11-12','681ae46305e29b966801a96331ae607d','0934567890','quocbao@fwatch.vn',N'Male',DATEADD(DAY,-40,GETDATE()),NULL,0,0,NULL);
 
     INSERT INTO dbo.Addresses(CustomerID,AddressDetails,IsDefault)
-    SELECT CustomerID,N'Ninh Kieu, Can Tho',1 FROM dbo.Customers WHERE Email='customer@fwatch.vn'
-    UNION ALL SELECT CustomerID,N'District 1, Ho Chi Minh City',0 FROM dbo.Customers WHERE Email='customer@fwatch.vn'
-    UNION ALL SELECT CustomerID,N'Cai Rang, Can Tho',1 FROM dbo.Customers WHERE Email='minhanh@fwatch.vn'
-    UNION ALL SELECT CustomerID,N'Hai Chau, Da Nang',1 FROM dbo.Customers WHERE Email='quocbao@fwatch.vn';
+    SELECT CustomerID,N'12 Hoa Binh Street, Ninh Kieu Ward, Can Tho City',1 FROM dbo.Customers WHERE Email='customer@fwatch.vn'
+    UNION ALL SELECT CustomerID,N'25 Le Loi Street, Sai Gon Ward, Ho Chi Minh City',0 FROM dbo.Customers WHERE Email='customer@fwatch.vn'
+    UNION ALL SELECT CustomerID,N'8 Vo Nguyen Giap Street, Cai Rang Ward, Can Tho City',1 FROM dbo.Customers WHERE Email='minhanh@fwatch.vn'
+    UNION ALL SELECT CustomerID,N'16 Bach Dang Street, Hai Chau Ward, Da Nang City',1 FROM dbo.Customers WHERE Email='quocbao@fwatch.vn';
 
     INSERT INTO dbo.Categories(Name) VALUES
     (N'Men''s Watches'),(N'Women''s Watches'),(N'Sports Watches'),(N'Mechanical Watches'),(N'Quartz Watches');
@@ -128,25 +128,25 @@ BEGIN TRY
     DECLARE @OrderCitizen INT, @OrderGShock INT, @OrderDW INT, @OrderSeiko INT;
 
     INSERT INTO dbo.Orders(CustomerID,FullName,Address,PhoneNumber,OrderedDate,DeliveredDate,[Status],TotalAmount,Discount)
-    SELECT CustomerID,N'FWatch Customer',N'Ninh Kieu, Can Tho','0912345678',
+    SELECT CustomerID,N'FWatch Customer',N'12 Hoa Binh Street, Ninh Kieu Ward, Can Tho City','0912345678',
            DATEADD(DAY,-25,GETDATE()),DATEADD(DAY,-22,GETDATE()),4,10500000,0
     FROM dbo.Customers WHERE Email='customer@fwatch.vn';
     SET @OrderCitizen = CONVERT(INT,SCOPE_IDENTITY());
 
     INSERT INTO dbo.Orders(CustomerID,FullName,Address,PhoneNumber,OrderedDate,DeliveredDate,[Status],TotalAmount,Discount)
-    SELECT CustomerID,N'FWatch Customer',N'Ninh Kieu, Can Tho','0912345678',
+    SELECT CustomerID,N'FWatch Customer',N'25 Le Loi Street, Sai Gon Ward, Ho Chi Minh City','0912345678',
            DATEADD(DAY,-5,GETDATE()),NULL,3,3290000,0
     FROM dbo.Customers WHERE Email='customer@fwatch.vn';
     SET @OrderGShock = CONVERT(INT,SCOPE_IDENTITY());
 
     INSERT INTO dbo.Orders(CustomerID,FullName,Address,PhoneNumber,OrderedDate,DeliveredDate,[Status],TotalAmount,Discount)
-    SELECT CustomerID,N'Minh Anh Nguyen',N'Cai Rang, Can Tho','0923456789',
+    SELECT CustomerID,N'Minh Anh Nguyen',N'8 Vo Nguyen Giap Street, Cai Rang Ward, Can Tho City','0923456789',
            DATEADD(DAY,-12,GETDATE()),DATEADD(DAY,-9,GETDATE()),4,4690000,0
     FROM dbo.Customers WHERE Email='minhanh@fwatch.vn';
     SET @OrderDW = CONVERT(INT,SCOPE_IDENTITY());
 
     INSERT INTO dbo.Orders(CustomerID,FullName,Address,PhoneNumber,OrderedDate,DeliveredDate,[Status],TotalAmount,Discount)
-    SELECT CustomerID,N'Quoc Bao Tran',N'Hai Chau, Da Nang','0934567890',
+    SELECT CustomerID,N'Quoc Bao Tran',N'16 Bach Dang Street, Hai Chau Ward, Da Nang City','0934567890',
            DATEADD(DAY,-2,GETDATE()),NULL,1,8900000,0
     FROM dbo.Customers WHERE Email='quocbao@fwatch.vn';
     SET @OrderSeiko = CONVERT(INT,SCOPE_IDENTITY());

@@ -8,6 +8,8 @@
     <title>Update Voucher | SMARTTICK</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/themes/dark.css">
 </head>
 <body class="admin-ops-page voucher-admin-page">
     <jsp:include page="SidebarDashboard.jsp"/>
@@ -115,6 +117,16 @@
         </section>
     </main>
 
-    <script src="${pageContext.request.contextPath}/assets/js/voucher-form.js?v=20260729-en"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script>
+        flatpickr("#endDate", {
+            enableTime: true,
+            dateFormat: "Y-m-d\\TH:i",
+            altInput: true,
+            altFormat: "m/d/Y h:i K",
+            disableMobile: true
+        });
+    </script>
+    <script src="${pageContext.request.contextPath}/assets/js/voucher-form.js?v=20260803-english-date"></script>
 </body>
 </html>

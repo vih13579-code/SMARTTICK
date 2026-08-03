@@ -4,6 +4,7 @@ import DAOs.CustomerDAO;
 import DAOs.CustomerVoucherDAO;
 import DAOs.VoucherDAO;
 import Models.Customer;
+import Models.CustomerVoucher;
 import Models.Voucher;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -24,7 +25,10 @@ public class AssignVoucherServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        loadForm(request, customerId);
+        if (!loadForm(request, customerId)) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
         request.getRequestDispatcher("/AssignVoucherView.jsp").forward(request, response);
     }
 
@@ -77,8 +81,8 @@ public class AssignVoucherServlet extends HttpServlet {
 
             int affected = customerVoucherDAO.assignVoucherToCustomer(
                     customerId, voucherId, quantity, expirationDate);
-            response.sendRedirect(request.getContextPath() + "/CustomerListServlet?success="
-                    + (affected > 0 ? "assigned" : "failed"));
+            response.sendRedirect(request.getContextPath() + "/AssignVoucherServlet?Id="
+                    + customerId + "&success=" + (affected > 0 ? "assigned" : "failed"));
         } catch (DateTimeParseException ex) {
             forwardError(request, response, customerId,
                     "Expiration Date has an invalid format.");
@@ -87,17 +91,28 @@ public class AssignVoucherServlet extends HttpServlet {
         }
     }
 
-    private void loadForm(HttpServletRequest request, int customerId) {
+    private boolean loadForm(HttpServletRequest request, int customerId) {
         Customer customer = new CustomerDAO().getCustomerById(customerId);
+        if (customer == null) {
+            return false;
+        }
+        CustomerVoucherDAO customerVoucherDAO = new CustomerVoucherDAO();
         List<Voucher> vouchers = new VoucherDAO().getAllVoucherActivate();
+        List<CustomerVoucher> assignedVouchers =
+                customerVoucherDAO.getAssignedVouchersForCustomer(customerId);
         request.setAttribute("customer", customer);
         request.setAttribute("vouchers", vouchers);
+        request.setAttribute("assignedVouchers", assignedVouchers);
+        return true;
     }
 
     private void forwardError(HttpServletRequest request, HttpServletResponse response,
             int customerId, String message) throws ServletException, IOException {
         request.setAttribute("error", message);
-        loadForm(request, customerId);
+        if (!loadForm(request, customerId)) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
         request.getRequestDispatcher("/AssignVoucherView.jsp").forward(request, response);
     }
 

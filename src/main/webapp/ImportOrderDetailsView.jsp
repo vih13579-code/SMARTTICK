@@ -129,7 +129,9 @@
                         <a class="btn btn-warning" href="${pageContext.request.contextPath}/UpdateImportOrder?id=${importOrder.ioid}">Update</a>
                         <form method="post" action="${pageContext.request.contextPath}/DeleteImportOrder" style="display: inline" onsubmit="return confirm('Delete import order #${importOrder.ioid}? Stock quantities will be adjusted.');">
                             <input type="hidden" name="importId" value="${importOrder.ioid}">
-                            <button type="submit" class="btn btn-danger">Delete</button>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fa-solid fa-trash" aria-hidden="true"></i> Delete
+                            </button>
                         </form>
                         <a class="btn btn-secondary" href="${pageContext.request.contextPath}/ImportOrder">Back</a>
                     </div>

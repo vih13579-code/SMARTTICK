@@ -77,47 +77,6 @@
                                               width: 70%; border: black solid 1px;" name="address" type="text" class="form-control" value="" placeholder="" readonly>${shipAddress}</textarea>
                                 </div>
                                 <a href="ViewShippingAddress?action=forOrder">Change address</a>
-                                <!--                                <form> 
-                                                                    <div class="form-group">
-                                                                        <div class="control-label">Street Address *</div>
-                                                                        <div class="">
-                                                                            <input style="width: 70%; border: black solid 1px;" name="address" type="text" class="form-control" value="" placeholder="" required/>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <div class="control-label">City</div>
-                                                                        <div>
-                                                                            <select name="city" id="city" style="width: 70%; border: black solid 1px;" class="form-select form-select-sm mb-3" required>
-                                                                                <option value="">Choose city</option>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                    <input type="hidden" name="cityName" id="cityName">
-                                
-                                                                    <div class="form-group">
-                                                                        <div class="control-label">District</div>
-                                                                        <div>
-                                                                            <select name="district" id="district" style="width: 70%; border: black solid 1px;" class="form-select form-select-sm mb-3" required>
-                                                                                <option value="">Choose district</option>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                    <input type="hidden" name="districtName" id="districtName">
-                                
-                                                                    <div class="form-group">
-                                                                        <div class="control-label">Town</div>
-                                                                        <div>
-                                                                            <select name="town" id="ward" style="width: 70%; border: black solid 1px;" class="form-select form-select-sm" required>
-                                                                                <option value="">Choose town</option>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                    <input type="hidden" name="wardName" id="wardName">
-                                                                    <svg width="100%" height="2" viewBox="0 0 100% 2" fill="none"
-                                                                         xmlns="http://www.w3.org/2000/svg">
-                                                                    <path d="M0 1L924 1.00008" stroke="#CACDD8" />
-                                                                    </svg>
-                                                                </form>-->
                             </div>
 
                             <!--                            <div class="form-group">

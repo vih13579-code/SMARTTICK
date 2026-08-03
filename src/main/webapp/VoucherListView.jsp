@@ -21,11 +21,18 @@
         <div class="admin-page-title">
             <div>
                 <h1>Vouchers</h1>
-                <p>Create, search, and manage promotion conditions.</p>
+                <p>Create, assign, search, and manage promotion conditions.</p>
             </div>
-            <a class="btn btn-primary" href="${pageContext.request.contextPath}/CreateVoucherServlet">
-                <i class="fa-solid fa-plus"></i> Create Voucher
-            </a>
+            <div class="voucher-heading-actions">
+                <c:if test="${sessionScope.employee.getRoleId() == 1 || sessionScope.employee.getRoleId() == 3}">
+                    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/CustomerListServlet">
+                        <i class="fa-solid fa-user-tag"></i> Assign Voucher
+                    </a>
+                </c:if>
+                <a class="btn btn-primary" href="${pageContext.request.contextPath}/CreateVoucherServlet">
+                    <i class="fa-solid fa-plus"></i> Create Voucher
+                </a>
+            </div>
         </div>
 
         <c:if test="${param.success eq 'createsuccess'}">

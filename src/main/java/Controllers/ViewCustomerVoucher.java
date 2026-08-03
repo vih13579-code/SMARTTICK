@@ -48,10 +48,17 @@ public class ViewCustomerVoucher extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         Customer cus = (Customer) session.getAttribute("customer");
+        if (cus == null) {
+            response.sendRedirect(request.getContextPath() + "/customerLogin");
+            return;
+        }
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
         CustomerVoucherDAO c = new CustomerVoucherDAO();
         List<CustomerVoucher> list = c.getSavedVouchersOfCustomer(cus.getId());
         List<Voucher> availableVouchers = c.getClaimableVouchersForCustomer(cus.getId());
-        session.setAttribute("customerVoucher", list);
+        request.setAttribute("customerVouchers", list);
         request.setAttribute("availableVouchers", availableVouchers);
         request.setAttribute("profilePage", "CustomerVoucherView.jsp");
         request.getRequestDispatcher("ProfileManagementView.jsp").forward(request, response);

@@ -56,14 +56,37 @@ public class CustomerVoucherDAO {
         return vouchers;
     }
 
+    public List<CustomerVoucher> getAssignedVouchersForCustomer(int customerId) {
+        List<CustomerVoucher> vouchers = new ArrayList<>();
+        String sql = "SELECT cv.CustomerID, cv.ExpirationDate, cv.Quantity, "
+                + "v.VoucherID, v.VoucherCode, v.VoucherType, v.VoucherValue, "
+                + "v.MaxDiscountAmount, v.MinOrderValue, v.EndDate "
+                + "FROM dbo.CustomerVoucher cv "
+                + "JOIN dbo.Vouchers v ON cv.VoucherID = v.VoucherID "
+                + "WHERE cv.CustomerID = ? AND cv.Quantity > 0 "
+                + "ORDER BY v.EndDate ASC, v.VoucherID DESC";
+        try (Connection connection = dbContext.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, customerId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    vouchers.add(mapCustomerVoucher(resultSet));
+                }
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE,
+                    "Cannot load assigned vouchers for customer " + customerId, ex);
+        }
+        return vouchers;
+    }
+
     public List<Voucher> getClaimableVouchersForCustomer(int customerId) {
         List<Voucher> vouchers = new ArrayList<>();
         String sql = "SELECT v.VoucherID, v.VoucherCode, v.VoucherType, v.VoucherValue, "
                 + "v.MaxDiscountAmount, v.MinOrderValue, v.EndDate "
                 + "FROM dbo.Vouchers v WHERE v.EndDate >= ? "
                 + "AND NOT EXISTS (SELECT 1 FROM dbo.CustomerVoucher cv "
-                + "WHERE cv.CustomerID = ? AND cv.VoucherID = v.VoucherID "
-                + "AND cv.Quantity > 0) "
+                + "WHERE cv.CustomerID = ? AND cv.VoucherID = v.VoucherID) "
                 + "ORDER BY v.EndDate ASC, v.VoucherID DESC";
         try (Connection connection = dbContext.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -82,11 +105,6 @@ public class CustomerVoucherDAO {
     }
 
     public int saveVoucherForCustomer(int customerId, int voucherId) {
-        String reactivateSql = "UPDATE cv SET Quantity = 1, ExpirationDate = NULL "
-                + "FROM dbo.CustomerVoucher cv JOIN dbo.Vouchers v "
-                + "ON cv.VoucherID = v.VoucherID "
-                + "WHERE cv.CustomerID = ? AND cv.VoucherID = ? "
-                + "AND cv.Quantity <= 0 AND v.EndDate >= ?";
         String insertSql = "INSERT INTO dbo.CustomerVoucher "
                 + "(CustomerID, VoucherID, ExpirationDate, Quantity) "
                 + "SELECT ?, v.VoucherID, NULL, 1 FROM dbo.Vouchers v "
@@ -95,14 +113,6 @@ public class CustomerVoucherDAO {
                 + "WHERE cv.CustomerID = ? AND cv.VoucherID = v.VoucherID)";
         Timestamp now = Timestamp.valueOf(LocalDateTime.now());
         try (Connection connection = dbContext.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(reactivateSql)) {
-                statement.setInt(1, customerId);
-                statement.setInt(2, voucherId);
-                statement.setTimestamp(3, now);
-                if (statement.executeUpdate() > 0) {
-                    return 1;
-                }
-            }
             try (PreparedStatement statement = connection.prepareStatement(insertSql)) {
                 statement.setInt(1, customerId);
                 statement.setInt(2, voucherId);
@@ -219,15 +229,17 @@ public class CustomerVoucherDAO {
         }
     }
 
-    public void deleteVoucher(int customerId, int voucherId) {
-        String sql = "DELETE FROM dbo.CustomerVoucher WHERE CustomerID = ? AND VoucherID = ?";
+    public int unassignVoucher(int customerId, int voucherId) {
+        String sql = "UPDATE dbo.CustomerVoucher SET Quantity = 0 "
+                + "WHERE CustomerID = ? AND VoucherID = ? AND Quantity > 0";
         try (Connection connection = dbContext.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, customerId);
             statement.setInt(2, voucherId);
-            statement.executeUpdate();
+            return statement.executeUpdate();
         } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, "Cannot delete customer voucher", ex);
+            LOGGER.log(Level.SEVERE, "Cannot unassign customer voucher", ex);
+            return 0;
         }
     }
 

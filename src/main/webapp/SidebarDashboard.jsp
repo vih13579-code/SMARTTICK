@@ -2,8 +2,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/fonts/themify-icons/themify-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css?v=20260702-dashboard">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ops.css?v=20260729-voucher-fix4">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ops.css?v=20260803-delete-red">
 
 <c:set var="uri" value="${pageContext.request.requestURI}" />
 <c:set var="isDashboard" value="${fn:contains(uri, '/admin/dashboard')}" />

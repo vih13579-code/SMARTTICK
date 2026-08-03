@@ -95,6 +95,10 @@ public class BuyProductsServlet extends HttpServlet {
                     voucher = null;
                 }
             }
+            if (voucher != null) {
+                voucher = new CustomerVoucherDAO().getVoucherById(
+                        cus.getId(), voucher.getVoucherId());
+            }
             try {
                 long totalAmount = ((Number) session.getAttribute("totalAmount")).longValue();
                 VoucherService service = new VoucherService();

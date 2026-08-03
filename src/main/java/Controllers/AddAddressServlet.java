@@ -33,17 +33,17 @@ public class AddAddressServlet extends HttpServlet {
             String url = request.getParameter("currentAddressPage");
             AddressDAO add = new AddressDAO();
             String province = value(request.getParameter("province"));
-            String district = value(request.getParameter("district"));
-            String ward = value(request.getParameter("ward"));
+            String commune = value(request.getParameter("commune"));
             String address = value(request.getParameter("address"));
 
-            if (province.isEmpty() || district.isEmpty() || ward.isEmpty() || address.length() < 5) {
-                session.setAttribute("message", "Please select a complete Vietnam address.");
+            if (province.isEmpty() || commune.isEmpty() || address.length() < 5) {
+                session.setAttribute("message",
+                        "Please select a province/city and a ward, commune, or special zone.");
                 redirectToAddressPage(request, response, url);
                 return;
             }
 
-            String addressDetails = address + ", " + ward + ", " + district + ", " + province;
+            String addressDetails = address + ", " + commune + ", " + province;
             if (addressDetails.length() > 500) {
                 session.setAttribute("message", "Address must not exceed 500 characters.");
                 redirectToAddressPage(request, response, url);

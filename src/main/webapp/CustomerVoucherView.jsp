@@ -19,12 +19,12 @@
     </c:if>
 
     <c:choose>
-        <c:when test="${empty sessionScope.customerVoucher}">
+        <c:when test="${empty requestScope.customerVouchers}">
             <div class="account-empty">You have no voucher.</div>
         </c:when>
         <c:otherwise>
             <div class="voucher-grid">
-                <c:forEach var="vou" items="${sessionScope.customerVoucher}">
+                <c:forEach var="vou" items="${requestScope.customerVouchers}">
                     <article class="voucher-tile">
                         <div>
                             <span class="voucher-kicker">SMARTTICK Gift Voucher</span>

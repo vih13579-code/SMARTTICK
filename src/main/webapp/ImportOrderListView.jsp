@@ -129,8 +129,9 @@
                             <h1>Import Stock History</h1>
                             <p>Filter completed imports and open their product details.</p>
                         </div>
-                        <button class="btn btn-detail" data-bs-toggle="modal" data-bs-target="#importOrderModal" style="background-color: #BDF3BD; height: 100%;" onclick="window.location.href = 'ImportStock'">Create</button>
-                        <!--<button id="openModalBtn" class="btn btn-detail" style="background-color: #BDF3BD; height: 100%">Create</button>-->
+                        <button class="btn btn-primary" type="button" onclick="window.location.href = 'ImportStock'">
+                            <i class="ti-plus" aria-hidden="true"></i> Create
+                        </button>
                     </div>
                     <c:if test="${not empty sessionScope.importSuccess}">
                         <div class="alert alert-success"><c:out value="${sessionScope.importSuccess}"/></div>
@@ -176,12 +177,21 @@
                                 <td>${i.getPriceFormatted()}</td>
                                 <td  style="word-wrap: break-word; white-space: normal; max-width: 200px;">${i.getSupplier().getName()}</td>
                                 <td>
-                                    <a href="${pageContext.request.contextPath}/ImportOrder?id=${i.ioid}" class="btn btn-detail" style="background-color: #BDF3BD">Detail</a>
-                                    <a href="${pageContext.request.contextPath}/UpdateImportOrder?id=${i.ioid}" class="btn btn-warning">Update</a>
-                                    <form method="post" action="${pageContext.request.contextPath}/DeleteImportOrder" style="display: inline" onsubmit="return confirm('Delete import order #${i.ioid}? Stock quantities will be adjusted.');">
-                                        <input type="hidden" name="importId" value="${i.ioid}">
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>
+                                    <div class="table-actions">
+                                        <a href="${pageContext.request.contextPath}/ImportOrder?id=${i.ioid}">
+                                            <i class="ti-eye" aria-hidden="true"></i> Details
+                                        </a>
+                                        <a href="${pageContext.request.contextPath}/UpdateImportOrder?id=${i.ioid}">
+                                            <i class="ti-pencil" aria-hidden="true"></i> Update
+                                        </a>
+                                        <form method="post" action="${pageContext.request.contextPath}/DeleteImportOrder"
+                                              onsubmit="return confirm('Delete import order #${i.ioid}? Stock quantities will be adjusted.');">
+                                            <input type="hidden" name="importId" value="${i.ioid}">
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fa-solid fa-trash" aria-hidden="true"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         </c:forEach>

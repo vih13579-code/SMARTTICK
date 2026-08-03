@@ -3,15 +3,15 @@
 
     var form = document.getElementById("formAddress");
     var provinceSelect = document.getElementById("city");
-    var districtSelect = document.getElementById("district");
-    var wardSelect = document.getElementById("ward");
+    var communeSelect = document.getElementById("commune");
     var locationError = document.getElementById("location-error");
+    var communePlaceholder = "Select Ward / Commune / Special Zone";
 
-    if (!form || !provinceSelect || !districtSelect || !wardSelect) {
+    if (!form || !provinceSelect || !communeSelect) {
         return;
     }
 
-    var locations = [];
+    var provinces = [];
     var locationUrl = form.getAttribute("data-location-url");
 
     function setFirstOption(select, label) {
@@ -21,11 +21,9 @@
 
     function setLoadingState() {
         setFirstOption(provinceSelect, "Loading provinces...");
-        setFirstOption(districtSelect, "Select District");
-        setFirstOption(wardSelect, "Select Ward");
+        setFirstOption(communeSelect, communePlaceholder);
         provinceSelect.disabled = true;
-        districtSelect.disabled = true;
-        wardSelect.disabled = true;
+        communeSelect.disabled = true;
     }
 
     function showLocationError(message) {
@@ -34,113 +32,60 @@
         }
     }
 
-    function renderProvinces() {
-        setFirstOption(provinceSelect, "Select Province");
-        locations.forEach(function (province) {
-            var provinceName = toEnglishLocationName(province.Name);
-            provinceSelect.add(new Option(provinceName, provinceName));
-        });
-        provinceSelect.disabled = false;
-        districtSelect.disabled = true;
-        wardSelect.disabled = true;
-        showLocationError("");
-    }
-
-    function loadDistricts(provinceName) {
-        setFirstOption(districtSelect, "Select District");
-        setFirstOption(wardSelect, "Select Ward");
-        wardSelect.disabled = true;
-
-        var province = locations.find(function (item) {
-            return normalizeLocation(toEnglishLocationName(item.Name)) === normalizeLocation(provinceName);
-        });
-
-        if (!province) {
-            districtSelect.disabled = true;
-            return;
-        }
-
-        province.Districts.forEach(function (district) {
-            var districtName = toEnglishLocationName(district.Name);
-            districtSelect.add(new Option(districtName, districtName));
-        });
-        districtSelect.disabled = false;
-    }
-
-    function loadWards(districtName) {
-        setFirstOption(wardSelect, "Select Ward");
-
-        var province = locations.find(function (item) {
-            return normalizeLocation(toEnglishLocationName(item.Name))
-                    === normalizeLocation(provinceSelect.value);
-        });
-        var district = province && province.Districts.find(function (item) {
-            return normalizeLocation(toEnglishLocationName(item.Name))
-                    === normalizeLocation(districtName);
-        });
-
-        if (!district) {
-            wardSelect.disabled = true;
-            return;
-        }
-
-        district.Wards.forEach(function (ward) {
-            var wardName = toEnglishLocationName(ward.Name);
-            wardSelect.add(new Option(wardName, wardName));
-        });
-        wardSelect.disabled = false;
-    }
-
     function normalizeLocation(value) {
         return (value || "")
                 .trim()
-                .toLocaleLowerCase("vi")
+                .toLocaleLowerCase("en")
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/đ/g, "d")
                 .replace(/\s+/g, " ");
     }
 
-    function toEnglishLocationName(name) {
-        var replacements = [
-            [/^Thành phố\s+/i, "", " City"],
-            [/^Tỉnh\s+/i, "", " Province"],
-            [/^Huyện\s+/i, "", " District"],
-            [/^Quận\s+/i, "", " District"],
-            [/^Thị xã\s+/i, "", " Town"],
-            [/^Thị trấn\s+/i, "", " Town"],
-            [/^Phường\s+/i, "", " Ward"],
-            [/^Xã\s+/i, "", " Commune"]
-        ];
-        var result = name || "";
-
-        replacements.some(function (replacement) {
-            if (replacement[0].test(result)) {
-                result = result.replace(replacement[0], replacement[1]) + replacement[2];
-                return true;
-            }
-            return false;
+    function findProvince(provinceName) {
+        var target = normalizeLocation(provinceName);
+        return provinces.find(function (province) {
+            return normalizeLocation(province.name) === target;
         });
-
-        return removeDiacritics(result);
     }
 
-    function removeDiacritics(value) {
-        return (value || "")
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/Đ/g, "D")
-                .replace(/đ/g, "d");
+    function findCommune(province, communeName) {
+        var target = normalizeLocation(communeName);
+        return province && province.communes.find(function (commune) {
+            return normalizeLocation(commune.name) === target;
+        });
+    }
+
+    function renderProvinces() {
+        setFirstOption(provinceSelect, "Select Province / City");
+        provinces.forEach(function (province) {
+            provinceSelect.add(new Option(province.name, province.name));
+        });
+        provinceSelect.disabled = false;
+        communeSelect.disabled = true;
+        showLocationError("");
+    }
+
+    function loadCommunes(provinceName) {
+        setFirstOption(communeSelect, communePlaceholder);
+
+        var province = findProvince(provinceName);
+        if (!province) {
+            communeSelect.disabled = true;
+            return;
+        }
+
+        province.communes.forEach(function (commune) {
+            communeSelect.add(new Option(commune.name, commune.name));
+        });
+        communeSelect.disabled = false;
     }
 
     function setSelectedLocation(select, savedName) {
         var target = normalizeLocation(savedName);
-        var englishTarget = normalizeLocation(toEnglishLocationName(savedName));
 
         for (var index = 1; index < select.options.length; index++) {
-            var option = select.options[index];
-            if (normalizeLocation(option.text) === target
-                    || normalizeLocation(option.text) === englishTarget) {
+            if (normalizeLocation(select.options[index].value) === target) {
                 select.selectedIndex = index;
                 return true;
             }
@@ -150,25 +95,68 @@
         return false;
     }
 
-    function restoreAddressSelections(data) {
+    function parseSavedAddress(fullAddress) {
+        var parts = (fullAddress || "").split(",").map(function (part) {
+            return part.trim();
+        }).filter(Boolean);
+
+        if (parts.length < 2) {
+            return {province: "", commune: "", address: fullAddress || "", legacy: true};
+        }
+
+        var provinceName = parts[parts.length - 1];
+        var province = findProvince(provinceName);
+        if (!province) {
+            return {province: "", commune: "", address: parts.join(", "), legacy: true};
+        }
+
+        for (var index = parts.length - 2; index >= 0; index--) {
+            var commune = findCommune(province, parts[index]);
+            if (commune) {
+                return {
+                    province: province.name,
+                    commune: commune.name,
+                    address: parts.slice(0, index).join(", "),
+                    legacy: index !== parts.length - 2
+                };
+            }
+        }
+
+        return {
+            province: province.name,
+            commune: "",
+            address: parts.slice(0, -1).join(", "),
+            legacy: true
+        };
+    }
+
+    function restoreAddressSelections(fullAddress) {
         locationReady.then(function (isReady) {
             if (!isReady) {
                 return;
             }
-            if (!setSelectedLocation(provinceSelect, data.province)) {
-                showLocationError("The province from the saved address could not be found.");
+
+            var saved = parseSavedAddress(fullAddress);
+            document.getElementById("addressInput").value = saved.address;
+
+            if (!setSelectedLocation(provinceSelect, saved.province)) {
+                showLocationError(
+                        "This saved address uses the former administrative structure. "
+                        + "Please select its current province/city and commune-level unit.");
                 return;
             }
 
-            loadDistricts(provinceSelect.value);
-            if (!setSelectedLocation(districtSelect, data.district)) {
-                showLocationError("The district from the saved address could not be found.");
+            loadCommunes(provinceSelect.value);
+            if (!setSelectedLocation(communeSelect, saved.commune)) {
+                showLocationError(
+                        "This saved address uses the former administrative structure. "
+                        + "Please select its current ward, commune, or special zone.");
                 return;
             }
 
-            loadWards(districtSelect.value);
-            if (!setSelectedLocation(wardSelect, data.commune)) {
-                showLocationError("The ward from the saved address could not be found.");
+            if (saved.legacy) {
+                showLocationError(
+                        "Please verify this address because it was saved before the two-tier reform.");
             }
         });
     }
@@ -183,27 +171,26 @@
                 return response.json();
             })
             .then(function (data) {
-                if (!Array.isArray(data) || data.length === 0) {
-                    throw new Error("Location data is empty");
+                if (!data || data.administrativeModel !== "province-to-commune"
+                        || !Array.isArray(data.provinces) || data.provinces.length !== 34) {
+                    throw new Error("The post-merger location dataset is invalid");
                 }
-                locations = data;
+                provinces = data.provinces;
                 renderProvinces();
                 return true;
             })
             .catch(function (error) {
                 setFirstOption(provinceSelect, "Unable to load provinces");
                 provinceSelect.disabled = true;
+                communeSelect.disabled = true;
                 showLocationError("Unable to load Vietnam location data. Please reload the page.");
                 console.error("Cannot load Vietnam location data:", error);
                 return false;
             });
 
     provinceSelect.addEventListener("change", function () {
-        loadDistricts(this.value);
-    });
-
-    districtSelect.addEventListener("change", function () {
-        loadWards(this.value);
+        loadCommunes(this.value);
+        showLocationError("");
     });
 
     form.addEventListener("submit", function (event) {
@@ -214,8 +201,9 @@
         addressError.textContent = "";
         showLocationError("");
 
-        if (!provinceSelect.value || !districtSelect.value || !wardSelect.value) {
-            showLocationError("Please select a province, district, and ward.");
+        if (!provinceSelect.value || !communeSelect.value) {
+            showLocationError(
+                    "Please select a province/city and a ward, commune, or special zone.");
             isValid = false;
         }
 
@@ -233,10 +221,7 @@
         window.openPopup(true, {
             isDefault: button.getAttribute("data-isDefault").trim(),
             id: button.getAttribute("data-id").trim(),
-            province: button.getAttribute("data-province").trim(),
-            district: button.getAttribute("data-district").trim(),
-            commune: button.getAttribute("data-commune").trim(),
-            address: button.getAttribute("data-address").trim()
+            fullAddress: button.getAttribute("data-full-address") || ""
         });
     };
 
@@ -250,14 +235,14 @@
 
         if (isUpdate && data) {
             document.getElementById("popupLabel").textContent = "Update Address";
-            addressInput.value = data.address || "";
+            addressInput.value = "";
             form.action = "UpdateAddress?id=" + encodeURIComponent(data.id);
 
             if (defaultSwitch) {
                 defaultSwitch.checked = data.isDefault === "1";
                 defaultSwitch.disabled = data.isDefault === "1";
             }
-            restoreAddressSelections(data);
+            restoreAddressSelections(data.fullAddress);
             return;
         }
 
@@ -265,7 +250,7 @@
         addressInput.value = "";
         form.action = "AddAddress";
         provinceSelect.selectedIndex = 0;
-        loadDistricts("");
+        loadCommunes("");
 
         if (defaultSwitch && !form.querySelector('input[type="hidden"][name="isDefault"]')) {
             defaultSwitch.checked = false;
@@ -277,7 +262,7 @@
         document.getElementById("add").style.display = "none";
         document.getElementById("addoverlay").style.display = "none";
         provinceSelect.selectedIndex = 0;
-        loadDistricts("");
+        loadCommunes("");
         showLocationError("");
 
         var defaultSwitch = document.getElementById("flexSwitchCheckDefault");

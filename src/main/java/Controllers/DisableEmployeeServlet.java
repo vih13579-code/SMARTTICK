@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-public class DeleteEmployeeServlet extends HttpServlet {
+public class DisableEmployeeServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -39,24 +39,23 @@ public class DeleteEmployeeServlet extends HttpServlet {
                 redirectResult(request, response, false);
                 return;
             }
-
             redirectResult(request, response,
-                    employeeDAO.deleteEmployee(employeeId) == 1);
-        } catch (NumberFormatException e) {
+                    employeeDAO.blockEmployee(employeeId) == 1);
+        } catch (NumberFormatException ex) {
             redirectResult(request, response, false);
         }
-    }
-
-    private void redirectResult(HttpServletRequest request,
-            HttpServletResponse response, boolean success) throws IOException {
-        response.sendRedirect(request.getContextPath()
-                + "/ViewEmployeeServlet?success="
-                + (success ? "deletesuccess" : "deletefailed"));
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+
+    private void redirectResult(HttpServletRequest request,
+            HttpServletResponse response, boolean success) throws IOException {
+        response.sendRedirect(request.getContextPath()
+                + "/ViewEmployeeServlet?success="
+                + (success ? "disablesuccess" : "disablefailed"));
     }
 }

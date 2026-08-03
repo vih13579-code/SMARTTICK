@@ -30,10 +30,20 @@
 
                 <c:if test="${param.success == 'deletesuccess'}">
                     <div class="alert alert-success" role="alert">
-                        Employee disabled successfully.
+                        Employee deleted successfully.
                     </div>
                 </c:if>
                 <c:if test="${param.success == 'deletefailed'}">
+                    <div class="alert alert-danger" role="alert">
+                        The employee could not be deleted. Admin accounts and your own account are protected.
+                    </div>
+                </c:if>
+                <c:if test="${param.success == 'disablesuccess'}">
+                    <div class="alert alert-success" role="alert">
+                        Employee disabled successfully.
+                    </div>
+                </c:if>
+                <c:if test="${param.success == 'disablefailed'}">
                     <div class="alert alert-danger" role="alert">
                         The employee could not be disabled.
                     </div>
@@ -121,22 +131,31 @@
                                                 <td>
                                                     <div class="table-actions">
                                                         <a href="${pageContext.request.contextPath}/ViewEmployeeServlet?id=${employee.employeeId}">
-                                                            Details
+                                                            <i class="ti-eye" aria-hidden="true"></i> Details
                                                         </a>
                                                         <a href="${pageContext.request.contextPath}/UpdateEmployeeServlet?id=${employee.employeeId}">
-                                                            Update
+                                                            <i class="ti-pencil" aria-hidden="true"></i> Update
                                                         </a>
                                                         <c:if test="${employee.status == 1}">
-                                                            <form action="${pageContext.request.contextPath}/DeleteEmployeeServlet"
+                                                            <form action="${pageContext.request.contextPath}/DisableEmployeeServlet"
                                                                   method="post"
                                                                   onsubmit="return confirm('Disable this employee account?');">
                                                                 <input type="hidden" name="employeeId"
                                                                        value="${employee.employeeId}">
-                                                                <button class="btn btn-secondary btn-sm" type="submit">
-                                                                    Disable
+                                                                <button class="btn btn-secondary" type="submit">
+                                                                    <i class="ti-lock" aria-hidden="true"></i> Disable
                                                                 </button>
                                                             </form>
                                                         </c:if>
+                                                        <form action="${pageContext.request.contextPath}/DeleteEmployeeServlet"
+                                                              method="post"
+                                                              onsubmit="return confirm('Permanently delete this employee? This action cannot be undone.');">
+                                                            <input type="hidden" name="employeeId"
+                                                                   value="${employee.employeeId}">
+                                                            <button class="btn btn-danger" type="submit">
+                                                                <i class="fa-solid fa-trash" aria-hidden="true"></i> Delete
+                                                            </button>
+                                                        </form>
                                                     </div>
                                                 </td>
                                             </tr>

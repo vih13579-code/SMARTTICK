@@ -43,7 +43,9 @@
                         <p>Manage supplier contacts and availability for stock imports.</p>
                     </div>
                     <button class="btn btn-primary" type="button" data-bs-toggle="modal"
-                            data-bs-target="#createSupplierModal">Create Supplier</button>
+                            data-bs-target="#createSupplierModal">
+                        <i class="ti-plus" aria-hidden="true"></i> Create Supplier
+                    </button>
                 </div>
 
                 <c:if test="${not empty sessionScope.supplierMessage}">
@@ -66,8 +68,12 @@
                             <input class="form-control" type="search" name="name"
                                    value="<c:out value='${searchValue}'/>"
                                    placeholder="Search name, Tax ID, or email">
-                            <button class="btn btn-primary" type="submit">Search</button>
-                            <a class="btn btn-secondary" href="${pageContext.request.contextPath}/Supplier">Reset</a>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="ti-search" aria-hidden="true"></i> Search
+                            </button>
+                            <a class="btn btn-secondary" href="${pageContext.request.contextPath}/Supplier">
+                                <i class="ti-reload" aria-hidden="true"></i> Reset
+                            </a>
                         </form>
                         <span class="text-muted">${suppliers.size()} supplier(s)</span>
                     </div>
@@ -100,7 +106,9 @@
                                         </td>
                                         <td>
                                             <div class="table-actions">
-                                                <a href="${pageContext.request.contextPath}/Supplier?id=${supplier.supplierId}">Details</a>
+                                                <a href="${pageContext.request.contextPath}/Supplier?id=${supplier.supplierId}">
+                                                    <i class="ti-eye" aria-hidden="true"></i> Details
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>

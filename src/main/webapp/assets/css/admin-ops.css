@@ -321,13 +321,28 @@ body.admin-ops-page .table-actions a {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    min-height: 34px;
-    padding: 7px 11px;
-    border-radius: 9px;
+    gap: 7px;
+    min-height: 38px;
+    padding: 9px 14px;
+    border-radius: 10px;
     background: rgba(61, 156, 255, .16);
     border: 1px solid rgba(61, 156, 255, .22);
     color: #9ccfff !important;
     font-weight: 800;
+}
+
+body.admin-ops-page .table-actions form {
+    display: inline-flex;
+    margin: 0;
+}
+
+body.admin-ops-page .table-actions .btn {
+    min-height: 38px;
+    margin: 0;
+}
+
+body.admin-ops-page .table-actions a.btn {
+    color: #fff !important;
 }
 
 body.admin-ops-page .table-actions a.danger {
@@ -366,8 +381,16 @@ body.admin-ops-page .btn-secondary {
     color: #fff !important;
 }
 
-body.admin-ops-page .btn-danger,
-body.admin-ops-page .btn-outline-danger {
+body.admin-ops-page .btn.btn-danger,
+body.admin-ops-page .btn.btn-outline-danger {
+    background: var(--dash-red) !important;
+    border-color: var(--dash-red) !important;
+    color: #fff !important;
+}
+
+body.admin-ops-page .btn.btn-danger:hover,
+body.admin-ops-page .btn.btn-danger:focus,
+body.admin-ops-page .btn.btn-danger:active {
     background: var(--dash-red) !important;
     border-color: var(--dash-red) !important;
     color: #fff !important;
@@ -1085,6 +1108,25 @@ body.employee-page .table-actions a:hover {
 }
 
 /* Voucher management */
+body.voucher-admin-page .voucher-assigned-wrapper {
+    margin-top: 24px;
+}
+
+body.voucher-admin-page .voucher-assigned-heading {
+    margin-bottom: 14px;
+}
+
+body.voucher-admin-page .voucher-assigned-heading h2 {
+    margin: 0 0 4px;
+    color: var(--dash-text);
+    font-size: 20px;
+}
+
+body.voucher-admin-page .voucher-assigned-heading p {
+    margin: 0;
+    color: var(--dash-muted);
+}
+
 body.voucher-admin-page .voucher-form-wrapper {
     width: min(920px, 100%) !important;
     max-width: 920px !important;

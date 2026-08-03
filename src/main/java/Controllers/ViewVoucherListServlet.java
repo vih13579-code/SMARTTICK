@@ -20,54 +20,57 @@ public class ViewVoucherListServlet extends HttpServlet {
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
+    // + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-       
-            
-            VoucherDAO vDAO = new VoucherDAO();
-            List<Voucher> ListVoucher = vDAO.getAllVoucher();
-            
-           
-            request.setAttribute("Vouchers", ListVoucher);
-            request.getRequestDispatcher("VoucherListView.jsp").forward(request, response);
-            
-     
+
+        VoucherDAO vDAO = new VoucherDAO();
+        // Create a VoucherDAO object to access voucher data from the database
+
+        List<Voucher> listVoucher = vDAO.getAllVoucher();
+        // Retrieve all vouchers from the database and store them in a list
+
+        request.setAttribute("Vouchers", listVoucher);
+        // Store the voucher list in the request with the attribute name "Vouchers"
+
+        request.getRequestDispatcher("VoucherListView.jsp").forward(request, response);
+        // Forward the request and response to VoucherListView.jsp to display the
+        // voucher list
 
     }
 
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
     }
 
     /**

@@ -117,7 +117,9 @@
                                 <form method="post" action="${pageContext.request.contextPath}/DeleteSupplier"
                                       onsubmit="return confirm('Delete this supplier? Existing import history will be preserved.');">
                                     <input type="hidden" name="id" value="${supplier.supplierId}">
-                                    <button class="btn btn-danger" type="submit">Delete Supplier</button>
+                                    <button class="btn btn-danger" type="submit">
+                                        <i class="fa-solid fa-trash" aria-hidden="true"></i> Delete Supplier
+                                    </button>
                                 </form>
                             </div>
                         </section>

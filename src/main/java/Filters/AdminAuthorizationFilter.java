@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
     "/DeleteProductServlet", "/SearchProduct", "/ShopDashboardServlet",
     "/CustomerListServlet", "/SearchCustomerServlet", "/ViewEmployeeServlet",
     "/AddEmployeeServlet", "/UpdateEmployeeServlet", "/SearchEmployeeServlet",
-    "/DeleteEmployeeServlet",
+    "/DeleteEmployeeServlet", "/DisableEmployeeServlet",
     "/ViewOrderListServlet", "/ViewOrderDetailServlet", "/UpdateOrderServlet",
     "/DeleteOrderServlet", "/PreviewDeleteOrderServlet", "/Supplier", "/SearchSupplier",
     "/CreateSupplier", "/UpdateSupplier", "/DeleteSupplier", "/ImportOrder",
@@ -28,7 +28,7 @@ import javax.servlet.http.HttpSession;
     "/ProductStatisticServlet", "/ViewVoucherListServlet", "/ViewVoucherDetailServlet",
     "/CreateVoucherServlet", "/UpdateVoucherServlet", "/DeleteVoucherServlet",
     "/SearchVoucherServlet",
-    "/AssignVoucherServlet", "/ViewListNewFeedbackServlet", "/ViewFeedbackForManagerServlet",
+    "/AssignVoucherServlet", "/UnassignVoucherServlet", "/ViewListNewFeedbackServlet", "/ViewFeedbackForManagerServlet",
     "/UpdateStatusCommentServlet", "/ReplyFeedbackServlet", "/UpdateReplyServlet",
     "/DeleteReplyServlet"
 })

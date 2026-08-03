@@ -204,6 +204,10 @@
             <servlet-class>Controllers.AssignVoucherServlet</servlet-class>
         </servlet>
     <servlet>
+            <servlet-name>UnassignVoucherServlet</servlet-name>
+            <servlet-class>Controllers.UnassignVoucherServlet</servlet-class>
+        </servlet>
+    <servlet>
             <servlet-name>PreviewDeleteOrderServlet</servlet-name>
             <servlet-class>Controllers.PreviewDeleteOrderServlet</servlet-class>
         </servlet>
@@ -214,6 +218,10 @@
     <servlet>
             <servlet-name>DeleteEmployeeServlet</servlet-name>
             <servlet-class>Controllers.DeleteEmployeeServlet</servlet-class>
+        </servlet>
+    <servlet>
+            <servlet-name>DisableEmployeeServlet</servlet-name>
+            <servlet-class>Controllers.DisableEmployeeServlet</servlet-class>
         </servlet>
     <servlet>
             <servlet-name>ViewEmployeeServlet</servlet-name>
@@ -250,6 +258,10 @@
     <servlet-mapping>
             <servlet-name>DeleteEmployeeServlet</servlet-name>
             <url-pattern>/DeleteEmployeeServlet</url-pattern>
+        </servlet-mapping>
+    <servlet-mapping>
+            <servlet-name>DisableEmployeeServlet</servlet-name>
+            <url-pattern>/DisableEmployeeServlet</url-pattern>
         </servlet-mapping>
     <servlet-mapping>
             <servlet-name>SearchEmployeeServlet</servlet-name>
@@ -466,6 +478,10 @@
     <servlet-mapping>
             <servlet-name>AssignVoucherServlet</servlet-name>
             <url-pattern>/AssignVoucherServlet</url-pattern>
+        </servlet-mapping>
+    <servlet-mapping>
+            <servlet-name>UnassignVoucherServlet</servlet-name>
+            <url-pattern>/UnassignVoucherServlet</url-pattern>
         </servlet-mapping>
     <servlet-mapping>
             <servlet-name>PreviewDeleteOrderServlet</servlet-name>

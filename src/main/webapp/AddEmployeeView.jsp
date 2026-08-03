@@ -8,6 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Add Employee | SMARTTICK</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/themes/dark.css">
     </head>
     <body class="admin-ops-page employee-page">
         <jsp:include page="SidebarDashboard.jsp"/>
@@ -122,6 +124,8 @@
                                value="${fn:escapeXml(not empty currentAvatar ? currentAvatar : 'defauft.png')}">
                         <input class="form-control smart-file-input" id="employeeAvatar"
                                type="file" name="txtAvatar"
+                               data-file-button-label="Choose file"
+                               data-file-empty-label="No file chosen"
                                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
                         <small>JPG, PNG, or WEBP. Maximum 5 MB.</small>
                     </div>
@@ -129,6 +133,8 @@
             </main>
         </div>
 
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+        <script src="${pageContext.request.contextPath}/assets/js/file-input.js"></script>
         <script>
             (function () {
                 const dateInput = document.getElementById("employeeCreatedDate");
@@ -137,6 +143,14 @@
                     const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
                     dateInput.value = localDate.toISOString().slice(0, 10);
                 }
+
+                flatpickr(dateInput, {
+                    dateFormat: "Y-m-d",
+                    altInput: true,
+                    altFormat: "m/d/Y",
+                    clickOpens: false,
+                    disableMobile: true
+                });
 
                 const fileInput = document.getElementById("employeeAvatar");
                 const preview = document.getElementById("avatarPreview");

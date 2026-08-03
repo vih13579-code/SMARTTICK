@@ -191,6 +191,63 @@ public class EmployeeDAO {
         return effectRows;
     }
 
+    public int deleteEmployee(int id) {
+        String selectSql = "SELECT RoleID FROM dbo.Employees WITH (UPDLOCK, ROWLOCK) "
+                + "WHERE EmployeeID = ?";
+        String clearImportHistorySql =
+                "UPDATE dbo.ImportStocks SET EmployeeID = NULL WHERE EmployeeID = ?";
+        String clearReplyHistorySql =
+                "UPDATE dbo.RatingReplies SET EmployeeID = NULL WHERE EmployeeID = ?";
+        String deleteSql = "DELETE FROM dbo.Employees "
+                + "WHERE EmployeeID = ? AND RoleID <> 1";
+
+        try (Connection connection = db.getConnection()) {
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
+                    statement.setInt(1, id);
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (!resultSet.next() || resultSet.getInt("RoleID") == 1) {
+                            connection.rollback();
+                            return 0;
+                        }
+                    }
+                }
+
+                try (PreparedStatement statement =
+                        connection.prepareStatement(clearImportHistorySql)) {
+                    statement.setInt(1, id);
+                    statement.executeUpdate();
+                }
+                try (PreparedStatement statement =
+                        connection.prepareStatement(clearReplyHistorySql)) {
+                    statement.setInt(1, id);
+                    statement.executeUpdate();
+                }
+
+                int affected;
+                try (PreparedStatement statement = connection.prepareStatement(deleteSql)) {
+                    statement.setInt(1, id);
+                    affected = statement.executeUpdate();
+                }
+                if (affected != 1) {
+                    throw new SQLException("Employee could not be deleted.");
+                }
+                connection.commit();
+                return affected;
+            } catch (SQLException ex) {
+                connection.rollback();
+                throw ex;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex);
+            return 0;
+        }
+    }
+
     public int checkEmailActive(String email) {
         String sql = "SELECT * FROM Employees WHERE Email = ? AND Status = 1";
         try {

@@ -135,7 +135,7 @@ public class AddressDAO {
      */
     public static void main(String[] args) {
         AddressDAO a = new AddressDAO();
-        a.addAddress(new Address(1, 0, "AP Tra coi, My Huong Commune, My Tu District, Soc Trang Province"));
+        a.addAddress(new Address(1, 0, "12 Hoa Binh Street, Ninh Kieu Ward, Can Tho City"));
     }
 
 }
