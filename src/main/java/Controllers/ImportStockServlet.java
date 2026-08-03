@@ -20,11 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
-/**
-*@author Thuongnvce181966
-*
-*/
 
+/**
+ *
+ * @author Thuongnvce181966
+ */
 public class ImportStockServlet extends HttpServlet {
 
     SupplierDAO sd = new SupplierDAO();
@@ -80,7 +80,7 @@ public class ImportStockServlet extends HttpServlet {
 //            s = null;
 //            sum = 0L;
 
-            response.sendRedirect("ImportOrder");
+            response.sendRedirect(request.getContextPath() + "/ImportOrder");
         } else {
             try {
 //                HttpSession session = request.getSession();
@@ -147,7 +147,7 @@ public class ImportStockServlet extends HttpServlet {
             session.setAttribute("supplier", s);
 
 //            request.setAttribute("supplier", s);
-            response.sendRedirect("ImportStock");
+            response.sendRedirect(request.getContextPath() + "/ImportStock");
         } else if (request.getParameter("productId") != null) {
             int pId = Integer.parseInt(request.getParameter("productId"));
             Product p = pd.getProductByID(pId);
@@ -275,6 +275,10 @@ public class ImportStockServlet extends HttpServlet {
 
                 HttpSession sess = request.getSession();
                 Employee e = (Employee) sess.getAttribute("employee");
+                if (e == null) {
+                    response.sendRedirect(request.getContextPath() + "/EmployeeLogin");
+                    return;
+                }
 
                 ImportOrder impOrder = new ImportOrder(e.getEmployeeId(), supTest.getSupplierId(), sum);
                 impOrder.setEmployeeId(e.getEmployeeId());
@@ -290,12 +294,12 @@ public class ImportStockServlet extends HttpServlet {
                 session.removeAttribute("selectedProducts");
                 session.removeAttribute("supplier");
 
-                response.sendRedirect("ImportOrder");
+                response.sendRedirect(request.getContextPath() + "/ImportOrder");
             } else {
                 System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 String error = "Please select full";
                 session.setAttribute("error", error);
-                response.sendRedirect("ImportStock");
+                response.sendRedirect(request.getContextPath() + "/ImportStock");
             }
         }
     }
