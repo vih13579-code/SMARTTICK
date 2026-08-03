@@ -17,7 +17,6 @@ import java.util.List;
  *
  * @author Thuongnvce181966
  */
-
 public class StockDAO {
 
     DBContext db = new DBContext();
