@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Thuongnvce181966
  */
-
 public class SearchSupplierServlet extends HttpServlet {
 
     /**
