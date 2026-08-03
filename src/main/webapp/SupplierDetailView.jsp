@@ -1,228 +1,188 @@
-<%@page import="Models.Supplier"%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Supplier Detail</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Supplier Details | SMARTTICK</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/smarttick.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ops.css?v=20260729-admin-fix">
         <style>
-            body {
-                display: flex;
+            .supplier-details {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
             }
-            .sidebar {
-                width: 250px;
-                height: 97vh;
-                background: #FFFFFF;
-                color: black;
-                padding-top: 20px;
-                box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-                border-radius: 10px;
-                margin-top: 10px;
+            .supplier-detail {
+                padding: 16px;
+                border: 1px solid var(--dash-line);
+                border-radius: 12px;
+                background: var(--dash-surface-2);
             }
-            .sidebar a {
-                color: #7A7D90;
-                text-decoration: none;
-                padding: 10px;
+            .supplier-detail.address {
+                grid-column: 1 / -1;
+            }
+            .supplier-detail small {
                 display: block;
+                margin-bottom: 5px;
+                color: var(--dash-muted);
             }
-            .sidebar a:hover {
-                background: #7D69FF;
-                color: white;
-                width: 90%;
-                font-weight: bold;
-                border-radius: 10px;
+            .supplier-detail strong {
+                color: var(--dash-text);
+                overflow-wrap: anywhere;
             }
-            .content {
-                flex-grow: 1;
-                padding: 12px;
+            .supplier-actions {
                 display: flex;
-                flex-direction: column;
-                gap: 20px;
-                margin-left: 250px;
-            }
-            .header {
-                display: flex;
-                justify-content: right;
-                align-items: center;
-                padding: 10px;
-                background: #FFFFFF;
-                box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-                border-radius: 10px;
-                height: 85px;
-            }
-            .icon {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                object-fit: cover;
-            }
-            .table-container {
-                background: white;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-                width: 100%; /* Kéo dài bảng ra hết chiều ngang trống */
-            }
-            .table th {
-                background: #7D69FF;
-                color: white;
-                width: 20%;
-                text-align: left;
-            }
-            .btn-action {
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-                text-decoration: none;
+                flex-wrap: wrap;
+                gap: 10px;
                 margin-top: 20px;
             }
-            .btn-action:hover {
-                background-color: #5a4edc;
+            @media (max-width: 680px) {
+                .supplier-details {
+                    grid-template-columns: 1fr;
+                }
+                .supplier-detail.address {
+                    grid-column: auto;
+                }
             }
         </style>
     </head>
-    <body>
-        <jsp:include page="SidebarDashboard.jsp"></jsp:include>
-            <div class="content">
-            <jsp:include page="HeaderDashboard.jsp"></jsp:include>
+    <body class="admin-ops-page">
+        <div class="dashboard-shell">
+            <jsp:include page="SidebarDashboard.jsp"/>
+            <main class="dash-main">
+                <jsp:include page="HeaderDashboard.jsp"/>
 
-                <div class="table-container">
-                    <h3>Supplier Details</h3>
-                    <table class="table table-bordered">
-                    <c:choose>
-                        <c:when test="${supplier != null}">
-                            <tr>
-                                <th>Tax ID</th>
-                                <td>${supplier.getTaxId()}</td>
-                            </tr>
-                            <tr>
-                                <th>Name</th>
-                                <td style="word-wrap: break-word; white-space: normal; max-width: 200px;">${supplier.getName()}</td>
-                            </tr>
-                            <tr>
-                                <th>Phone Number</th>
-                                <td>${supplier.getPhoneNumber()}</td>
-                            </tr>
-                            <tr>
-                                <th>Email</th>
-                                <td>${supplier.getEmail()}</td>
-                            </tr>
-                            <tr>
-                                <th>Address</th>
-                                <td>${supplier.getAddress()}</td>
-                            </tr>
-                            <tr>
-                                <th>Status</th>
-                                <td>
-                                    <span class="badge ${supplier.getActivate() == 1 ? 'bg-success' : 'bg-danger'}">
-                                        ${supplier.getStatus()}
-                                    </span>
-                                </td>
-                            </tr>
-                        </c:when>
-                        <c:otherwise>
-                            <tr>
-                                <td colspan="2" class="text-danger text-center">Supplier not found!</td>
-                            </tr>
-                        </c:otherwise>
-                    </c:choose>
-                </table>
-                <button class="btn btn-primary btn-action" data-bs-toggle="modal" data-bs-target="#updateSupplierModal" style=" height: auto">Update</button>
-                <button class="btn btn-danger btn-action" id="deleteBtn" data-bs-toggle="modal" data-bs-target="#deleteSupplierModal" style="height: auto">Delete</button>
-
-                <!-- Start Error Modal -->
-                <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="errorModalLabel">Error</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p id="errorMessage"></p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            </div>
-                        </div>
+                <div class="admin-page-title">
+                    <div>
+                        <h1>Supplier Details</h1>
+                        <p>Review and update supplier contact information.</p>
                     </div>
+                    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/Supplier">Back to Suppliers</a>
                 </div>
-                <!-- End Error Modal -->
 
-                <!--          Start Modal Update Supplier            -->
-                <c:set var="s" value="${supplier}"/>
-                <div class="modal fade" id="updateSupplierModal" tabindex="-1" aria-labelledby="updateSupplierModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="updateSupplierModalLabel">Edit Supplier</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <c:if test="${not empty sessionScope.supplierMessage}">
+                    <div class="alert alert-success" role="alert">
+                        <c:out value="${sessionScope.supplierMessage}"/>
+                    </div>
+                    <c:remove var="supplierMessage" scope="session"/>
+                </c:if>
+                <c:if test="${not empty sessionScope.supplierError}">
+                    <div class="alert alert-danger" role="alert">
+                        <c:out value="${sessionScope.supplierError}"/>
+                    </div>
+                    <c:remove var="supplierError" scope="session"/>
+                </c:if>
+
+                <c:choose>
+                    <c:when test="${empty supplier}">
+                        <section class="panel empty-state">Supplier was not found.</section>
+                    </c:when>
+                    <c:otherwise>
+                        <section class="panel">
+                            <div class="supplier-details">
+                                <div class="supplier-detail">
+                                    <small>Tax ID</small>
+                                    <strong><c:out value="${supplier.taxId}"/></strong>
+                                </div>
+                                <div class="supplier-detail">
+                                    <small>Company Name</small>
+                                    <strong><c:out value="${supplier.name}"/></strong>
+                                </div>
+                                <div class="supplier-detail">
+                                    <small>Phone</small>
+                                    <strong><c:out value="${supplier.phoneNumber}"/></strong>
+                                </div>
+                                <div class="supplier-detail">
+                                    <small>Email</small>
+                                    <strong><c:out value="${supplier.email}"/></strong>
+                                </div>
+                                <div class="supplier-detail address">
+                                    <small>Address</small>
+                                    <strong><c:out value="${supplier.address}"/></strong>
+                                </div>
+                                <div class="supplier-detail">
+                                    <small>Status</small>
+                                    <span class="badge ${supplier.activate == 1 ? 'bg-success' : 'bg-danger'}">
+                                        ${supplier.activate == 1 ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
                             </div>
-                            <div class="modal-body">
-                                <form id="updateSupplierForm" method="POST" action="UpdateSupplier?id=${s.getSupplierId()}">
-                                    <div class="mb-3">
-                                        <label for="taxId" class="form-label">Tax ID</label>
-                                        <input value="${s.getTaxId()}" name="taxNumber" type="tel" class="form-control" id="taxId" pattern="[0-9]{10}" required minlength="10" maxlength="10" title="Tax ID must contain only numbers and be 10 digits">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="companyName" class="form-label">Company Name</label>
-                                        <input value="${s.getName()}" name="name" type="text" class="form-control" id="companyName" required maxlength="255">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input value="${s.getEmail()}" name="email" type="email" class="form-control" id="email" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="phoneNumber" class="form-label">Phone Number</label>
-                                        <input value="${s.getPhoneNumber()}" name="phone" type="tel" class="form-control" id="phoneNumber" pattern="[0-9]{10}" required minlength="10" maxlength="10" title="Phone number must contain only numbers and be 10 digits">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="address" class="form-label">Address</label>
-                                        <input value="${s.getAddress()}" name="address" type="text" class="form-control" id="address" required pattern="^[^,]+,\s[^,]+,\s[^,]+$" title="Address must have 3 parts separated by commas (e.g., 123 Tech Street, District 1, Ho Chi Minh City)">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="status" class="form-label">Status</label>
-                                        <select name="status" id="status" class="form-select">
-                                            <option value="1" ${s.getActivate() == 1 ? 'selected' : ''}>Active</option>
-                                            <option value="0" ${s.getActivate() == 0 ? 'selected' : ''}>Inactive</option>
-                                        </select>
-                                    </div>
-                                    <button type="submit" class="btn btn-success">Save</button>
+
+                            <div class="supplier-actions">
+                                <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#updateSupplierModal">Update Supplier</button>
+                                <form method="post" action="${pageContext.request.contextPath}/DeleteSupplier"
+                                      onsubmit="return confirm('Delete this supplier? Existing import history will be preserved.');">
+                                    <input type="hidden" name="id" value="${supplier.supplierId}">
+                                    <button class="btn btn-danger" type="submit">Delete Supplier</button>
                                 </form>
                             </div>
+                        </section>
+                    </c:otherwise>
+                </c:choose>
+            </main>
+        </div>
+
+        <c:if test="${not empty supplier}">
+            <div class="modal fade" id="updateSupplierModal" tabindex="-1"
+                 aria-labelledby="updateSupplierModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title fs-5" id="updateSupplierModalLabel">Update Supplier</h2>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+                        <form method="post" action="${pageContext.request.contextPath}/UpdateSupplier">
+                            <input type="hidden" name="id" value="${supplier.supplierId}">
+                            <div class="modal-body">
+                                <div class="form-two">
+                                    <label for="taxId">Tax ID
+                                        <input id="taxId" name="taxNumber" type="text" class="form-control"
+                                               value="<c:out value='${supplier.taxId}'/>"
+                                               pattern="[A-Za-z0-9-]{3,20}" minlength="3" maxlength="20"
+                                               title="Use 3 to 20 letters, numbers, or hyphens." required>
+                                    </label>
+                                    <label for="companyName">Company Name
+                                        <input id="companyName" name="name" type="text" class="form-control"
+                                               value="<c:out value='${supplier.name}'/>"
+                                               minlength="2" maxlength="255" required>
+                                    </label>
+                                    <label for="supplierEmail">Email
+                                        <input id="supplierEmail" name="email" type="email" class="form-control"
+                                               value="<c:out value='${supplier.email}'/>" maxlength="254" required>
+                                    </label>
+                                    <label for="phoneNumber">Phone
+                                        <input id="phoneNumber" name="phone" type="tel" class="form-control"
+                                               value="<c:out value='${supplier.phoneNumber}'/>"
+                                               pattern="0[0-9]{9}" maxlength="10"
+                                               title="Use a 10-digit phone number starting with 0." required>
+                                    </label>
+                                    <label class="field-wide" for="supplierAddress">Address
+                                        <input id="supplierAddress" name="address" type="text" class="form-control"
+                                               value="<c:out value='${supplier.address}'/>"
+                                               minlength="3" maxlength="255" required>
+                                    </label>
+                                    <label for="supplierStatus">Status
+                                        <select id="supplierStatus" name="status" class="form-select" required>
+                                            <option value="1" ${supplier.activate == 1 ? 'selected' : ''}>Active</option>
+                                            <option value="0" ${supplier.activate == 0 ? 'selected' : ''}>Inactive</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <!--          End Modal Update Supplier            -->
             </div>
-        </div>
-        <%
-            String errorMessage = (String) session.getAttribute("error");
-            if (errorMessage != null) {
-        %>
-        <script>
-            document.getElementById("errorMessage").innerText = "<%= errorMessage%>";
-            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-            errorModal.show();
-        </script>
-        <%
-                session.removeAttribute("error");
-            }
-        %>
-        <script>
-            document.getElementById("deleteBtn").addEventListener("click", function (event) {
-                var confirmDelete = confirm("Are you sure you want to deleted this supplier ?");
-                if (!confirmDelete) {
-                    event.preventDefault();
-                } else {
-                    window.location.href = "DeleteSupplier?id=${s.getSupplierId()}";
-                }
-            });
-        </script>
+        </c:if>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
