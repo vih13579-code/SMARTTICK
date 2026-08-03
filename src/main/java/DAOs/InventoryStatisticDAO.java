@@ -12,7 +12,6 @@ import java.util.ArrayList;
  *
  * @author Thuongnvce181966
  */
-
 public class InventoryStatisticDAO {
 
     public ArrayList<InventoryStatistic> getInventoryByCategory(String categoryName) {
