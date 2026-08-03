@@ -1,4 +1,4 @@
-
+﻿
 <%@page import="java.util.List"%>
 <%@page import="DAOs.SupplierDAO"%>
 <%@page import="Models.Supplier"%>
@@ -117,16 +117,18 @@
 
         </style>
     </head>
-    <body>
+    <body class="admin-ops-page">
         <jsp:include page="SidebarDashboard.jsp"></jsp:include>
             <div class="content">
             <jsp:include page="HeaderDashboard.jsp"></jsp:include>
+            <div class="admin-page-title">
+                <div>
+                    <h1>Warehouse</h1>
+                    <p>Review products imported into stock today.</p>
+                </div>
+            </div>
 
-                <div class="table-container" style="margin-top: 20px">
-                    <div>
-                        <h3>Imported Products Today</h3>
-                    </div>
-
+            <div class="table-container" style="margin-top: 20px">
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -153,3 +155,4 @@
 
     </body>
 </html>
+
