@@ -16,7 +16,6 @@ import java.util.ArrayList;
  *
  * @author Thuongnvce181966
  */
-
 public class StatisticDAO {
 
     DBContext db = new DBContext();
