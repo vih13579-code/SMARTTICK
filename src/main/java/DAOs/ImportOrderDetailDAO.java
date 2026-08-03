@@ -17,7 +17,6 @@ import java.util.ArrayList;
  *
  * @author Thuongnvce181966
  */
-
 public class ImportOrderDetailDAO {
 
     DBContext db = new DBContext();
@@ -97,13 +96,14 @@ public class ImportOrderDetailDAO {
     }
 
     public int updateDetailById(ImportOrderDetail d) {
-        String query = "UPDATE ImportStockDetails SET ImportQuantity = ?, ImportPrice = ? WHERE ProductID = ?";
+        String query = "UPDATE ImportStockDetails SET ImportQuantity = ?, ImportPrice = ? WHERE ImportID = ? AND ProductID = ?";
 
         try {
             PreparedStatement ps = connector.prepareStatement(query);
             ps.setInt(1, d.getQuantity());
             ps.setLong(2, d.getImportPrice());
-            ps.setInt(3, d.getProduct().getProductId());
+            ps.setInt(3, d.getIoid());
+            ps.setInt(4, d.getProduct().getProductId());
 
             return ps.executeUpdate();
         } catch (SQLException e) {
@@ -130,7 +130,8 @@ public class ImportOrderDetailDAO {
     }
 
     public long calculateTotalPrice(int importId) {
-        String query = "SELECT SUM(ImportPrice) AS TotalPrice FROM ImportStockDetails WHERE ImportID = ?";
+        String query = "SELECT COALESCE(SUM(CAST(ImportQuantity AS BIGINT) * ImportPrice), 0) AS TotalPrice "
+                + "FROM ImportStockDetails WHERE ImportID = ?";
 
         try {
             PreparedStatement ps = connector.prepareStatement(query);
@@ -138,7 +139,7 @@ public class ImportOrderDetailDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return rs.getInt("TotalPrice");
+                return rs.getLong("TotalPrice");
             }
         } catch (SQLException e) {
             System.out.println(e);
