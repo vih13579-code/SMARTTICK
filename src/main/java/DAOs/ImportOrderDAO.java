@@ -24,7 +24,6 @@ import java.util.Map;
  *
  * @author Thuongnvce181966
  */
-
 public class ImportOrderDAO {
 
     DBContext db = new DBContext();
@@ -168,6 +167,9 @@ public class ImportOrderDAO {
 
     public ImportOrder getImportOrderDetailsByID(int id) {
         ImportOrder io = getImportOrderByID(id);
+        if (io == null) {
+            return null;
+        }
 
         String query = "SELECT P.Model, P.FullName, D.ImportID, D.ImportQuantity, D.ImportPrice, P.ProductID FROM ImportStockDetails D JOIN Products P ON D.ProductID = P.ProductID WHERE D.ImportID = ?";
 
@@ -225,12 +227,13 @@ public class ImportOrderDAO {
         return -1;
     }
 
-    public int updateImportOrderSupplier(int supplierId) {
-        String query = "UPDATE ImportStocks SET SupplierID = ?";
+    public int updateImportOrderSupplier(int importId, int supplierId) {
+        String query = "UPDATE ImportStocks SET SupplierID = ? WHERE ImportID = ?";
         try {
-            PreparedStatement ps = connector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connector.prepareStatement(query);
 
             ps.setInt(1, supplierId);
+            ps.setInt(2, importId);
 
             return ps.executeUpdate();
 
@@ -238,6 +241,272 @@ public class ImportOrderDAO {
             System.out.println(e);
         }
         return -1;
+    }
+
+    public boolean updateImportOrderDetail(int importId, int productId, int quantity, long importPrice) {
+        boolean originalAutoCommit;
+        try {
+            originalAutoCommit = connector.getAutoCommit();
+        } catch (SQLException ex) {
+            return false;
+        }
+
+        try {
+            connector.setAutoCommit(false);
+            int oldQuantity;
+            boolean completed;
+            String select = "SELECT d.ImportQuantity, i.Completed FROM ImportStockDetails d WITH (UPDLOCK, ROWLOCK) "
+                    + "JOIN ImportStocks i ON i.ImportID = d.ImportID "
+                    + "WHERE d.ImportID = ? AND d.ProductID = ?";
+            try ( PreparedStatement statement = connector.prepareStatement(select)) {
+                statement.setInt(1, importId);
+                statement.setInt(2, productId);
+                try ( ResultSet result = statement.executeQuery()) {
+                    if (!result.next()) {
+                        connector.rollback();
+                        return false;
+                    }
+                    oldQuantity = result.getInt("ImportQuantity");
+                    completed = result.getBoolean("Completed");
+                }
+            }
+
+            int stockDelta = quantity - oldQuantity;
+            if (completed && stockDelta != 0 && !adjustProductStock(productId, stockDelta)) {
+                connector.rollback();
+                return false;
+            }
+
+            String update = "UPDATE ImportStockDetails SET ImportQuantity = ?, ImportPrice = ? "
+                    + "WHERE ImportID = ? AND ProductID = ?";
+            try ( PreparedStatement statement = connector.prepareStatement(update)) {
+                statement.setInt(1, quantity);
+                statement.setLong(2, importPrice);
+                statement.setInt(3, importId);
+                statement.setInt(4, productId);
+                if (statement.executeUpdate() != 1) {
+                    connector.rollback();
+                    return false;
+                }
+            }
+
+            updateImportTotal(importId);
+            connector.commit();
+            return true;
+        } catch (SQLException ex) {
+            rollbackQuietly();
+            System.out.println(ex);
+            return false;
+        } finally {
+            restoreAutoCommit(originalAutoCommit);
+        }
+    }
+
+    public boolean addImportOrderDetail(int importId, int productId, int quantity, long importPrice) {
+        boolean originalAutoCommit;
+        try {
+            originalAutoCommit = connector.getAutoCommit();
+        } catch (SQLException ex) {
+            return false;
+        }
+
+        try {
+            connector.setAutoCommit(false);
+            Boolean completed = getCompletedForUpdate(importId);
+            if (completed == null) {
+                connector.rollback();
+                return false;
+            }
+
+            String insert = "INSERT INTO ImportStockDetails (ImportID, ProductID, ImportQuantity, ImportPrice) "
+                    + "VALUES (?, ?, ?, ?)";
+            try ( PreparedStatement statement = connector.prepareStatement(insert)) {
+                statement.setInt(1, importId);
+                statement.setInt(2, productId);
+                statement.setInt(3, quantity);
+                statement.setLong(4, importPrice);
+                if (statement.executeUpdate() != 1) {
+                    connector.rollback();
+                    return false;
+                }
+            }
+
+            if (completed && !adjustProductStock(productId, quantity)) {
+                connector.rollback();
+                return false;
+            }
+            updateImportTotal(importId);
+            connector.commit();
+            return true;
+        } catch (SQLException ex) {
+            rollbackQuietly();
+            System.out.println(ex);
+            return false;
+        } finally {
+            restoreAutoCommit(originalAutoCommit);
+        }
+    }
+
+    public boolean deleteImportOrderDetail(int importId, int productId) {
+        boolean originalAutoCommit;
+        try {
+            originalAutoCommit = connector.getAutoCommit();
+        } catch (SQLException ex) {
+            return false;
+        }
+
+        try {
+            connector.setAutoCommit(false);
+            int quantity;
+            boolean completed;
+            String select = "SELECT d.ImportQuantity, i.Completed FROM ImportStockDetails d WITH (UPDLOCK, ROWLOCK) "
+                    + "JOIN ImportStocks i ON i.ImportID = d.ImportID "
+                    + "WHERE d.ImportID = ? AND d.ProductID = ?";
+            try ( PreparedStatement statement = connector.prepareStatement(select)) {
+                statement.setInt(1, importId);
+                statement.setInt(2, productId);
+                try ( ResultSet result = statement.executeQuery()) {
+                    if (!result.next()) {
+                        connector.rollback();
+                        return false;
+                    }
+                    quantity = result.getInt("ImportQuantity");
+                    completed = result.getBoolean("Completed");
+                }
+            }
+
+            if (completed && !adjustProductStock(productId, -quantity)) {
+                connector.rollback();
+                return false;
+            }
+
+            String delete = "DELETE FROM ImportStockDetails WHERE ImportID = ? AND ProductID = ?";
+            try ( PreparedStatement statement = connector.prepareStatement(delete)) {
+                statement.setInt(1, importId);
+                statement.setInt(2, productId);
+                if (statement.executeUpdate() != 1) {
+                    connector.rollback();
+                    return false;
+                }
+            }
+            updateImportTotal(importId);
+            connector.commit();
+            return true;
+        } catch (SQLException ex) {
+            rollbackQuietly();
+            System.out.println(ex);
+            return false;
+        } finally {
+            restoreAutoCommit(originalAutoCommit);
+        }
+    }
+
+    public boolean deleteImportOrder(int importId) {
+        boolean originalAutoCommit;
+        try {
+            originalAutoCommit = connector.getAutoCommit();
+        } catch (SQLException ex) {
+            return false;
+        }
+
+        try {
+            connector.setAutoCommit(false);
+            Boolean completed = getCompletedForUpdate(importId);
+            if (completed == null) {
+                connector.rollback();
+                return false;
+            }
+
+            if (completed) {
+                int detailCount;
+                try ( PreparedStatement countStatement = connector.prepareStatement(
+                        "SELECT COUNT(*) FROM ImportStockDetails WHERE ImportID = ?")) {
+                    countStatement.setInt(1, importId);
+                    try ( ResultSet result = countStatement.executeQuery()) {
+                        result.next();
+                        detailCount = result.getInt(1);
+                    }
+                }
+
+                String subtractStock = "UPDATE p SET p.Stock = p.Stock - d.ImportQuantity "
+                        + "FROM Products p JOIN ImportStockDetails d ON p.ProductID = d.ProductID "
+                        + "WHERE d.ImportID = ? AND p.Stock >= d.ImportQuantity";
+                try ( PreparedStatement statement = connector.prepareStatement(subtractStock)) {
+                    statement.setInt(1, importId);
+                    if (statement.executeUpdate() != detailCount) {
+                        connector.rollback();
+                        return false;
+                    }
+                }
+            }
+
+            try ( PreparedStatement statement = connector.prepareStatement(
+                    "DELETE FROM ImportStockDetails WHERE ImportID = ?")) {
+                statement.setInt(1, importId);
+                statement.executeUpdate();
+            }
+            try ( PreparedStatement statement = connector.prepareStatement(
+                    "DELETE FROM ImportStocks WHERE ImportID = ?")) {
+                statement.setInt(1, importId);
+                if (statement.executeUpdate() != 1) {
+                    connector.rollback();
+                    return false;
+                }
+            }
+
+            connector.commit();
+            return true;
+        } catch (SQLException ex) {
+            rollbackQuietly();
+            System.out.println(ex);
+            return false;
+        } finally {
+            restoreAutoCommit(originalAutoCommit);
+        }
+    }
+
+    private Boolean getCompletedForUpdate(int importId) throws SQLException {
+        String query = "SELECT Completed FROM ImportStocks WITH (UPDLOCK, ROWLOCK) WHERE ImportID = ?";
+        try ( PreparedStatement statement = connector.prepareStatement(query)) {
+            statement.setInt(1, importId);
+            try ( ResultSet result = statement.executeQuery()) {
+                return result.next() ? result.getBoolean("Completed") : null;
+            }
+        }
+    }
+
+    private boolean adjustProductStock(int productId, int delta) throws SQLException {
+        String query = "UPDATE Products SET Stock = Stock + ? WHERE ProductID = ? AND Stock + ? >= 0";
+        try ( PreparedStatement statement = connector.prepareStatement(query)) {
+            statement.setInt(1, delta);
+            statement.setInt(2, productId);
+            statement.setInt(3, delta);
+            return statement.executeUpdate() == 1;
+        }
+    }
+
+    private void updateImportTotal(int importId) throws SQLException {
+        String query = "UPDATE ImportStocks SET TotalCost = COALESCE((SELECT SUM(CAST(ImportQuantity AS BIGINT) * ImportPrice) "
+                + "FROM ImportStockDetails WHERE ImportID = ?), 0) WHERE ImportID = ?";
+        try ( PreparedStatement statement = connector.prepareStatement(query)) {
+            statement.setInt(1, importId);
+            statement.setInt(2, importId);
+            statement.executeUpdate();
+        }
+    }
+
+    private void rollbackQuietly() {
+        try {
+            connector.rollback();
+        } catch (SQLException ignored) {
+        }
+    }
+
+    private void restoreAutoCommit(boolean originalAutoCommit) {
+        try {
+            connector.setAutoCommit(originalAutoCommit);
+        } catch (SQLException ignored) {
+        }
     }
 
     public int importStock(List<Map<String, String>> l) {
