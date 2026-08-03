@@ -1,95 +1,87 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Controllers;
 
 import DAOs.SupplierDAO;
 import Models.Supplier;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 
 /**
  *
  * @author Thuongnvce181966
  */
-
 public class CreateSupplierServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        SupplierDAO sd = new SupplierDAO();
+        request.setCharacterEncoding("UTF-8");
 
-        String taxId = request.getParameter("taxNumber");
-        String companyName = request.getParameter("name");
-        String email = request.getParameter("email");
-        String phoneNumber = request.getParameter("phone");
-        String address = request.getParameter("address");
-        String status = request.getParameter("status");
+        String taxId = trim(request.getParameter("taxNumber"));
+        String name = trim(request.getParameter("name"));
+        String email = trim(request.getParameter("email"));
+        String phone = trim(request.getParameter("phone"));
+        String address = trim(request.getParameter("address"));
+        Integer status = parseStatus(request.getParameter("status"));
 
-        System.out.println("stat" + status);
-
-        Supplier s = new Supplier(0, taxId, companyName, email, phoneNumber, address, LocalDateTime.now(), LocalDateTime.now(), 0, Integer.parseInt(status));
-
-        if (sd.createSupplier(s) != 0) {
-            response.sendRedirect("Supplier");
-        } else {
-            request.getSession().setAttribute("error", "There is the same supplier.");
-            response.sendRedirect("Supplier");
+        String error = validate(taxId, name, email, phone, address, status);
+        SupplierDAO supplierDAO = new SupplierDAO();
+        if (error == null && supplierDAO.taxIdExists(taxId, 0)) {
+            error = "Tax ID is already used by another supplier.";
         }
 
+        if (error != null) {
+            request.getSession().setAttribute("supplierError", error);
+            response.sendRedirect(request.getContextPath() + "/Supplier");
+            return;
+        }
+
+        Supplier supplier = new Supplier(0, taxId, name, email, phone, address,
+                LocalDateTime.now(), LocalDateTime.now(), 0, status);
+        if (supplierDAO.createSupplier(supplier) == 0) {
+            request.getSession().setAttribute("supplierError",
+                    "Supplier could not be created. Please verify the entered information.");
+        } else {
+            request.getSession().setAttribute("supplierMessage", "Supplier created successfully.");
+        }
+        response.sendRedirect(request.getContextPath() + "/Supplier");
     }
 
-    /**
-     * Returns the servlet description.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "SMARTTICK servlet";
-    }// </editor-fold>
+    private String validate(String taxId, String name, String email, String phone,
+            String address, Integer status) {
+        if (taxId == null || !taxId.matches("[A-Za-z0-9-]{3,20}")) {
+            return "Tax ID must contain 3 to 20 letters, numbers, or hyphens.";
+        }
+        if (name == null || name.length() < 2 || name.length() > 255) {
+            return "Company name must contain between 2 and 255 characters.";
+        }
+        if (email == null || email.length() > 254
+                || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            return "Please enter a valid email address.";
+        }
+        if (phone == null || !phone.matches("0[0-9]{9}")) {
+            return "Phone number must contain 10 digits and start with 0.";
+        }
+        if (address == null || address.length() < 3 || address.length() > 255) {
+            return "Address must contain between 3 and 255 characters.";
+        }
+        return status == null ? "Please select a valid status." : null;
+    }
 
+    private Integer parseStatus(String value) {
+        return "0".equals(value) ? 0 : ("1".equals(value) ? 1 : null);
+    }
+
+    private String trim(String value) {
+        return value == null ? null : value.trim();
+    }
 }
