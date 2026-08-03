@@ -11,7 +11,6 @@ import java.util.Locale;
  *
  * @author Thuongnvce181966
  */
-
 public class ImportOrderDetail {
 
     private int ioid;
